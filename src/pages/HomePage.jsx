@@ -1,6 +1,15 @@
-// HomePage.jsx
+import HeroSection from "../components/home/HeroSection";
+import AboutSection from "../components/home/AboutSection";
+import ServicesSection from "../components/home/ServicesSection";
+
 function HomePage() {
-  return <h1>Home Page</h1>;
+  return (
+    <>
+      <HeroSection />
+      <AboutSection />
+      <ServicesSection />
+    </>
+  );
 }
 
 export default HomePage;
