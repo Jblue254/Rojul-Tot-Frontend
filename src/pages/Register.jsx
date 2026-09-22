@@ -1,6 +1,36 @@
 import { Link } from "react-router-dom";
+import { registerUser } from "../api/auth";
+import { useNavigate } from "react-router-dom";
+
 
 function Register() {
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
+  const [passwordConfirm, setPasswordConfirm] = useState("");
+  const navigate = useNavigate();
+
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  try {
+    await registerUser({
+      full_name: fullName,
+      email,
+      phone,
+      password,
+      password_confirm: passwordConfirm,
+    });
+
+    alert("Registration successful");
+    navigate("/login");
+  } catch (error) {
+    console.error(error);
+    alert("Registration failed");
+  }
+};
+
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center px-6">
       <div className="bg-white shadow-xl rounded-3xl p-8 w-full max-w-md">
@@ -15,7 +45,7 @@ function Register() {
           </p>
         </div>
 
-        <form className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-5">
 
           <div>
             <label className="block mb-2 font-medium">
@@ -26,6 +56,8 @@ function Register() {
               type="text"
               placeholder="Enter your full name"
               className="w-full border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#1495CC]"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
             />
           </div>
 
@@ -38,6 +70,21 @@ function Register() {
               type="email"
               placeholder="Enter your email"
               className="w-full border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#1495CC]"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="block mb-2 font-medium">
+              Phone Number
+            </label>
+
+            <input
+              type="text"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="Enter phone number"
+              className="w-full border rounded-xl px-4 py-3"
             />
           </div>
 
@@ -50,6 +97,8 @@ function Register() {
               type="password"
               placeholder="Create a password"
               className="w-full border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#1495CC]"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
             />
           </div>
 
@@ -62,6 +111,8 @@ function Register() {
               type="password"
               placeholder="Confirm your password"
               className="w-full border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#1495CC]"
+              value={passwordConfirm}
+              onChange={(e) => setPasswordConfirm(e.target.value)}
             />
           </div>
 
