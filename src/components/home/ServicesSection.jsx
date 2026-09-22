@@ -1,21 +1,31 @@
+import {Wrench,DraftingCompass,Building2} from "lucide-react";
+
+
 function ServicesSection() {
-  const services = [
-    {
-      title: "Machinery Rentals",
-      description:
-        "Access reliable construction machinery for projects of any size.",
-    },
-    {
-      title: "Architectural Drawings",
-      description:
-        "Professional building plans and architectural designs.",
-    },
-    {
-      title: "Construction Services",
-      description:
-        "Expert construction solutions from planning to completion.",
-    },
-  ];
+const Icon = services.icon;
+
+<Icon className="w-12 h-12 text-[#1495CC] mb-6" />
+const services = [
+  {
+    title: "Machinery Rentals",
+    description:
+      "Access reliable construction machinery for projects of any size.",
+    icon: Wrench,
+  },
+  {
+    title: "Architectural Drawings",
+    description:
+      "Professional building plans and architectural designs.",
+    icon: DraftingCompass,
+  },
+  {
+    title: "Construction Services",
+    description:
+      "Expert construction solutions from planning to completion.",
+    icon: Building2,
+  },
+];
+
 
   return (
     <section className="py-24 bg-white">

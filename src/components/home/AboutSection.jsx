@@ -1,4 +1,4 @@
-// import aboutImage from "../../assets/about.jpg"; // change to your image
+
 
 function AboutSection() {
   return (
@@ -8,11 +8,11 @@ function AboutSection() {
 
           {/* Image */}
           <div>
-            <img
-              src={aboutImage}
-              alt="Rojul Tot Construction"
-              className="rounded-3xl shadow-xl w-full"
-            />
+          <img
+            src="/images/about-us-1.jpg"
+            alt="About Us"
+            className="rounded-3xl shadow-xl w-full"
+          />
           </div>
 
           {/* Content */}
