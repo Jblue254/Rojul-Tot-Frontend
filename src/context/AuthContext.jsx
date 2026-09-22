@@ -1,26 +1,49 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
+import { getProfile } from "../api/auth";
 
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const login = (userData) => {
-    setUser(userData);
-  };
+  useEffect(() => {
+    const loadUser = async () => {
+      const token = localStorage.getItem("access");
+
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const response = await getProfile();
+        setUser(response.data);
+      } catch (error) {
+        console.error(error);
+        localStorage.removeItem("access");
+        localStorage.removeItem("refresh");
+      }
+
+      setLoading(false);
+    };
+
+    loadUser();
+  }, []);
 
   const logout = () => {
-    setUser(null);
     localStorage.removeItem("access");
     localStorage.removeItem("refresh");
+    setUser(null);
   };
 
   return (
     <AuthContext.Provider
       value={{
         user,
-        login,
+        setUser,
         logout,
+        loading,
       }}
     >
       {children}
