@@ -1,6 +1,41 @@
 import { Link } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { loginUser } from "../api/auth";
+
 
 function Login() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
+  const { login } = useAuth();
+
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  try {
+    const response = await loginUser({
+      email,
+      password,
+    });
+
+    localStorage.setItem(
+      "access",
+      response.data.access
+    );
+
+    localStorage.setItem(
+      "refresh",
+      response.data.refresh
+    );
+
+    navigate("/");
+  } catch (error) {
+    console.error(error);
+    alert("Login failed");
+  }
+};
+
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center px-6">
       <div className="bg-white shadow-xl rounded-3xl p-8 w-full max-w-md">
@@ -15,7 +50,7 @@ function Login() {
           </p>
         </div>
 
-        <form className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-5">
 
           <div>
             <label className="block mb-2 font-medium">
@@ -26,6 +61,8 @@ function Login() {
               type="email"
               placeholder="Enter your email"
               className="w-full border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#1495CC]"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
             />
           </div>
 
@@ -38,6 +75,8 @@ function Login() {
               type="password"
               placeholder="Enter your password"
               className="w-full border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#1495CC]"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
             />
           </div>
 
