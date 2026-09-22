@@ -1,16 +1,17 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { loginUser } from "../api/auth";
+import { loginUser, getProfile } from "../api/auth";
+import { useAuth } from "../context/AuthContext";
 
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
-  // const { login } = useAuth();
+  const { setUser } = useAuth();
+  
 
-const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
   e.preventDefault();
 
   try {
@@ -29,12 +30,18 @@ const handleSubmit = async (e) => {
       response.data.refresh
     );
 
-    navigate("/");
+    const profile = await getProfile();
+
+    setUser(profile.data);
+
+    navigate("/dashboard");
   } catch (error) {
     console.error(error);
     alert("Login failed");
   }
 };
+
+
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center px-6">
