@@ -1,10 +1,10 @@
-import axios from "./axios";
+import api from "./axios";
 
 export const registerUser = (data) =>
-  axios.post("/register/", data);
+  api.post("/auth/register/", data);
 
 export const loginUser = (data) =>
-  axios.post("/login/", data);
+  api.post("/auth/login/", data);
 
 export const getProfile = () =>
-  axios.get("/profile/");
+  api.get("/auth/profile/");
