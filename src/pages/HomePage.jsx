@@ -6,11 +6,13 @@ import FeaturedDrawings from "../components/home/FeaturedDrawings";
 import ProjectsSection from "../components/home/ProjectsSection";
 import TestimonialsSection from "../components/home/TestimonialsSection";
 import CTASection from "../components/home/CTASection";
+import MainLayout from "../layouts/MainLayout";
 
 
 function HomePage() {
   return (
-    <>
+    <MainLayout>
+
       <HeroSection />
       <AboutSection />
       <ServicesSection />
@@ -19,7 +21,7 @@ function HomePage() {
       <ProjectsSection />
       <TestimonialsSection />
       <CTASection />
-    </>
+    </MainLayout>
   );
 }
 
