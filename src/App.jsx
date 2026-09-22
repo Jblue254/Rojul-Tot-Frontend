@@ -10,6 +10,9 @@ import DrawingsOrders from "./pages/DrawingsOrders";
 import Projects from "./pages/Projects";
 import Notifications from "./pages/Notifications";
 import Profile from "./pages/Profile";
+import ProtectedRoute from "./routes/ProtectedRoute";
+import Dashboard from "./pages/Dashboard";
+
 
 function App() {
   return (
@@ -30,8 +33,20 @@ function App() {
         <Route path="/projects" element={<Projects />} />
         <Route path="/notifications" element={<Notifications />} />
         <Route path="/profile" element={<Profile />} />
+
+        <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+
+
       </Routes>
     </BrowserRouter>
+    
   );
 }
 
