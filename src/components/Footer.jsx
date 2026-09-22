@@ -53,8 +53,8 @@ function Footer() {
             </h4>
 
             <div className="flex flex-col gap-2 text-slate-300">
-              <span>info@rojultot.com</span>
-              <span>+254 XXX XXX XXX</span>
+              <span>rojultot21@gmailcom</span>
+              <span>+254 112 333534</span>
               <span>Nairobi, Kenya</span>
             </div>
           </div>
