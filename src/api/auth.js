@@ -1,7 +1,10 @@
 import axios from "./axios";
 
-export const loginUser = (data) =>
-  axios.post("/token/", data);
-
 export const registerUser = (data) =>
   axios.post("/register/", data);
+
+export const loginUser = (data) =>
+  axios.post("/login/", data);
+
+export const getProfile = () =>
+  axios.get("/profile/");
