@@ -5,7 +5,6 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import MachinesManagement from "./pages/admin/MachinesManagement";
 import MachinesRentals from "./pages/MachinesRentals";
-import DrawingsManagement from "./pages/admin/DrawingsManagement.jsx";
 import DrawingsOrders from "./pages/DrawingsOrders";
 import Projects from "./pages/Projects";
 import Notifications from "./pages/Notifications";
@@ -16,7 +15,8 @@ import AdminDashboard from "./pages/AdminDashboard";
 import AdminLayout from "./layouts/AdminLayout";
 import AdminRoute from "./routes/AdminRoute";
 import UsersPage  from "./pages/admin/UsersPage.jsx";
-import CategoriesManagement from "./pages/admin/CategoriesManagement.jsx.jsx";
+import CategoriesManagement from "./pages/admin/CategoriesManagement.jsx";
+import DrawingsManagement from "./pages/admin/DrawingsManagement";
 
 function App() {
   return (
@@ -47,6 +47,7 @@ function App() {
           <Route path="users" element={<UsersPage />} />
           <Route path="machines" element={<MachinesManagement />} />
           <Route path="categories"element={<CategoriesManagement />} />
+          <Route path="drawings" element={<DrawingsManagement />} />
         </Route>
         <Route path="/dashboard" element={
             <ProtectedRoute>
