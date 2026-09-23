@@ -14,6 +14,8 @@ import ProtectedRoute from "./routes/ProtectedRoute";
 import Dashboard from "./pages/Dashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminLayout from "./layouts/AdminLayout";
+import AdminRoute from "./routes/AdminRoute";
+import UsersPage from "./pages/UsersPage";
 
 function App() {
   return (
@@ -34,19 +36,16 @@ function App() {
         <Route path="/projects" element={<Projects />} />
         <Route path="/notifications" element={<Notifications />} />
         <Route path="/profile" element={<Profile />} />
-        <Route
-          path="/admin"
-          element={
+        <Route path="/admin" element={
             <AdminRoute>
               <AdminLayout />
             </AdminRoute>
           }
         >
           <Route index element={<AdminDashboard />} />
+          <Route path="users" element={<UsersPage />} />
         </Route>
-        <Route
-          path="/dashboard"
-          element={
+        <Route path="/dashboard" element={
             <ProtectedRoute>
               <Dashboard />
             </ProtectedRoute>
