@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import MachinesManagement from "./pages/MachinesManagement";
+import MachinesManagement from "./pages/admin/MachinesManagement";
 import MachinesRentals from "./pages/MachinesRentals";
 import DrawingsManagement from "./pages/DrawingsManagement";
 import DrawingsOrders from "./pages/DrawingsOrders";
@@ -27,7 +27,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        <Route path="/machines" element={<MachinesManagement />} />
+        
         <Route path="/rentals" element={<MachinesRentals />} />
 
         <Route path="/drawings" element={<DrawingsManagement />} />
@@ -44,6 +44,7 @@ function App() {
         >
           <Route index element={<AdminDashboard />} />
           <Route path="users" element={<UsersPage />} />
+          <Route path="machines" element={<MachinesManagement />} />
         </Route>
         <Route path="/dashboard" element={
             <ProtectedRoute>

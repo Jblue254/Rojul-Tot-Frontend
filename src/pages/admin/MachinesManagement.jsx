@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getMachines } from "../api/machines";
+import { getMachines } from "../../api/machines";
 
 function MachinesManagement() {
   const [machines, setMachines] = useState([]);
