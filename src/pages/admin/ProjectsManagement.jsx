@@ -9,12 +9,14 @@ import {
 } from "lucide-react";
 
 import {
-    getProjects,
     createProject,
     updateProject,
     deleteProject,
-    getUsers,
 } from "../../api/projects";
+
+import { getUsers } from "../../api/users";
+import { getProjects } from "../../api/projects";
+
 
 
 
@@ -28,7 +30,7 @@ function ProjectsManagement() {
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 5;
 
-    const [showModal, setShowModal] = useState(false);
+
     const [editingProject, setEditingProject] = useState(null);
 
     const [formData, setFormData] = useState({
@@ -274,14 +276,6 @@ function ProjectsManagement() {
                         Manage customer construction projects
                     </p>
                 </div>
-
-                <button
-                    onClick={handleAdd}
-                    className="flex items-center justify-center gap-2 bg-[#1495CC] text-white px-5 py-3 rounded-xl hover:bg-[#0f7eaf]"
-                >
-                    <Plus size={20} />
-                    Add Project
-                </button>
 
             </div>
 
@@ -658,265 +652,6 @@ function ProjectsManagement() {
 
             </div>
 
-            {/* Add / Edit Modal */}
-            {showModal && (
-                <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-
-                    <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-
-                        {/* Modal header */}
-                        <div className="flex items-center justify-between px-6 py-5 border-b">
-
-                            <div>
-
-                                <h2 className="text-xl font-bold text-gray-800">
-                                    {editingProject
-                                        ? "Edit Project"
-                                        : "Add Project"}
-                                </h2>
-
-                                <p className="text-sm text-gray-500 mt-1">
-                                    {editingProject
-                                        ? "Update project details"
-                                        : "Create a new project"}
-                                </p>
-
-                            </div>
-
-                            <button
-                                onClick={() =>
-                                    setShowModal(false)
-                                }
-                                className="p-2 rounded-lg hover:bg-gray-100"
-                            >
-                                <X size={20} />
-                            </button>
-
-                        </div>
-
-                        {/* Form */}
-                        <form
-                            onSubmit={handleSubmit}
-                            className="p-6 space-y-5"
-                        >
-
-                            {/* Name */}
-                            <div>
-
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Project Name
-                                </label>
-
-                                <input
-                                    type="text"
-                                    name="name"
-                                    value={formData.name}
-                                    onChange={handleChange}
-                                    required
-                                    placeholder="e.g. Residential House Construction"
-                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-200"
-                                />
-
-                            </div>
-
-                            {/* Description */}
-                            <div>
-
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Description
-                                </label>
-
-                                <textarea
-                                    name="description"
-                                    value={formData.description}
-                                    onChange={handleChange}
-                                    required
-                                    rows="4"
-                                    placeholder="Describe the project..."
-                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-200 resize-none"
-                                />
-
-                            </div>
-
-                            {/* Location */}
-                            <div>
-
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Location
-                                </label>
-
-                                <input
-                                    type="text"
-                                    name="location"
-                                    value={formData.location}
-                                    onChange={handleChange}
-                                    required
-                                    placeholder="e.g. Ruiru, Kiambu"
-                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-200"
-                                />
-
-                            </div>
-
-                            {/* Manager + Budget */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-                                <div>
-
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Manager ID
-                                    </label>
-
-                                    <select
-                                        name="manager"
-                                        value={formData.manager}
-                                        onChange={handleChange}
-                                        className="w-full px-4 py-3 border border-gray-200 rounded-xl"
-                                    >
-                                        <option value="">
-                                            Select Manager
-                                        </option>
-
-                                        {managers.map((manager) => (
-                                            <option
-                                                key={manager.id}
-                                                value={manager.id}
-                                            >
-                                                {manager.email}
-                                            </option>
-                                        ))}
-                                    </select>
-
-                                </div>
-
-                                <div>
-
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Budget (KES)
-                                    </label>
-
-                                    <input
-                                        type="number"
-                                        name="budget"
-                                        value={formData.budget}
-                                        onChange={handleChange}
-                                        required
-                                        min="0"
-                                        step="0.01"
-                                        placeholder="500000"
-                                        className="w-full px-4 py-3 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-200"
-                                    />
-
-                                </div>
-
-                            </div>
-
-                            {/* Dates */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-                                <div>
-
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Start Date
-                                    </label>
-
-                                    <input
-                                        type="date"
-                                        name="start_date"
-                                        value={formData.start_date}
-                                        onChange={handleChange}
-                                        required
-                                        className="w-full px-4 py-3 border border-gray-200 rounded-xl outline-none"
-                                    />
-
-                                </div>
-
-                                <div>
-
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Expected End Date
-                                    </label>
-
-                                    <input
-                                        type="date"
-                                        name="expected_end_date"
-                                        value={formData.expected_end_date}
-                                        onChange={handleChange}
-                                        required
-                                        className="w-full px-4 py-3 border border-gray-200 rounded-xl outline-none"
-                                    />
-
-                                </div>
-
-                            </div>
-
-                            {/* Status */}
-                            <div>
-
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Status
-                                </label>
-
-                                <select
-                                    name="status"
-                                    value={formData.status}
-                                    onChange={handleChange}
-                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl outline-none"
-                                >
-
-                                    <option value="PLANNING">
-                                        Planning
-                                    </option>
-
-                                    <option value="ACTIVE">
-                                        Active
-                                    </option>
-
-                                    <option value="ON_HOLD">
-                                        On Hold
-                                    </option>
-
-                                    <option value="COMPLETED">
-                                        Completed
-                                    </option>
-
-                                    <option value="CANCELLED">
-                                        Cancelled
-                                    </option>
-
-                                </select>
-
-                            </div>
-
-                            {/* Buttons */}
-                            <div className="flex justify-end gap-3 pt-3">
-
-                                <button
-                                    type="button"
-                                    onClick={() =>
-                                        setShowModal(false)
-                                    }
-                                    className="px-5 py-3 rounded-xl border border-gray-200 text-gray-700 hover:bg-gray-50"
-                                >
-                                    Cancel
-                                </button>
-
-                                <button
-                                    type="submit"
-                                    className="px-5 py-3 rounded-xl bg-[#1495CC] text-white hover:bg-[#0f7eaf]"
-                                >
-                                    {editingProject
-                                        ? "Update Project"
-                                        : "Create Project"}
-                                </button>
-
-                            </div>
-
-                        </form>
-
-                    </div>
-
-                </div>
-            )}
 
         </div>
     );
