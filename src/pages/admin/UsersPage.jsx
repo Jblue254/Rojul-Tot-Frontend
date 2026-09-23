@@ -15,7 +15,9 @@ function UsersPage() {
     address: "",
     is_active: true,
   });
+  const [currentPage, setCurrentPage] = useState(1);
 
+  const USERS_PER_PAGE = 10;
   useEffect(() => {
     loadUsers();
   }, []);
@@ -29,6 +31,7 @@ function UsersPage() {
     }
   };
 
+  // Delete User Logic
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this user?")) {
       return;
@@ -41,7 +44,7 @@ function UsersPage() {
       console.error(error);
     }
   };
-
+  // Update User Logic
   const handleUpdate = async () => {
     try {
       await updateUser(
@@ -56,7 +59,7 @@ function UsersPage() {
       console.error(error);
     }
   };
-
+  // Filtering Logic
   const filteredUsers = users.filter((user) => {
     const matchesSearch =
       user.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -69,6 +72,7 @@ function UsersPage() {
     return matchesSearch && matchesRole;
   });
 
+  // Stats Logic
   const totalUsers = users.length;
 
   const totalAdmins = users.filter(
@@ -86,6 +90,22 @@ function UsersPage() {
   const totalCustomers = users.filter(
     (user) => user.role === "CUSTOMER"
   ).length;
+
+  // Pagination Logic
+  const totalPages = Math.ceil(
+    filteredUsers.length / USERS_PER_PAGE
+  );
+
+  const startIndex =
+    (currentPage - 1) * USERS_PER_PAGE;
+
+  const endIndex =
+    startIndex + USERS_PER_PAGE;
+
+  const paginatedUsers = filteredUsers.slice(
+    startIndex,
+    endIndex
+  );
   return (
     <>
       <div className="mb-6">
@@ -183,7 +203,7 @@ function UsersPage() {
             </thead>
 
             <tbody>
-              {filteredUsers.map((user) => (
+              {paginatedUsers.map((user) => (
                 <tr key={user.id} className="border-b">
                   <td className="p-4">
                     <div className="flex items-center gap-3">
@@ -232,6 +252,44 @@ function UsersPage() {
               ))}
             </tbody>
           </table>
+
+          {/* Pagination Controls */}
+          <div className="flex items-center justify-between mt-6">
+
+            <button
+              disabled={currentPage === 1}
+              onClick={() =>
+                setCurrentPage((prev) => prev - 1)
+              }
+              className="
+      px-4 py-2 rounded-lg border
+      disabled:opacity-50
+    "
+            >
+              Previous
+            </button>
+
+            <span>
+              Page {currentPage} of {totalPages}
+            </span>
+
+            <button
+              disabled={currentPage === totalPages}
+              onClick={() =>
+                setCurrentPage((prev) => prev + 1)
+              }
+              className="
+      px-4 py-2 rounded-lg border
+      disabled:opacity-50
+    "
+            >
+              Next
+            </button>
+
+          </div>
+
+          {/* Edit User Modal */}
+          
           {editingUser && (
             <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
               <div className="bg-white rounded-2xl p-6 w-full max-w-md">
