@@ -1,8 +1,18 @@
 import { useEffect, useState } from "react";
 import { getMachines } from "../../api/machines";
+import {
+  Search,
+  Plus,
+  Pencil,
+  Trash2,
+  Package,
+  Wrench,
+  Truck,
+} from "lucide-react";
 
 function MachinesManagement() {
   const [machines, setMachines] = useState([]);
+  const [search, setSearch] = useState("");
 
 
   useEffect(() => {
@@ -17,6 +27,10 @@ function MachinesManagement() {
       console.error(error);
     }
   };
+  // Filter machines based on search query
+  const filteredMachines = machines.filter((machine) =>
+    machine.name.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
     <div>
@@ -35,11 +49,28 @@ function MachinesManagement() {
       </div>
 
       {/* Search */}
-      <div className="mb-6">
+      <div className="relative mb-6">
+        <Search
+          size={18}
+          className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+        />
+
         <input
           type="text"
           placeholder="Search machines..."
-          className="w-full border rounded-xl px-4 py-3"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="
+      w-full
+      border
+      rounded-xl
+      pl-12
+      pr-4
+      py-3
+      focus:outline-none
+      focus:ring-2
+      focus:ring-[#1495CC]
+    "
         />
       </div>
 
@@ -58,7 +89,7 @@ function MachinesManagement() {
             </tr>
           </thead>
           <tbody>
-            {machines.map((machine) => (
+            {filteredMachines.map((machine) => (
               <tr key={machine.id} className="border-b">
                 <td className="p-4">{machine.name}</td>
                 <td className="p-4">{machine.category_name}</td>
