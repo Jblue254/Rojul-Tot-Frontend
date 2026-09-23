@@ -5,7 +5,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import MachinesManagement from "./pages/admin/MachinesManagement";
 import MachinesRentals from "./pages/MachinesRentals";
-import DrawingsManagement from "./pages/DrawingsManagement";
+import DrawingsManagement from "./pages/admin/DrawingsManagement.jsx";
 import DrawingsOrders from "./pages/DrawingsOrders";
 import Projects from "./pages/Projects";
 import Notifications from "./pages/Notifications";
