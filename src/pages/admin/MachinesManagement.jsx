@@ -249,7 +249,7 @@ function MachinesManagement() {
               <tr key={machine.id} className="border-b">
                 <td className="p-4 font-medium">{machine.name}</td>
                 <td className="p-4">{machine.category_name}</td>
-                <td className="p-4">R{machine.price_per_day}</td>
+                <td className="p-4">Ksh{machine.price_per_day}</td>
                 <td className="p-4">{machine.quantity}</td>
                 <td className="p-4">{machine.location}</td>
                 <td className="p-4">
