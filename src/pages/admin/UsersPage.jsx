@@ -207,8 +207,8 @@ function UsersPage() {
                   <td className="p-4">
                     <span
                       className={`px-3 py-1 rounded-full text-sm ${user.is_active
-                          ? "bg-green-100 text-green-700"
-                          : "bg-red-100 text-red-700"
+                        ? "bg-green-100 text-green-700"
+                        : "bg-red-100 text-red-700"
                         }`}
                     >
                       {user.is_active ? "Active" : "Inactive"}
@@ -233,14 +233,19 @@ function UsersPage() {
                       </button>
 
                       <button
-                        onClick={() => handleToggleStatus(user)}
-                        className={`
-    px-3 py-1 rounded-lg text-white
-    ${user.is_active
-                            ? "bg-yellow-500"
-                            : "bg-green-500"
+                        onClick={() => {
+                          const action = user.is_active
+                            ? "deactivate"
+                            : "activate";
+
+                          if (
+                            window.confirm(
+                              `Are you sure you want to ${action} ${user.full_name}?`
+                            )
+                          ) {
+                            handleToggleStatus(user);
                           }
-  `}
+                        }}
                       >
                         {user.is_active ? "Deactivate" : "Activate"}
                       </button>
