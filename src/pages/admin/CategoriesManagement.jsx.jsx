@@ -17,10 +17,13 @@ import {
 
 function CategoriesManagement() {
   const [categories, setCategories] = useState([]);
-  const [search, setSearch] = useState("");
-
   const [showModal, setShowModal] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
+  const [search, setSearch] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+
+
 
   const [formData, setFormData] = useState({
     name: "",
@@ -50,6 +53,17 @@ function CategoriesManagement() {
   // Filter categories
   const filteredCategories = categories.filter((category) =>
     category.name.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const totalPages = Math.ceil(
+    filteredCategories.length / itemsPerPage
+  );
+
+  const startIndex = (currentPage - 1) * itemsPerPage;
+
+  const paginatedCategories = filteredCategories.slice(
+    startIndex,
+    startIndex + itemsPerPage
   );
 
   // Open add modal
@@ -104,7 +118,7 @@ function CategoriesManagement() {
         name: "",
         description: "",
       });
-
+      setCurrentPage(1);
       loadCategories();
     } catch (error) {
       console.error("Error saving category:", error);
@@ -125,7 +139,10 @@ function CategoriesManagement() {
 
     try {
       await deleteCategory(category.id);
+
+      setCurrentPage(1);
       loadCategories();
+
     } catch (error) {
       console.error("Error deleting category:", error);
 
@@ -190,7 +207,10 @@ function CategoriesManagement() {
             type="text"
             placeholder="Search categories..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setCurrentPage(1);
+            }}
             className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-200"
           />
         </div>
@@ -232,7 +252,7 @@ function CategoriesManagement() {
               </thead>
 
               <tbody>
-                {filteredCategories.map((category) => (
+                {paginatedCategories.map((category) => (
                   <tr
                     key={category.id}
                     className="border-b last:border-b-0 hover:bg-gray-50"
@@ -286,6 +306,61 @@ function CategoriesManagement() {
               </tbody>
 
             </table>
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between px-6 py-4 border-t">
+
+                <p className="text-sm text-gray-500">
+                  Showing{" "}
+                  <span className="font-medium">
+                    {startIndex + 1}
+                  </span>
+                  {" "}to{" "}
+                  <span className="font-medium">
+                    {Math.min(
+                      startIndex + itemsPerPage,
+                      filteredCategories.length
+                    )}
+                  </span>
+                  {" "}of{" "}
+                  <span className="font-medium">
+                    {filteredCategories.length}
+                  </span>
+                  {" "}categories
+                </p>
+
+                <div className="flex items-center gap-2">
+
+                  <button
+                    onClick={() =>
+                      setCurrentPage((page) => Math.max(page - 1, 1))
+                    }
+                    disabled={currentPage === 1}
+                    className="px-4 py-2 rounded-lg border border-gray-200 text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50"
+                  >
+                    Previous
+                  </button>
+
+                  <span className="px-4 py-2 text-sm text-gray-600">
+                    Page {currentPage} of {totalPages}
+                  </span>
+
+                  <button
+                    onClick={() =>
+                      setCurrentPage((page) =>
+                        Math.min(page + 1, totalPages)
+                      )
+                    }
+                    disabled={currentPage === totalPages}
+                    className="px-4 py-2 rounded-lg border border-gray-200 text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50"
+                  >
+                    Next
+                  </button>
+
+                </div>
+              </div>
+            )}
+
           </div>
         )}
       </div>
