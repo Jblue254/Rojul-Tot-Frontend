@@ -50,46 +50,25 @@ function MachinesManagement() {
             <tr>
               <th className="p-4 text-left">Machine</th>
               <th className="p-4 text-left">Category</th>
-              <th className="p-4 text-left">Price</th>
+              <th className="p-4 text-left">Price/Day</th>
+              <th className="p-4 text-left">Quantity</th>
+              <th className="p-4 text-left">Location</th>
               <th className="p-4 text-left">Status</th>
               <th className="p-4 text-left">Actions</th>
             </tr>
           </thead>
-
           <tbody>
-            <tbody>
-              {machines.map((machine) => (
-                <tr key={machine.id} className="border-b">
-                  <td className="p-4">
-                    {machine.name}
-                  </td>
-
-                  <td className="p-4">
-                    {machine.category_name}
-                  </td>
-
-                  <td className="p-4">
-                    R{machine.price_per_day}
-                  </td>
-
-                  <td className="p-4">
-                    {machine.quantity}
-                  </td>
-
-                  <td className="p-4">
-                    {machine.location}
-                  </td>
-
-                  <td className="p-4">
-                    {machine.status}
-                  </td>
-
-                  <td className="p-4">
-                    Edit | Delete
-                  </td>
-                </tr>
-              ))}
-            </tbody>
+            {machines.map((machine) => (
+              <tr key={machine.id} className="border-b">
+                <td className="p-4">{machine.name}</td>
+                <td className="p-4">{machine.category_name}</td>
+                <td className="p-4">R{machine.price_per_day}</td>
+                <td className="p-4">{machine.quantity}</td>
+                <td className="p-4">{machine.location}</td>
+                <td className="p-4">{machine.status}</td>
+                <td className="p-4">Edit | Delete</td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
