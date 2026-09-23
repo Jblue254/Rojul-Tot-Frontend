@@ -60,6 +60,13 @@ function AdminLayout() {
             <ScrollText size={20} />
             Drawings
           </Link>
+          <Link
+            to="/admin/drawing-categories"
+            className="flex items-center gap-3 p-3 rounded-xl hover:bg-blue-50"
+          >
+            <Tags size={20} />
+            Drawing Categories
+          </Link>
 
           <Link
             to="/admin/projects"

@@ -17,6 +17,7 @@ import AdminRoute from "./routes/AdminRoute";
 import UsersPage  from "./pages/admin/UsersPage.jsx";
 import CategoriesManagement from "./pages/admin/CategoriesManagement.jsx";
 import DrawingsManagement from "./pages/admin/DrawingsManagement";
+import DrawingCategoriesManagement from "./pages/admin/DrawingCategoriesManagement.jsx";
 
 function App() {
   return (
@@ -48,6 +49,7 @@ function App() {
           <Route path="machines" element={<MachinesManagement />} />
           <Route path="categories"element={<CategoriesManagement />} />
           <Route path="drawings" element={<DrawingsManagement />} />
+          <Route path="drawing-categories" element={<DrawingCategoriesManagement />} />
         </Route>
         <Route path="/dashboard" element={
             <ProtectedRoute>
