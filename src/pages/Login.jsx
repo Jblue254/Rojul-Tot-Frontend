@@ -30,15 +30,16 @@ function Login() {
       response.data.refresh
     );
 
-    const profile = await getProfile();
+    // const profile = await getProfile();
 
-    setUser(profile.data);
+    // setUser(profile.data);
 
     navigate("/dashboard");
   } catch (error) {
-    console.error(error);
-    alert("Login failed");
-  }
+  console.error(error);
+  console.log(error.response?.data);
+  alert(JSON.stringify(error.response?.data));
+}
 };
 
 
