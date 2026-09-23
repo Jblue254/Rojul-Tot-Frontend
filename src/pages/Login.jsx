@@ -32,6 +32,9 @@ function Login() {
 
     const profile = await getProfile();
 
+    // console.log(profile.data);
+    // console.log(profile.data.role);
+
     setUser(profile.data);
 
     if (profile.data.role === "ADMIN") {
