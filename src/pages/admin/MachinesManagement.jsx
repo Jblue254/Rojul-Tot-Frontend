@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
-import { getMachines } from "../../api/machines";
+import {
+  getMachines,
+  getCategories,
+  createMachine,
+} from "../../api/machines";
 import {
   Search,
   Plus,
@@ -15,11 +19,22 @@ function MachinesManagement() {
   const [machines, setMachines] = useState([]);
   const [search, setSearch] = useState("");
   const [showModal, setShowModal] = useState(false);
+  const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
+  const [formData, setFormData] = useState({
+    name: "",
+    category: "",
+    description: "",
+    price_per_day: "",
+    quantity: "",
+    location: "",
+    status: "AVAILABLE",
+  });
 
 
   useEffect(() => {
     loadMachines();
+    categories();
   }, []);
 
   const loadMachines = async () => {
@@ -32,7 +47,7 @@ function MachinesManagement() {
   };
 
   // Filter machines based on search query
-  const categories = [
+  const categoryOptions = [
     ...new Set(
       machines.map((machine) => machine.category_name)
     ),
@@ -61,6 +76,15 @@ function MachinesManagement() {
   const maintenanceMachines = machines.filter(
     (m) => m.status === "MAINTENANCE"
   ).length;
+
+  const loadCategories = async () => {
+    try {
+      const response = await getCategories();
+      setCategories(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   return (
     <div>
@@ -212,7 +236,7 @@ function MachinesManagement() {
             All Categories
           </option>
 
-          {categories.map((category) => (
+          {categoryOptions.map((category) => (
             <option
               key={category}
               value={category}
@@ -263,38 +287,172 @@ function MachinesManagement() {
                   </span>
                 </td>
                 <td className="p-4">
-  <div className="flex gap-2">
+                  <div className="flex gap-2">
 
-    <button title="Edit Machine"
-      className="
+                    <button title="Edit Machine"
+                      className="
         p-2
         bg-blue-500
         text-white
         rounded-lg
         hover:bg-blue-600
       "
-    >
-      <Pencil size={16} />
-    </button>
-<button title="Delete Machine"
-      className="
+                    >
+                      <Pencil size={16} />
+                    </button>
+                    <button title="Delete Machine"
+                      className="
         p-2
         bg-red-500
         text-white
         rounded-lg
         hover:bg-red-600
       "
-    >
-      <Trash2 size={16} />
-    </button>
+                    >
+                      <Trash2 size={16} />
+                    </button>
 
-  </div>
-</td>
+                  </div>
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+      {showModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-2xl">
+            <h2 className="text-2xl font-bold mb-4">
+              Add Machine
+            </h2>
+            <div className="grid md:grid-cols-2 gap-4">
+
+              <input
+                type="text"
+                placeholder="Machine Name"
+                value={formData.name}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    name: e.target.value,
+                  })
+                }
+                className="border rounded-xl p-3"
+              />
+
+              <select
+                value={formData.category}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    category: e.target.value,
+                  })
+                }
+                className="border rounded-xl p-3"
+              >
+                <option value="">
+                  Select Category
+                </option>
+
+                {categories.map((category) => (
+                  <option
+                    key={category.id}
+                    value={category.id}
+                  >
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+
+              <input
+                type="number"
+                placeholder="Price Per Day"
+                value={formData.price_per_day}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    price_per_day: e.target.value,
+                  })
+                }
+                className="border rounded-xl p-3"
+              />
+
+              <input
+                type="number"
+                placeholder="Quantity"
+                value={formData.quantity}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    quantity: e.target.value,
+                  })
+                }
+                className="border rounded-xl p-3"
+              />
+
+              <input
+                type="text"
+                placeholder="Location"
+                value={formData.location}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    location: e.target.value,
+                  })
+                }
+                className="border rounded-xl p-3"
+              />
+
+              <select
+                value={formData.status}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    status: e.target.value,
+                  })
+                }
+                className="border rounded-xl p-3"
+              >
+                <option value="AVAILABLE">Available</option>
+                <option value="RENTED">Rented</option>
+                <option value="MAINTENANCE">Maintenance</option>
+                <option value="UNAVAILABLE">Unavailable</option>
+              </select>
+
+              <textarea
+                placeholder="Description"
+                value={formData.description}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    description: e.target.value,
+                  })
+                }
+                className="border rounded-xl p-3 md:col-span-2"
+                rows="4"
+              />
+
+            </div>
+
+            <div className="flex justify-end gap-3 mt-6">
+
+              <button
+                onClick={() => setShowModal(false)}
+                className="px-4 py-2 border rounded-xl"
+              >
+                Cancel
+              </button>
+
+              <button
+                className="px-4 py-2 bg-[#1495CC] text-white rounded-xl"
+              >
+                Save
+              </button>
+
+            </div>
+          </div>
+        </div>
+      )}
     </div >
   );
 }
