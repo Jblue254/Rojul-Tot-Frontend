@@ -24,7 +24,8 @@ function MachinesManagement() {
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [editingMachine, setEditingMachine] = useState(null);
-  
+  const [imagePreview, setImagePreview] = useState(null);
+
   const [formData, setFormData] = useState({
     name: "",
     category: "",
@@ -33,6 +34,7 @@ function MachinesManagement() {
     quantity: "",
     location: "",
     status: "AVAILABLE",
+    image: null,
   });
 
   useEffect(() => {
@@ -58,18 +60,28 @@ function MachinesManagement() {
     }
   };
 
-  // Handle Create or Update Machine
+  // Handle Create or Update Machine with FormData (supports file uploads)
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      const data = new FormData();
+      Object.keys(formData).forEach((key) => {
+        // If image is null during an update, don't append it to keep the old image
+        if (formData[key] !== null && formData[key] !== "") {
+          data.append(key, formData[key]);
+        }
+      });
+
       if (editingMachine) {
-        await updateMachine(editingMachine.id, formData);
+        await updateMachine(editingMachine.id, data);
       } else {
-        await createMachine(formData);
+        await createMachine(data);
       }
+
       loadMachines();
       setShowModal(false);
       setEditingMachine(null);
+      setImagePreview(null);
       setFormData({
         name: "",
         category: "",
@@ -78,6 +90,7 @@ function MachinesManagement() {
         quantity: "",
         location: "",
         status: "AVAILABLE",
+        image: null,
       });
     } catch (error) {
       console.error("Error saving machine:", error);
@@ -133,6 +146,7 @@ function MachinesManagement() {
         <button
           onClick={() => {
             setEditingMachine(null);
+            setImagePreview(null);
             setFormData({
               name: "",
               category: "",
@@ -141,6 +155,7 @@ function MachinesManagement() {
               quantity: "",
               location: "",
               status: "AVAILABLE",
+              image: null,
             });
             setShowModal(true);
           }}
@@ -235,6 +250,7 @@ function MachinesManagement() {
         <table className="w-full">
           <thead className="bg-[#1495CC] text-white">
             <tr>
+              <th className="p-4 text-left">Image</th>
               <th className="p-4 text-left">Machine</th>
               <th className="p-4 text-left">Category</th>
               <th className="p-4 text-left">Price/Day</th>
@@ -247,9 +263,20 @@ function MachinesManagement() {
           <tbody>
             {filteredMachines.map((machine) => (
               <tr key={machine.id} className="border-b">
+                <td className="p-4">
+                  {machine.image ? (
+                    <img
+                      src={machine.image}
+                      alt={machine.name}
+                      className="w-12 h-12 object-cover rounded-lg"
+                    />
+                  ) : (
+                    <span className="text-gray-400 text-sm">No Image</span>
+                  )}
+                </td>
                 <td className="p-4 font-medium">{machine.name}</td>
                 <td className="p-4">{machine.category_name}</td>
-                <td className="p-4">Ksh{machine.price_per_day}</td>
+                <td className="p-4">Ksh {machine.price_per_day}</td>
                 <td className="p-4">{machine.quantity}</td>
                 <td className="p-4">{machine.location}</td>
                 <td className="p-4">
@@ -273,6 +300,7 @@ function MachinesManagement() {
                       title="Edit Machine"
                       onClick={() => {
                         setEditingMachine(machine);
+                        setImagePreview(machine.image || null);
                         setFormData({
                           name: machine.name || "",
                           category: machine.category || "",
@@ -281,6 +309,7 @@ function MachinesManagement() {
                           quantity: machine.quantity || "",
                           location: machine.location || "",
                           status: machine.status || "AVAILABLE",
+                          image: null,
                         });
                         setShowModal(true);
                       }}
@@ -307,7 +336,7 @@ function MachinesManagement() {
       {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-2xl">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <h2 className="text-2xl font-bold mb-4">
               {editingMachine ? "Edit Machine" : "Add Machine"}
             </h2>
@@ -385,6 +414,35 @@ function MachinesManagement() {
                   <option value="MAINTENANCE">Maintenance</option>
                   <option value="UNAVAILABLE">Unavailable</option>
                 </select>
+
+                <div className="md:col-span-2">
+                  <label className="block mb-2 font-medium text-gray-700">
+                    Machine Image
+                  </label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files[0];
+                      setFormData({
+                        ...formData,
+                        image: file,
+                      });
+
+                      if (file) {
+                        setImagePreview(URL.createObjectURL(file));
+                      }
+                    }}
+                    className="w-full border rounded-xl p-3 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-[#1495CC] file:text-white file:cursor-pointer"
+                  />
+                  {imagePreview && (
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      className="w-32 h-32 object-cover rounded-xl border mt-4 shadow-sm"
+                    />
+                  )}
+                </div>
 
                 <textarea
                   placeholder="Description"
