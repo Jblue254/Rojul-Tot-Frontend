@@ -15,7 +15,7 @@ import Dashboard from "./pages/Dashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminLayout from "./layouts/AdminLayout";
 import AdminRoute from "./routes/AdminRoute";
-import UsersPage from "./pages/UsersPage";
+import UsersPage  from "./pages/admin/UsersPage.jsx";
 
 function App() {
   return (
