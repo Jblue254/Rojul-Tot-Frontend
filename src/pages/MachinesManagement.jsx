@@ -1,7 +1,22 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { getMachines } from "../api/machines";
 
 function MachinesManagement() {
   const [machines, setMachines] = useState([]);
+
+
+  useEffect(() => {
+    loadMachines();
+  }, []);
+
+  const loadMachines = async () => {
+    try {
+      const response = await getMachines();
+      setMachines(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   return (
     <div>
@@ -42,9 +57,39 @@ function MachinesManagement() {
           </thead>
 
           <tbody>
-            <tr>
-              <td className="p-4">No machines yet</td>
-            </tr>
+            <tbody>
+              {machines.map((machine) => (
+                <tr key={machine.id} className="border-b">
+                  <td className="p-4">
+                    {machine.name}
+                  </td>
+
+                  <td className="p-4">
+                    {machine.category_name}
+                  </td>
+
+                  <td className="p-4">
+                    R{machine.price_per_day}
+                  </td>
+
+                  <td className="p-4">
+                    {machine.quantity}
+                  </td>
+
+                  <td className="p-4">
+                    {machine.location}
+                  </td>
+
+                  <td className="p-4">
+                    {machine.status}
+                  </td>
+
+                  <td className="p-4">
+                    Edit | Delete
+                  </td>
+                </tr>
+              ))}
+            </tbody>
           </tbody>
         </table>
       </div>
