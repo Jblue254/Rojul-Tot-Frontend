@@ -34,9 +34,29 @@ function MachinesManagement() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold mb-6">
-        Machines Management
-      </h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold">
+          Machines Management
+        </h1>
+
+        <button
+          className="
+      bg-[#1495CC]
+      text-white
+      px-5
+      py-3
+      rounded-xl
+      flex
+      items-center
+      gap-2
+      hover:bg-[#1185B5]
+      transition
+    "
+        >
+          <Plus size={18} />
+          Add Machine
+        </button>
+      </div>
 
       {/* Stats */}
       <div className="grid md:grid-cols-4 gap-6 mb-6">
