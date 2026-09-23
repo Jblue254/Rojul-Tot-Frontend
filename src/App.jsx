@@ -16,6 +16,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import AdminLayout from "./layouts/AdminLayout";
 import AdminRoute from "./routes/AdminRoute";
 import UsersPage  from "./pages/admin/UsersPage.jsx";
+import CategoriesManagement from "./pages/admin/CategoriesPage.jsx";
 
 function App() {
   return (
@@ -45,6 +46,7 @@ function App() {
           <Route index element={<AdminDashboard />} />
           <Route path="users" element={<UsersPage />} />
           <Route path="machines" element={<MachinesManagement />} />
+          <Route path="categories"element={<CategoriesManagement />} />
         </Route>
         <Route path="/dashboard" element={
             <ProtectedRoute>
