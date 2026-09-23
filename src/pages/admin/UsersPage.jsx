@@ -30,6 +30,7 @@ function UsersPage() {
               <th className="p-4 text-left">Name</th>
               <th className="p-4 text-left">Email</th>
               <th className="p-4 text-left">Role</th>
+              <th className="p-4 text-left">Actions</th>
             </tr>
           </thead>
 
@@ -49,6 +50,17 @@ function UsersPage() {
 
                 <td className="p-4">
                   {user.role}
+                </td>
+                <td className="p-4">
+                <div className="flex gap-2">
+                    <button className="px-3 py-1 bg-blue-500 text-white rounded-lg">
+                    Edit
+                    </button>
+
+                    <button className="px-3 py-1 bg-red-500 text-white rounded-lg">
+                    Delete
+                    </button>
+                </div>
                 </td>
               </tr>
             ))}
