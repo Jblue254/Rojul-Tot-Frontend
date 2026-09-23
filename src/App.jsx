@@ -16,7 +16,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import AdminLayout from "./layouts/AdminLayout";
 import AdminRoute from "./routes/AdminRoute";
 import UsersPage  from "./pages/admin/UsersPage.jsx";
-import CategoriesManagement from "./pages/admin/CategoriesPage.jsx";
+import CategoriesManagement from "./pages/admin/CategoriesManagement.jsx.jsx";
 
 function App() {
   return (
