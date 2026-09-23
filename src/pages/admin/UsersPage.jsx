@@ -1,8 +1,12 @@
 import { useEffect, useState } from "react";
 import { Search } from "lucide-react";
 import { getUsers, deleteUser, updateUser } from "../../api/users";
+import { useAuth } from "../../context/AuthContext";
+
+
 
 function UsersPage() {
+  const { user: currentUser } = useAuth();
   const [users, setUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState("ALL");
@@ -35,18 +39,25 @@ function UsersPage() {
   };
 
   // Delete User Logic
-  const handleDelete = async (id) => {
-    if (!window.confirm("Delete this user?")) {
-      return;
-    }
+const handleDelete = async (id) => {
+  if (id === currentUser.id) {
+    alert(
+      "You cannot delete your own account."
+    );
+    return;
+  }
 
-    try {
-      await deleteUser(id);
-      setUsers(users.filter((user) => user.id !== id));
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  if (!window.confirm("Delete this user?")) {
+    return;
+  }
+
+  try {
+    await deleteUser(id);
+    setUsers(users.filter((user) => user.id !== id));
+  } catch (error) {
+    console.error(error);
+  }
+};
 
   // Update User Logic
   const handleUpdate = async () => {
@@ -60,17 +71,24 @@ function UsersPage() {
   };
 
   // Toggle Status Logic
-  const handleToggleStatus = async (user) => {
-    try {
-      await updateUser(user.id, {
-        is_active: !user.is_active,
-      });
+const handleToggleStatus = async (user) => {
+  if (user.id === currentUser.id) {
+    alert(
+      "You cannot deactivate your own account."
+    );
+    return;
+  }
 
-      loadUsers();
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  try {
+    await updateUser(user.id, {
+      is_active: !user.is_active,
+    });
+
+    loadUsers();
+  } catch (error) {
+    console.error(error);
+  }
+};
 
   // Filtering Logic
   const filteredUsers = users.filter((user) => {
