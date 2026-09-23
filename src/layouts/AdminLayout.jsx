@@ -3,6 +3,7 @@ import {
   LayoutDashboard,
   Users,
   Wrench,
+  Tags,
   ScrollText,
   FolderKanban,
   Bell,
@@ -12,7 +13,7 @@ import {
 function AdminLayout() {
   return (
     <div className="flex min-h-screen bg-[#F8FAFC]">
-      
+
       {/* Sidebar */}
       <aside className="w-72 bg-white shadow-lg p-6">
         <h1 className="text-2xl font-bold text-[#1495CC] mb-8">
@@ -43,6 +44,13 @@ function AdminLayout() {
           >
             <Wrench size={20} />
             Machines
+          </Link>
+          <Link
+            to="/admin/categories"
+            className="flex items-center gap-3 p-3 rounded-xl hover:bg-blue-50"
+          >
+            <Tags size={20} />
+            Categories
           </Link>
 
           <Link
