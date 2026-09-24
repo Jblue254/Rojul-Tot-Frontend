@@ -11,7 +11,6 @@ import Notifications from "./pages/Notifications";
 import Profile from "./pages/Profile";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import Dashboard from "./pages/Dashboard";
-import AdminDashboard from "./pages/AdminDashboard";
 import AdminLayout from "./layouts/AdminLayout";
 import AdminRoute from "./routes/AdminRoute";
 import UsersPage  from "./pages/admin/UsersPage.jsx";
@@ -21,6 +20,7 @@ import DrawingCategoriesManagement from "./pages/admin/DrawingCategoriesManageme
 import ProjectsManagement from "./pages/admin/ProjectsManagement";
 import AnalyticsManagement from "./pages/admin/AnalyticsManagement";
 import NotificationsManagement from "./pages/admin/NotificationsManagement.jsx";
+import AdminDashboard from "./pages/admin/AdminDashboard.jsx";
 
 function App() {
   return (
@@ -31,13 +31,9 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-
-        
         <Route path="/rentals" element={<MachinesRentals />} />
-
         <Route path="/drawings" element={<DrawingsManagement />} />
         <Route path="/orders" element={<DrawingsOrders />} />
-
         <Route path="/projects" element={<Projects />} />
         <Route path="/notifications" element={<Notifications />} />
         <Route path="/profile" element={<Profile />} />
