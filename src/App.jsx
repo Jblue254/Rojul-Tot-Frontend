@@ -20,6 +20,7 @@ import DrawingsManagement from "./pages/admin/DrawingsManagement";
 import DrawingCategoriesManagement from "./pages/admin/DrawingCategoriesManagement.jsx";
 import ProjectsManagement from "./pages/admin/ProjectsManagement";
 import AnalyticsManagement from "./pages/admin/AnalyticsManagement";
+import NotificationsManagement from "./pages/admin/NotificationsManagement.jsx";
 
 function App() {
   return (
@@ -54,6 +55,7 @@ function App() {
           <Route path="drawing-categories" element={<DrawingCategoriesManagement />} />
           <Route path="projects" element={<ProjectsManagement />} />
           <Route path="analytics" element={<AnalyticsManagement />} />
+          <Route path="notifications" element={<NotificationsManagement />} />
         </Route>
         <Route path="/dashboard" element={
             <ProtectedRoute>
