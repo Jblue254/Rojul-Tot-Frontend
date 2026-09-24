@@ -33,45 +33,33 @@ function AnalyticsManagement() {
 
   return (
     <div>
-      <div className="grid md:grid-cols-5 gap-6 mb-8">
+      <div className="grid md:grid-cols-4 gap-6">
 
   <div className="bg-white p-6 rounded-2xl shadow">
-    <Users className="mb-2 text-blue-500" />
-    <p>Total Users</p>
+    <p>Available Machines</p>
     <h2 className="text-3xl font-bold">
-      {stats.users}
+      {stats.available_machinery}
     </h2>
   </div>
 
   <div className="bg-white p-6 rounded-2xl shadow">
-    <Wrench className="mb-2 text-green-500" />
-    <p>Machines</p>
+    <p>Active Projects</p>
     <h2 className="text-3xl font-bold">
-      {stats.machinery}
+      {stats.active_projects}
     </h2>
   </div>
 
   <div className="bg-white p-6 rounded-2xl shadow">
-    <FolderKanban className="mb-2 text-purple-500" />
-    <p>Projects</p>
+    <p>Maintenance</p>
     <h2 className="text-3xl font-bold">
-      {stats.projects}
+      {stats.maintenance}
     </h2>
   </div>
 
   <div className="bg-white p-6 rounded-2xl shadow">
-    <ShoppingCart className="mb-2 text-orange-500" />
-    <p>Orders</p>
+    <p>Revenue</p>
     <h2 className="text-3xl font-bold">
-      {stats.orders}
-    </h2>
-  </div>
-
-  <div className="bg-white p-6 rounded-2xl shadow">
-    <Star className="mb-2 text-yellow-500" />
-    <p>Average Rating</p>
-    <h2 className="text-3xl font-bold">
-      {Number(stats.average_rating).toFixed(1)}
+      KES {Number(stats.order_revenue).toLocaleString()}
     </h2>
   </div>
 
