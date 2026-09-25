@@ -9,45 +9,41 @@ function Login() {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
   const { setUser } = useAuth();
-  
+
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  try {
-    const response = await loginUser({
-      email,
-      password,
-    });
+    try {
+      const response = await loginUser({
+        email,
+        password,
+      });
 
-    localStorage.setItem(
-      "access",
-      response.data.access
-    );
+      localStorage.setItem(
+        "access",
+        response.data.access
+      );
 
-    localStorage.setItem(
-      "refresh",
-      response.data.refresh
-    );
+      localStorage.setItem(
+        "refresh",
+        response.data.refresh
+      );
+      const profile = await getProfile();
 
-    const profile = await getProfile();
+      setUser(profile.data);
 
-    // console.log(profile.data);
-    // console.log(profile.data.role);
-
-    setUser(profile.data);
-
-    if (profile.data.role === "ADMIN") {
-      navigate("/admin");
-    } else {
-      navigate("/dashboard");
+      if (profile.data.role === "ADMIN") {
+        navigate("/admin");
+      } else {
+        navigate("/customer");
+      }
+    } catch (error) {
+      console.error(error);
+      console.log(error.response?.data);
+      alert(JSON.stringify(error.response?.data));
     }
-  } catch (error) {
-  console.error(error);
-  console.log(error.response?.data);
-  alert(JSON.stringify(error.response?.data));
-}
-};
+  };
 
 
 

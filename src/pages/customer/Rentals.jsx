@@ -4,6 +4,7 @@ import {
   getMachines,
   getRentals,
   createRental,
+  deleteRental,
 } from "../../api/customerRentals";
 
 function Rentals() {
@@ -69,13 +70,17 @@ function Rentals() {
         notes: "",
       });
     } catch (error) {
-      alert(
-        error.response?.data?.machine ||
-        error.response?.data?.quantity ||
-        "Failed to create rental"
-      );
-
       console.error(error);
+
+      if (error.response?.data) {
+        const message = Object.values(
+          error.response.data
+        ).flat().join("\n");
+
+        alert(message);
+      } else {
+        alert("Failed to submit rental request.");
+      }
     }
   };
 
@@ -248,6 +253,29 @@ function Rentals() {
                 >
                   {rental.status}
                 </span>
+
+                {rental.status === "PENDING" && (
+                  <button
+                    onClick={async () => {
+                      const confirmed = window.confirm(
+                        "Cancel this rental request?"
+                      );
+
+                      if (!confirmed) return;
+
+                      try {
+                        await deleteRental(rental.id);
+                        loadData();
+                        alert("Rental cancelled successfully");
+                      } catch (error) {
+                        console.error(error);
+                      }
+                    }}
+                    className="block mt-2 bg-red-500 text-white px-3 py-1 text-sm rounded-lg hover:bg-red-600"
+                  >
+                    Cancel Rental
+                  </button>
+                )}
               </div>
             </div>
           ))}

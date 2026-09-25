@@ -1,9 +1,18 @@
-function CustomerDashboard() {
+
+import { Outlet } from "react-router-dom";
+
+function CustomerLayout() {
   return (
-    <h1 className="text-3xl font-bold">
+    <div>
+        <h1 className="text-3xl font-bold">
       Customer Dashboard
     </h1>
+      {/* Sidebar */}
+      {/* Navbar */}
+
+      <Outlet />
+    </div>
   );
 }
 
-export default CustomerDashboard;
+export default CustomerLayout;
