@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import {
   getDrawings,
   getOrders,
@@ -6,21 +7,38 @@ import {
   addToCart,
   deleteCartItem,
   checkoutCart,
+  getDrawingCategories,
 } from "../../api/customerDrawings";
 
 function Drawings() {
   const [drawings, setDrawings] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [orders, setOrders] = useState([]);
   const [cart, setCart] = useState(null);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("");
-  
+
+  // Track which order rows are expanded to show purchased items
+  const [expandedOrders, setExpandedOrders] = useState({});
+
+  useEffect(() => {
+    loadCategories();
+  }, []);
 
   useEffect(() => {
     loadData();
   }, [search, category]);
 
   const BASE_URL = "https://rojul-tot.onrender.com";
+
+  const loadCategories = async () => {
+    try {
+      const response = await getDrawingCategories();
+      setCategories(response.data);
+    } catch (error) {
+      console.error("Failed to load categories", error);
+    }
+  };
 
   const loadData = async () => {
     try {
@@ -55,23 +73,25 @@ function Drawings() {
     }
   };
 
+  const toggleOrderExpand = (orderId) => {
+    setExpandedOrders((prev) => ({
+      ...prev,
+      [orderId]: !prev[orderId],
+    }));
+  };
+
   const getStatusClass = (status) => {
     switch (status) {
       case "PENDING":
         return "bg-yellow-100 text-yellow-700";
-
       case "PAID":
         return "bg-green-100 text-green-700";
-
       case "PROCESSING":
         return "bg-blue-100 text-blue-700";
-
       case "COMPLETED":
         return "bg-purple-100 text-purple-700";
-
       case "CANCELLED":
         return "bg-red-100 text-red-700";
-
       default:
         return "bg-gray-100 text-gray-700";
     }
@@ -85,26 +105,31 @@ function Drawings() {
         </h1>
       </div>
 
-      {/* Filters */}
+      {/* Filters with Category Dropdown */}
       <div className="grid md:grid-cols-2 gap-4">
         <input
           type="text"
           placeholder="Search drawings..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="border p-3 rounded-xl"
+          className="border p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1495CC]"
         />
 
-        <input
-          type="number"
-          placeholder="Category ID"
+        <select
           value={category}
           onChange={(e) => setCategory(e.target.value)}
-          className="border p-3 rounded-xl"
-        />
+          className="border p-3 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#1495CC]"
+        >
+          <option value="">All Categories</option>
+          {categories.map((cat) => (
+            <option key={cat.id} value={cat.id}>
+              {cat.name}
+            </option>
+          ))}
+        </select>
       </div>
 
-      {/* Drawings */}
+      {/* Drawings Grid */}
       <div className="grid md:grid-cols-3 gap-6">
         {drawings.map((drawing) => (
           <div
@@ -226,42 +251,35 @@ function Drawings() {
         </div>
       </div>
 
-      {/* Orders */}
+      {/* My Orders with Expandable Items */}
       <div>
         <h2 className="text-2xl font-bold mb-4">
           My Orders
         </h2>
 
-        <div className="overflow-x-auto bg-white rounded-2xl shadow">
-          <table className="w-full">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="p-4 text-left">Order ID</th>
-                <th className="p-4 text-left">Amount</th>
-                <th className="p-4 text-left">Status</th>
-                <th className="p-4 text-left">Date</th>
-              </tr>
-            </thead>
+        {orders.length === 0 ? (
+          <div className="bg-white p-8 rounded-2xl shadow text-center text-gray-500">
+            No orders found.
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {orders.map((order) => {
+              const isExpanded = expandedOrders[order.id];
+              return (
+                <div key={order.id} className="bg-white p-6 rounded-2xl shadow">
+                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                      <h3 className="font-bold text-lg">Order #{order.id}</h3>
+                      <p className="text-sm text-gray-500">
+                        Date: {new Date(order.created_at).toLocaleDateString()}
+                      </p>
+                    </div>
 
-            <tbody>
-              {orders.length === 0 ? (
-                <tr>
-                  <td colSpan="4" className="p-6 text-center text-gray-500">
-                    No orders found.
-                  </td>
-                </tr>
-              ) : (
-                orders.map((order) => (
-                  <tr key={order.id} className="border-t">
-                    <td className="p-4 font-medium">
-                      #{order.id}
-                    </td>
+                    <div className="flex items-center gap-4">
+                      <p className="font-bold text-gray-800">
+                        KES {order.total_amount}
+                      </p>
 
-                    <td className="p-4">
-                      KES {order.total_amount}
-                    </td>
-
-                    <td className="p-4">
                       <span
                         className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusClass(
                           order.status
@@ -269,17 +287,43 @@ function Drawings() {
                       >
                         {order.status}
                       </span>
-                    </td>
 
-                    <td className="p-4 text-gray-600">
-                      {new Date(order.created_at).toLocaleDateString()}
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+                      <button
+                        onClick={() => toggleOrderExpand(order.id)}
+                        className="flex items-center gap-1 text-sm text-[#1495CC] font-medium hover:underline ml-2"
+                      >
+                        {isExpanded ? "Hide Items" : "View Items"}
+                        {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Expandable Order Items List */}
+                  {isExpanded && (
+                    <div className="mt-4 pt-4 border-t border-gray-100 space-y-2">
+                      <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+                        Purchased Drawings
+                      </p>
+                      {order.items?.map((item) => (
+                        <div
+                          key={item.id}
+                          className="flex justify-between items-center text-sm bg-gray-50 p-3 rounded-xl"
+                        >
+                          <span className="font-medium text-gray-700">
+                            {item.drawing_title}
+                          </span>
+                          <span className="text-gray-500">
+                            Qty: {item.quantity} × KES {item.unit_price}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );
