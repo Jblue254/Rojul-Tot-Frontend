@@ -8,6 +8,7 @@ import {
   FolderKanban,
   Bell,
   BarChart3,
+  ClipboardList,
 } from "lucide-react";
 
 function AdminLayout() {
@@ -45,12 +46,21 @@ function AdminLayout() {
             <Wrench size={20} />
             Machines
           </Link>
+
           <Link
             to="/admin/categories"
             className="flex items-center gap-3 p-3 rounded-xl hover:bg-blue-50"
           >
             <Tags size={20} />
             Categories
+          </Link>
+          
+          <Link
+            to="/admin/rentals"
+            className="flex items-center gap-3 p-3 rounded-xl hover:bg-blue-50"
+          >
+            <ClipboardList size={20} />
+            Rental Management
           </Link>
 
           <Link
@@ -60,6 +70,7 @@ function AdminLayout() {
             <ScrollText size={20} />
             Drawings
           </Link>
+
           <Link
             to="/admin/drawing-categories"
             className="flex items-center gap-3 p-3 rounded-xl hover:bg-blue-50"

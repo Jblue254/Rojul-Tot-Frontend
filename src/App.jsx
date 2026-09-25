@@ -18,6 +18,7 @@ import DrawingCategoriesManagement from "./pages/admin/DrawingCategoriesManageme
 import ProjectsManagement from "./pages/admin/ProjectsManagement";
 import AnalyticsManagement from "./pages/admin/AnalyticsManagement";
 import NotificationsManagement from "./pages/admin/NotificationsManagement";
+import ManagementsRentals from "./pages/admin/ManagementsRentals";
 
 // Customer
 import CustomerLayout from "./layouts/CustomerLayout";
@@ -52,12 +53,10 @@ function App() {
           <Route path="machines" element={<MachinesManagement />} />
           <Route path="categories" element={<CategoriesManagement />} />
           <Route path="drawings" element={<DrawingsManagement />} />
-          <Route
-            path="drawing-categories"
-            element={<DrawingCategoriesManagement />}
-          />
+          <Route path="drawing-categories" element={<DrawingCategoriesManagement />} />
           <Route path="projects" element={<ProjectsManagement />} />
           <Route path="analytics" element={<AnalyticsManagement />} />
+          <Route path="/admin/rentals" element={<ManagementsRentals />} />
           <Route
             path="notifications"
             element={<NotificationsManagement />}
