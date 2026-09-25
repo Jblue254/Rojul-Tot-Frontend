@@ -14,10 +14,13 @@ function Drawings() {
   const [cart, setCart] = useState(null);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("");
+  
 
   useEffect(() => {
     loadData();
   }, [search, category]);
+
+  const BASE_URL = "https://rojul-tot.onrender.com";
 
   const loadData = async () => {
     try {
@@ -110,7 +113,7 @@ function Drawings() {
           >
             {drawing.preview_image && (
               <img
-                src={drawing.preview_image}
+                src={`${BASE_URL}${drawing.preview_image}`}
                 alt={drawing.title}
                 className="w-full h-56 object-cover"
               />

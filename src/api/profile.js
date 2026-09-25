@@ -1,0 +1,11 @@
+// src/api/profile.js
+import api from "./axios";
+
+export const getProfile = () =>
+  api.get("/auth/profile/");
+
+export const updateProfile = (data) =>
+  api.patch("/auth/profile/", data);
+
+export const changePassword = (data) =>
+  api.post("/auth/change-password/", data);
