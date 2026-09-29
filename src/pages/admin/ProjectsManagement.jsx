@@ -330,6 +330,62 @@ function ProjectsManagement() {
         setShowMilestoneListModal(true);
     };
 
+    // Status + progress follow the milestones automatically:
+    //   no milestones            -> PLANNING (0%)
+    //   some milestones done     -> ACTIVE (done / total %)
+    //   all milestones done      -> COMPLETED (100%)
+    // ON_HOLD and CANCELLED are set by hand, so they are never overwritten
+    const syncProjectStatus = async (project, projectMilestones) => {
+        // Use the latest copy of the project, not the modal's old snapshot
+        const current =
+            projects.find((p) => p.id === project.id) || project;
+
+        if (
+            current.status === "ON_HOLD" ||
+            current.status === "CANCELLED"
+        )
+            return;
+
+        const total = projectMilestones.length;
+        const done = projectMilestones.filter(
+            (m) => m.completed
+        ).length;
+
+        let newStatus = "PLANNING";
+        let newProgress = 0;
+
+        if (total > 0) {
+            newProgress = Math.round((done / total) * 100);
+            newStatus = done === total ? "COMPLETED" : "ACTIVE";
+        }
+
+        // Nothing changed, so skip the extra API call
+        if (
+            newStatus === current.status &&
+            newProgress === current.progress
+        )
+            return;
+
+        try {
+            await updateProject(current.id, {
+                name: current.name,
+                description: current.description,
+                manager: current.manager || null,
+                location: current.location,
+                budget: current.budget,
+                start_date: current.start_date,
+                expected_end_date: current.expected_end_date,
+                status: newStatus,
+                progress: newProgress,
+            });
+
+            loadProjects();
+        } catch (error) {
+            console.error("Error syncing status:", error);
+            showApiError(error);
+        }
+    };
+
     const handleMilestoneSubmit = async (
         e
     ) => {
@@ -348,6 +404,13 @@ function ProjectsManagement() {
             ]);
 
             setShowMilestoneModal(false);
+
+            // Inserting a milestone moves the project to ACTIVE
+            // (or back from COMPLETED, since it now has unfinished work)
+            syncProjectStatus(selectedProject, [
+                ...selectedProjectMilestones,
+                response.data,
+            ]);
 
             loadMilestones();
         } catch (error) {
@@ -368,6 +431,16 @@ function ProjectsManagement() {
             );
 
             setSelectedProjectMilestones(
+                selectedProjectMilestones.map((m) =>
+                    m.id === milestone.id
+                        ? { ...m, completed: true }
+                        : m
+                )
+            );
+
+            // Completing the last milestone moves the project to COMPLETED
+            syncProjectStatus(
+                selectedProject,
                 selectedProjectMilestones.map((m) =>
                     m.id === milestone.id
                         ? { ...m, completed: true }
