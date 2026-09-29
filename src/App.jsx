@@ -61,8 +61,9 @@ function App() {
           <Route path="drawing-categories" element={<DrawingCategoriesManagement />} />
           <Route path="projects" element={<ProjectsManagement />} />
           <Route path="analytics" element={<AnalyticsManagement />} />
-          <Route path="/admin/rentals" element={<ManagementsRentals />} />
-          <Route path="/admin/project-members" element={<ProjectMembersManagement />} />
+          <Route path="rentals" element={<ManagementsRentals />} />
+          <Route path="project-members" element={<ProjectMembersManagement />} />
+
           <Route
             path="notifications"
             element={<NotificationsManagement />}
