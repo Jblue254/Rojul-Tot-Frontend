@@ -11,6 +11,7 @@ import {
     PauseCircle,
     Wrench,
     UserPlus,
+    Flag,
 } from "lucide-react";
 
 import {
@@ -35,6 +36,11 @@ import {
     getProjectExpenses,
     createProjectExpense,
 } from "../../api/projectExpenses";
+import {
+    getProjectMilestones,
+    createProjectMilestone,
+    updateProjectMilestone,
+} from "../../api/projectMilestones";
 
 const EMPTY_PROJECT = {
     name: "",
@@ -56,34 +62,49 @@ const inputCls =
 const thCls = "text-left px-3 py-3 text-sm font-semibold text-gray-600";
 
 function ProjectsManagement() {
+    // ---------- State: data ----------
     const [projects, setProjects] = useState([]);
     const [managers, setManagers] = useState([]);
     const [machines, setMachines] = useState([]);
     const [assignments, setAssignments] = useState([]);
     const [members, setMembers] = useState([]);
+    const [expenses, setExpenses] = useState([]);
+    const [milestones, setMilestones] = useState([]);
 
+    // ---------- State: filters & pagination ----------
     const [search, setSearch] = useState("");
     const [selectedStatus, setSelectedStatus] = useState("");
     const [selectedLocation, setSelectedLocation] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 5;
 
+    // ---------- State: selection ----------
     const [loading, setLoading] = useState(true);
     const [selectedProject, setSelectedProject] = useState(null);
     const [editingProject, setEditingProject] = useState(null);
+    const [selectedProjectMilestones, setSelectedProjectMilestones] =
+        useState([]);
 
+    // ---------- State: modals ----------
     const [showModal, setShowModal] = useState(false);
     const [showMachineModal, setShowMachineModal] = useState(false);
     const [showMemberModal, setShowMemberModal] = useState(false);
+    const [showMilestoneModal, setShowMilestoneModal] = useState(false);
+    const [showMilestoneListModal, setShowMilestoneListModal] =
+        useState(false);
+    const [showExpenseModal, setShowExpenseModal] = useState(false);
 
+    // ---------- State: forms ----------
     const [formData, setFormData] = useState(EMPTY_PROJECT);
     const [memberForm, setMemberForm] = useState(EMPTY_MEMBER);
     const [machineForm, setMachineForm] = useState(EMPTY_MACHINE);
 
-    const [expenses, setExpenses] = useState([]);
-
-    const [showExpenseModal, setShowExpenseModal] =
-        useState(false);
+    const [milestoneForm, setMilestoneForm] = useState({
+        project: "",
+        title: "",
+        description: "",
+        due_date: "",
+    });
 
     const [expenseForm, setExpenseForm] = useState({
         project: "",
@@ -92,6 +113,7 @@ function ProjectsManagement() {
         amount: "",
         notes: "",
     });
+
     // ---------- Loaders ----------
     const loadManagers = async () => {
         try {
@@ -127,7 +149,6 @@ function ProjectsManagement() {
         }
     };
 
-    // Calls the imported API function (no longer shadowed by a local helper)
     const loadAssignments = async () => {
         try {
             const response = await getProjectMachines();
@@ -146,54 +167,38 @@ function ProjectsManagement() {
         }
     };
 
-    useEffect(() => {
-        loadProjects();
-        loadManagers();
-        loadMachines();
-        loadAssignments();
-        loadExpenses();
-    }, []);
-
-    const handleExpenseSubmit = async (e) => {
-        e.preventDefault();
-
+    // Was declared inside handleRemoveMember, so useEffect could not see it
+    const loadExpenses = async () => {
         try {
-            await createProjectExpense(
-                expenseForm
-            );
+            const response =
+                await getProjectExpenses();
 
-            setShowExpenseModal(false);
-
-            loadExpenses();
+            setExpenses(response.data);
         } catch (error) {
             console.error(error);
         }
     };
 
-    const getProjectExpensesTotal = (
-        projectId
-    ) => {
-        return expenses
-            .filter(
-                (expense) =>
-                    expense.project === projectId
-            )
-            .reduce(
-                (sum, expense) =>
-                    sum +
-                    Number(expense.amount || 0),
-                0
-            );
+    const loadMilestones = async () => {
+        try {
+            const response =
+                await getProjectMilestones();
+
+            setMilestones(response.data);
+        } catch (error) {
+            console.error(error);
+        }
     };
 
-    const getRemainingBudget = (
-        project
-    ) => {
-        return (
-            Number(project.budget || 0) -
-            getProjectExpensesTotal(project.id)
-        );
-    };
+    useEffect(() => {
+        loadProjects();
+        loadManagers();
+        loadMachines();
+        loadAssignments();
+        loadMembers(); // was missing, so no team members were loading
+        loadExpenses();
+        loadMilestones();
+    }, []);
 
     // ---------- Helpers ----------
     const getAssignedMachines = (projectId) =>
@@ -232,6 +237,148 @@ function ProjectsManagement() {
                 return "bg-red-100 text-red-700";
             default:
                 return "bg-gray-100 text-gray-600";
+        }
+    };
+
+    // ---------- Expense helpers ----------
+    const getProjectExpensesTotal = (
+        projectId
+    ) => {
+        return expenses
+            .filter(
+                (expense) =>
+                    expense.project === projectId
+            )
+            .reduce(
+                (sum, expense) =>
+                    sum +
+                    Number(expense.amount || 0),
+                0
+            );
+    };
+
+    const getRemainingBudget = (
+        project
+    ) => {
+        return (
+            Number(project.budget || 0) -
+            getProjectExpensesTotal(project.id)
+        );
+    };
+
+    const openExpenseModal = (project) => {
+        setExpenseForm({
+            project: project.id,
+            title: "",
+            category: "MATERIALS",
+            amount: "",
+            notes: "",
+        });
+
+        setShowExpenseModal(true);
+    };
+
+    const handleExpenseSubmit = async (e) => {
+        e.preventDefault();
+
+        try {
+            await createProjectExpense(
+                expenseForm
+            );
+
+            setShowExpenseModal(false);
+
+            loadExpenses();
+        } catch (error) {
+            console.error(error);
+            showApiError(error);
+        }
+    };
+
+    // ---------- Milestone helpers ----------
+    // Progress = completed milestones / all milestones (0 if none)
+    const getProjectProgress = (projectId) => {
+        const projectMilestones =
+            milestones.filter(
+                (m) => m.project === projectId
+            );
+
+        if (!projectMilestones.length)
+            return 0;
+
+        const completed =
+            projectMilestones.filter(
+                (m) => m.completed
+            ).length;
+
+        return Math.round(
+            (completed /
+                projectMilestones.length) *
+            100
+        );
+    };
+
+    const openMilestones = (project) => {
+        setSelectedProject(project);
+
+        setSelectedProjectMilestones(
+            milestones.filter(
+                (m) => m.project === project.id
+            )
+        );
+
+        setShowMilestoneListModal(true);
+    };
+
+    const handleMilestoneSubmit = async (
+        e
+    ) => {
+        e.preventDefault();
+
+        try {
+            const response =
+                await createProjectMilestone(
+                    milestoneForm
+                );
+
+            // Show the new milestone in the open list straight away
+            setSelectedProjectMilestones([
+                ...selectedProjectMilestones,
+                response.data,
+            ]);
+
+            setShowMilestoneModal(false);
+
+            loadMilestones();
+        } catch (error) {
+            console.error(error);
+            showApiError(error);
+        }
+    };
+
+    // Was a stray call at the bottom of handleMilestoneSubmit
+    // (milestone was undefined there), and completeMilestone did not exist
+    const completeMilestone = async (milestone) => {
+        try {
+            await updateProjectMilestone(
+                milestone.id,
+                {
+                    completed: true,
+                }
+            );
+
+            setSelectedProjectMilestones(
+                selectedProjectMilestones.map((m) =>
+                    m.id === milestone.id
+                        ? { ...m, completed: true }
+                        : m
+                )
+            );
+
+            loadMilestones();
+        } catch (error) {
+            console.error(error);
+            showApiError(error);
         }
     };
 
@@ -285,7 +432,7 @@ function ProjectsManagement() {
             start_date: project.start_date || "",
             expected_end_date: project.expected_end_date || "",
             status: project.status || "PLANNING",
-            progress: project.progress || 0,
+            progress: getProjectProgress(project.id),
         });
         setShowModal(true);
     };
@@ -373,6 +520,8 @@ function ProjectsManagement() {
             loadProjects();
             loadAssignments();
             loadMembers();
+            loadExpenses();
+            loadMilestones();
         } catch (error) {
             console.error("Error deleting project:", error);
             showApiError(error);
@@ -448,17 +597,6 @@ function ProjectsManagement() {
             console.error(error);
             showApiError(error);
         }
-        const loadExpenses = async () => {
-            try {
-                const response =
-                    await getProjectExpenses();
-
-                setExpenses(response.data);
-            } catch (error) {
-                console.error(error);
-            }
-        };
-
     };
 
     // ---------- Render ----------
@@ -591,16 +729,16 @@ function ProjectsManagement() {
                 ) : (
                     <div>
                         <table className="w-full table-fixed">
+                            {/* Widths add up to 100%: 22 + 16 + 14 + 14 + 8 + 12 + 14 */}
                             <thead className="bg-gray-50 border-b">
                                 <tr>
-                                    <th className={`${thCls} w-[30%]`}>Project</th>
-                                    <th className={`${thCls} w-[20%]`}>Team</th>
-                                    <th className={`${thCls} w-[16%]`}>Budget</th>
-                                    <th className={`${thCls} w-[20%]`}>Machines</th>
-
-                                    <th className={`${thCls} w-[14%]`}>Status</th>
-                                    <th className={`${thCls} w-[16%] !text-right`}>Actions</th>
-
+                                    <th className={`${thCls} w-[22%]`}>Project</th>
+                                    <th className={`${thCls} w-[16%]`}>Team</th>
+                                    <th className={`${thCls} w-[14%]`}>Budget</th>
+                                    <th className={`${thCls} w-[14%]`}>Machines</th>
+                                    <th className={`${thCls} w-[8%]`}>Milestones</th>
+                                    <th className={`${thCls} w-[12%]`}>Status</th>
+                                    <th className={`${thCls} w-[14%] !text-right`}>Actions</th>
                                 </tr>
                             </thead>
 
@@ -629,30 +767,6 @@ function ProjectsManagement() {
                                                     KES {Number(project.budget || 0).toLocaleString()}
                                                 </p>
                                             </td>
-                                            <td className="px-6 py-4">
-                                                <div className="text-sm">
-                                                    <div>
-                                                        Budget:
-                                                        KES {Number(project.budget)
-                                                            .toLocaleString()}
-                                                    </div>
-
-                                                    <div className="text-red-600">
-                                                        Spent:
-                                                        KES {getProjectExpensesTotal(
-                                                            project.id
-                                                        ).toLocaleString()}
-                                                    </div>
-
-                                                    <div className="text-green-600">
-                                                        Remaining:
-                                                        KES {getRemainingBudget(
-                                                            project
-                                                        ).toLocaleString()}
-                                                    </div>
-                                                </div>
-                                            </td>
-
 
                                             {/* Team */}
                                             <td className="px-3 py-3">
@@ -678,6 +792,39 @@ function ProjectsManagement() {
                                                 </div>
                                             </td>
 
+                                            {/* Budget / Spent / Remaining + Add expense */}
+                                            <td className="px-3 py-3">
+                                                <div className="text-sm">
+                                                    <div>
+                                                        Budget:
+                                                        KES {Number(project.budget)
+                                                            .toLocaleString()}
+                                                    </div>
+
+                                                    <div className="text-red-600">
+                                                        Spent:
+                                                        KES {getProjectExpensesTotal(
+                                                            project.id
+                                                        ).toLocaleString()}
+                                                    </div>
+
+                                                    <div className="text-green-600">
+                                                        Remaining:
+                                                        KES {getRemainingBudget(
+                                                            project
+                                                        ).toLocaleString()}
+                                                    </div>
+
+                                                    {/* Moved here from the machine chip so it shows once per project */}
+                                                    <button
+                                                        onClick={() => openExpenseModal(project)}
+                                                        className="text-xs text-blue-600 hover:underline mt-1"
+                                                    >
+                                                        + Add expense
+                                                    </button>
+                                                </div>
+                                            </td>
+
                                             {/* Machines */}
                                             <td className="px-3 py-3">
                                                 <div className="flex flex-wrap gap-1">
@@ -694,28 +841,30 @@ function ProjectsManagement() {
                                                             >
                                                                 <X size={12} />
                                                             </button>
-                                                            <button
-                                                                onClick={() => {
-                                                                    setExpenseForm({
-                                                                        project: project.id,
-                                                                        title: "",
-                                                                        category: "MATERIALS",
-                                                                        amount: "",
-                                                                        notes: "",
-                                                                    });
-
-                                                                    setShowExpenseModal(true);
-                                                                }}
-                                                                className="p-1.5 rounded-lg text-gray-500 hover:bg-gray-100"
-                                                            >
-                                                                Add Expense
-                                                            </button>
                                                         </span>
                                                     ))}
                                                     {projectMachines.length === 0 && (
                                                         <span className="text-xs text-gray-400">None</span>
                                                     )}
                                                 </div>
+                                            </td>
+
+                                            {/* Milestones: completed / total */}
+                                            <td className="px-3 py-3 text-sm">
+                                                {
+                                                    milestones.filter(
+                                                        (m) =>
+                                                            m.project === project.id &&
+                                                            m.completed
+                                                    ).length
+                                                }
+                                                /
+                                                {
+                                                    milestones.filter(
+                                                        (m) =>
+                                                            m.project === project.id
+                                                    ).length
+                                                }
                                             </td>
 
                                             {/* Status + progress */}
@@ -792,6 +941,13 @@ function ProjectsManagement() {
                                                         <Wrench size={14} />
                                                     </button>
                                                     <button
+                                                        onClick={() => openMilestones(project)}
+                                                        className="p-1.5 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-blue-600"
+                                                        title="Milestones"
+                                                    >
+                                                        <Flag size={14} />
+                                                    </button>
+                                                    <button
                                                         onClick={() => handleEdit(project)}
                                                         className="p-1.5 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-blue-600"
                                                         title="Full Edit"
@@ -852,6 +1008,217 @@ function ProjectsManagement() {
                     </div>
                 )}
             </div>
+
+            {/* Milestone List Modal (your milestone list, now inside a modal) */}
+            {showMilestoneListModal && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+                    <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl max-h-[90vh] overflow-y-auto">
+                        <h2 className="text-xl font-bold mb-1">Milestones</h2>
+                        <p className="text-sm text-gray-500 mb-4">
+                            {selectedProject?.name}
+                        </p>
+
+                        {selectedProjectMilestones.length === 0 && (
+                            <p className="text-sm text-gray-400">
+                                No milestones yet.
+                            </p>
+                        )}
+
+                        {selectedProjectMilestones.map(
+                            (milestone) => (
+                                <div
+                                    key={milestone.id}
+                                    className="flex justify-between items-center border-b py-2"
+                                >
+                                    <div>
+                                        <div className="font-medium">
+                                            {milestone.title}
+                                        </div>
+
+                                        <div className="text-xs text-gray-500">
+                                            Due:
+                                            {milestone.due_date}
+                                        </div>
+                                    </div>
+
+                                    {!milestone.completed && (
+                                        <button
+                                            onClick={() =>
+                                                completeMilestone(
+                                                    milestone
+                                                )
+                                            }
+                                            className="bg-green-500 text-white px-3 py-1 rounded"
+                                        >
+                                            Complete
+                                        </button>
+                                    )}
+
+                                    {milestone.completed && (
+                                        <span className="text-green-600">
+                                            Completed
+                                        </span>
+                                    )}
+                                </div>
+                            )
+                        )}
+
+                        <div className="flex justify-between pt-4">
+                            <button
+                                onClick={() => {
+                                    setMilestoneForm({
+                                        project: selectedProject.id,
+                                        title: "",
+                                        description: "",
+                                        due_date: "",
+                                    });
+
+                                    setShowMilestoneModal(true);
+                                }}
+                                className="px-4 py-2 bg-[#1495CC] text-white rounded-xl"
+                            >
+                                Add Milestone
+                            </button>
+                            <button
+                                onClick={() => setShowMilestoneListModal(false)}
+                                className="px-4 py-2 border rounded-xl"
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Add Milestone Modal */}
+            {showMilestoneModal && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-[60]">
+                    <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl">
+                        <h2 className="text-xl font-bold mb-4">Add Milestone</h2>
+
+                        <form onSubmit={handleMilestoneSubmit} className="space-y-4">
+                            <input
+                                type="text"
+                                placeholder="Title"
+                                value={milestoneForm.title}
+                                onChange={(e) =>
+                                    setMilestoneForm({ ...milestoneForm, title: e.target.value })
+                                }
+                                required
+                                className="w-full border border-gray-200 rounded-xl px-4 py-2"
+                            />
+
+                            <textarea
+                                placeholder="Description"
+                                value={milestoneForm.description}
+                                onChange={(e) =>
+                                    setMilestoneForm({ ...milestoneForm, description: e.target.value })
+                                }
+                                className="w-full border border-gray-200 rounded-xl px-4 py-2"
+                            />
+
+                            <input
+                                type="date"
+                                value={milestoneForm.due_date}
+                                onChange={(e) =>
+                                    setMilestoneForm({ ...milestoneForm, due_date: e.target.value })
+                                }
+                                required
+                                className="w-full border border-gray-200 rounded-xl px-4 py-2"
+                            />
+
+                            <div className="flex justify-end gap-3">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowMilestoneModal(false)}
+                                    className="px-4 py-2 border rounded-xl"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="px-4 py-2 bg-[#1495CC] text-white rounded-xl"
+                                >
+                                    Save Milestone
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Expense Modal */}
+            {showExpenseModal && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+                    <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl">
+                        <h2 className="text-xl font-bold mb-4">Add Expense</h2>
+
+                        <form onSubmit={handleExpenseSubmit} className="space-y-4">
+                            <input
+                                type="text"
+                                placeholder="Title"
+                                value={expenseForm.title}
+                                onChange={(e) =>
+                                    setExpenseForm({ ...expenseForm, title: e.target.value })
+                                }
+                                required
+                                className="w-full border border-gray-200 rounded-xl px-4 py-2"
+                            />
+
+                            {/* Match these values to the category choices in your Django model */}
+                            <select
+                                value={expenseForm.category}
+                                onChange={(e) =>
+                                    setExpenseForm({ ...expenseForm, category: e.target.value })
+                                }
+                                className="w-full border border-gray-200 rounded-xl px-4 py-2"
+                            >
+                                <option value="MATERIALS">Materials</option>
+                                <option value="LABOUR">Labour</option>
+                                <option value="TRANSPORT">Transport</option>
+                                <option value="EQUIPMENT">Equipment</option>
+                                <option value="OTHER">Other</option>
+                            </select>
+
+                            <input
+                                type="number"
+                                placeholder="Amount (KES)"
+                                value={expenseForm.amount}
+                                onChange={(e) =>
+                                    setExpenseForm({ ...expenseForm, amount: e.target.value })
+                                }
+                                required
+                                className="w-full border border-gray-200 rounded-xl px-4 py-2"
+                            />
+
+                            <textarea
+                                placeholder="Notes"
+                                value={expenseForm.notes}
+                                onChange={(e) =>
+                                    setExpenseForm({ ...expenseForm, notes: e.target.value })
+                                }
+                                className="w-full border border-gray-200 rounded-xl px-4 py-2"
+                            />
+
+                            <div className="flex justify-end gap-3">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowExpenseModal(false)}
+                                    className="px-4 py-2 border rounded-xl"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="px-4 py-2 bg-[#1495CC] text-white rounded-xl"
+                                >
+                                    Save Expense
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
 
             {/* Project Modal */}
             {showModal && (
