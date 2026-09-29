@@ -10,6 +10,7 @@ import {
     CheckCircle2,
     PauseCircle,
     Wrench,
+    UserPlus,
 } from "lucide-react";
 
 import {
@@ -18,65 +19,88 @@ import {
     deleteProject,
     getProjects,
 } from "../../api/projects";
-
+import {
+    getProjectMembers,
+    createProjectMember,
+    deleteProjectMember,
+} from "../../api/projectMembers";
 import { getUsers } from "../../api/users";
-
 import { getMachines } from "../../api/machines";
-
 import {
     getProjectMachines,
     createProjectMachine,
     deleteProjectMachine,
 } from "../../api/projectMachines";
+import {
+    getProjectExpenses,
+    createProjectExpense,
+} from "../../api/projectExpenses";
+
+const EMPTY_PROJECT = {
+    name: "",
+    description: "",
+    manager: "",
+    location: "",
+    budget: "",
+    start_date: "",
+    expected_end_date: "",
+    status: "PLANNING",
+    progress: 0,
+};
+
+const EMPTY_MEMBER = { full_name: "", phone: "", role: "WORKER" };
+const EMPTY_MACHINE = { machine: "", quantity: 1 };
+
+const inputCls =
+    "w-full px-4 py-2 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-200";
+const thCls = "text-left px-3 py-3 text-sm font-semibold text-gray-600";
 
 function ProjectsManagement() {
     const [projects, setProjects] = useState([]);
     const [managers, setManagers] = useState([]);
+    const [machines, setMachines] = useState([]);
+    const [assignments, setAssignments] = useState([]);
+    const [members, setMembers] = useState([]);
+
     const [search, setSearch] = useState("");
     const [selectedStatus, setSelectedStatus] = useState("");
     const [selectedLocation, setSelectedLocation] = useState("");
-    
-
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 5;
 
-    const [editingProject, setEditingProject] = useState(null);
-    const [showModal, setShowModal] = useState(false);
-
-    const [formData, setFormData] = useState({
-        name: "",
-        description: "",
-        manager: "",
-        location: "",
-        budget: "",
-        start_date: "",
-        expected_end_date: "",
-        status: "PLANNING",
-        progress: 0,
-    });
-
     const [loading, setLoading] = useState(true);
-
-    const [machines, setMachines] = useState([]);
-    const [assignments, setAssignments] = useState([]);
-
     const [selectedProject, setSelectedProject] = useState(null);
+    const [editingProject, setEditingProject] = useState(null);
+
+    const [showModal, setShowModal] = useState(false);
     const [showMachineModal, setShowMachineModal] = useState(false);
+    const [showMemberModal, setShowMemberModal] = useState(false);
 
-    const [machineForm, setMachineForm] = useState({
-        machine: "",
-        quantity: 1,
+    const [formData, setFormData] = useState(EMPTY_PROJECT);
+    const [memberForm, setMemberForm] = useState(EMPTY_MEMBER);
+    const [machineForm, setMachineForm] = useState(EMPTY_MACHINE);
+
+    const [expenses, setExpenses] = useState([]);
+
+    const [showExpenseModal, setShowExpenseModal] =
+        useState(false);
+
+    const [expenseForm, setExpenseForm] = useState({
+        project: "",
+        title: "",
+        category: "MATERIALS",
+        amount: "",
+        notes: "",
     });
-
+    // ---------- Loaders ----------
     const loadManagers = async () => {
         try {
             const response = await getUsers();
-            const managersOnly = response.data.filter(
-                (user) =>
-                    user.role === "MANAGER" ||
-                    user.role === "ADMIN"
+            setManagers(
+                response.data.filter(
+                    (u) => u.role === "MANAGER" || u.role === "ADMIN"
+                )
             );
-            setManagers(managersOnly);
         } catch (error) {
             console.error(error);
         }
@@ -93,6 +117,7 @@ function ProjectsManagement() {
             setLoading(false);
         }
     };
+
     const loadMachines = async () => {
         try {
             const response = await getMachines();
@@ -102,245 +127,97 @@ function ProjectsManagement() {
         }
     };
 
+    // Calls the imported API function (no longer shadowed by a local helper)
     const loadAssignments = async () => {
         try {
-            const response =
-                await getProjectMachines();
-
+            const response = await getProjectMachines();
             setAssignments(response.data);
         } catch (error) {
             console.error(error);
         }
     };
-    
-    const getProjectMachines = (projectId) => {
-    return assignments.filter(
-        (assignment) =>
-            assignment.project === projectId
-    );
-};
+
+    const loadMembers = async () => {
+        try {
+            const response = await getProjectMembers();
+            setMembers(response.data);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
     useEffect(() => {
         loadProjects();
         loadManagers();
         loadMachines();
         loadAssignments();
+        loadExpenses();
     }, []);
-    // Filtering
-    const filteredProjects = projects.filter((project) => {
-        const matchesSearch =
-            project.name
-                .toLowerCase()
-                .includes(search.toLowerCase()) ||
-            project.description
-                .toLowerCase()
-                .includes(search.toLowerCase()) ||
-            project.customer_email
-                ?.toLowerCase()
-                .includes(search.toLowerCase());
 
-        const matchesStatus =
-            selectedStatus === "" ||
-            project.status === selectedStatus;
-
-        const matchesLocation =
-            selectedLocation === "" ||
-            project.location
-                .toLowerCase()
-                .includes(selectedLocation.toLowerCase());
-
-        return (
-            matchesSearch &&
-            matchesStatus &&
-            matchesLocation
-        );
-    });
-
-    // Pagination
-    const totalPages = Math.ceil(
-        filteredProjects.length / itemsPerPage
-    );
-
-    const startIndex =
-        (currentPage - 1) * itemsPerPage;
-
-    const paginatedProjects = filteredProjects.slice(
-        startIndex,
-        startIndex + itemsPerPage
-    );
-
-    // Total Budget Calculation
-    const totalBudget = projects.reduce(
-        (sum, project) =>
-            sum + Number(project.budget || 0),
-        0
-    );
-
-    // Add
-    const handleAdd = () => {
-        setEditingProject(null);
-        setFormData({
-            name: "",
-            description: "",
-            manager: "",
-            location: "",
-            budget: "",
-            start_date: "",
-            expected_end_date: "",
-            status: "PLANNING",
-            progress: 0,
-        });
-        setShowModal(true);
-    };
-
-    // Edit
-    const handleEdit = (project) => {
-        setEditingProject(project);
-        setFormData({
-            name: project.name || "",
-            description: project.description || "",
-            manager: project.manager || "",
-            location: project.location || "",
-            budget: project.budget || "",
-            start_date: project.start_date || "",
-            expected_end_date:
-                project.expected_end_date || "",
-            status: project.status || "PLANNING",
-            progress: project.progress || 0,
-        });
-        setShowModal(true);
-    };
-
-    // Quick Status Update Action (Auto-syncs progress)
-    const handleQuickStatusUpdate = async (project, newStatus) => {
-        try {
-            let newProgress = project.progress;
-            if (newStatus === "PLANNING") newProgress = 0;
-            else if (newStatus === "ACTIVE" && project.progress === 0) newProgress = 25;
-            else if (newStatus === "COMPLETED") newProgress = 100;
-            else if (newStatus === "ON_HOLD") newProgress = project.progress;
-
-            const data = {
-                name: project.name,
-                description: project.description,
-                manager: project.manager || null,
-                location: project.location,
-                budget: project.budget,
-                start_date: project.start_date,
-                expected_end_date: project.expected_end_date,
-                status: newStatus,
-                progress: newProgress,
-            };
-
-            await updateProject(project.id, data);
-            loadProjects();
-        } catch (error) {
-            console.error("Error updating status:", error);
-            alert("Failed to update status.");
-        }
-    };
-
-    // Input with Automatic Status-to-Progress Sync
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData((prev) => {
-            const updated = { ...prev, [name]: value };
-
-            // Automatically adjust progress when status changes
-            if (name === "status") {
-                if (value === "PLANNING") {
-                    updated.progress = 0;
-                } else if (value === "ACTIVE" && Number(prev.progress) === 0) {
-                    updated.progress = 25;
-                } else if (value === "COMPLETED") {
-                    updated.progress = 100;
-                } else if (value === "CANCELLED") {
-                    updated.progress = 0;
-                }
-            }
-
-            return updated;
-        });
-    };
-
-    // Save
-    const handleSubmit = async (e) => {
+    const handleExpenseSubmit = async (e) => {
         e.preventDefault();
 
         try {
-            const data = {
-                name: formData.name,
-                description: formData.description,
-                manager: formData.manager || null,
-                location: formData.location,
-                budget: formData.budget,
-                start_date: formData.start_date,
-                expected_end_date:
-                    formData.expected_end_date,
-                status: formData.status,
-                progress: Number(formData.progress),
-            };
+            await createProjectExpense(
+                expenseForm
+            );
 
-            if (editingProject) {
-                await updateProject(
-                    editingProject.id,
-                    data
-                );
-            } else {
-                await createProject(data);
-            }
+            setShowExpenseModal(false);
 
-            setShowModal(false);
-            setEditingProject(null);
-            setCurrentPage(1);
-            loadProjects();
-        } catch (error) {
-            console.error("Error saving project:", error);
-            if (error.response?.data) {
-                alert(JSON.stringify(error.response.data));
-            }
-        }
-    };
-
-    // Delete
-    const handleDelete = async (project) => {
-        const confirmed = window.confirm(
-            `Are you sure you want to delete "${project.name}"?`
-        );
-
-        if (!confirmed) return;
-
-        try {
-            await deleteProject(project.id);
-            setCurrentPage(1);
-            loadProjects();
-        } catch (error) {
-            console.error("Error deleting project:", error);
-            if (error.response?.data) {
-                alert(JSON.stringify(error.response.data));
-            }
-        }
-    };
-    const handleAssignMachine = async (e) => {
-        e.preventDefault();
-
-        try {
-            await createProjectMachine({
-                project: selectedProject.id,
-                machine: machineForm.machine,
-                quantity: machineForm.quantity,
-            });
-
-            setShowMachineModal(false);
-
-            loadAssignments();
+            loadExpenses();
         } catch (error) {
             console.error(error);
-
-            if (error.response?.data) {
-                alert(JSON.stringify(error.response.data));
-            }
         }
     };
+
+    const getProjectExpensesTotal = (
+        projectId
+    ) => {
+        return expenses
+            .filter(
+                (expense) =>
+                    expense.project === projectId
+            )
+            .reduce(
+                (sum, expense) =>
+                    sum +
+                    Number(expense.amount || 0),
+                0
+            );
+    };
+
+    const getRemainingBudget = (
+        project
+    ) => {
+        return (
+            Number(project.budget || 0) -
+            getProjectExpensesTotal(project.id)
+        );
+    };
+
+    // ---------- Helpers ----------
+    const getAssignedMachines = (projectId) =>
+        assignments.filter((a) => a.project === projectId);
+
+    const getAssignedMembers = (projectId) =>
+        members.filter((m) => m.project === projectId);
+
+    const getManagerName = (project) => {
+        if (project.manager_name) return project.manager_name;
+        const m = managers.find((u) => u.id === project.manager);
+        return m ? m.email || m.username : "Unassigned";
+    };
+
+    // "FOREMAN" -> "Foreman"
+    const formatRole = (role) =>
+        role ? role.charAt(0) + role.slice(1).toLowerCase() : "";
+
+    const showApiError = (error) => {
+        if (error.response?.data) {
+            alert(JSON.stringify(error.response.data));
+        }
+    };
+
     const getStatusStyle = (status) => {
         switch (status) {
             case "PLANNING":
@@ -358,6 +235,233 @@ function ProjectsManagement() {
         }
     };
 
+    // ---------- Filtering & pagination ----------
+    const q = search.toLowerCase();
+    const filteredProjects = projects.filter((project) => {
+        const matchesSearch =
+            (project.name || "").toLowerCase().includes(q) ||
+            (project.description || "").toLowerCase().includes(q) ||
+            (project.customer_email || "").toLowerCase().includes(q);
+
+        const matchesStatus =
+            selectedStatus === "" || project.status === selectedStatus;
+
+        const matchesLocation =
+            selectedLocation === "" ||
+            (project.location || "")
+                .toLowerCase()
+                .includes(selectedLocation.toLowerCase());
+
+        return matchesSearch && matchesStatus && matchesLocation;
+    });
+
+    const totalPages = Math.ceil(filteredProjects.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const paginatedProjects = filteredProjects.slice(
+        startIndex,
+        startIndex + itemsPerPage
+    );
+
+    const totalBudget = projects.reduce(
+        (sum, p) => sum + Number(p.budget || 0),
+        0
+    );
+
+    // ---------- Project handlers ----------
+    const handleAdd = () => {
+        setEditingProject(null);
+        setFormData(EMPTY_PROJECT);
+        setShowModal(true);
+    };
+
+    const handleEdit = (project) => {
+        setEditingProject(project);
+        setFormData({
+            name: project.name || "",
+            description: project.description || "",
+            manager: project.manager || "",
+            location: project.location || "",
+            budget: project.budget || "",
+            start_date: project.start_date || "",
+            expected_end_date: project.expected_end_date || "",
+            status: project.status || "PLANNING",
+            progress: project.progress || 0,
+        });
+        setShowModal(true);
+    };
+
+    const handleQuickStatusUpdate = async (project, newStatus) => {
+        try {
+            let newProgress = project.progress;
+            if (newStatus === "PLANNING") newProgress = 0;
+            else if (newStatus === "ACTIVE" && project.progress === 0)
+                newProgress = 25;
+            else if (newStatus === "COMPLETED") newProgress = 100;
+
+            await updateProject(project.id, {
+                name: project.name,
+                description: project.description,
+                manager: project.manager || null,
+                location: project.location,
+                budget: project.budget,
+                start_date: project.start_date,
+                expected_end_date: project.expected_end_date,
+                status: newStatus,
+                progress: newProgress,
+            });
+            loadProjects();
+        } catch (error) {
+            console.error("Error updating status:", error);
+            alert("Failed to update status.");
+        }
+    };
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData((prev) => {
+            const updated = { ...prev, [name]: value };
+
+            if (name === "status") {
+                if (value === "PLANNING" || value === "CANCELLED")
+                    updated.progress = 0;
+                else if (value === "ACTIVE" && Number(prev.progress) === 0)
+                    updated.progress = 25;
+                else if (value === "COMPLETED") updated.progress = 100;
+            }
+            return updated;
+        });
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const data = {
+                name: formData.name,
+                description: formData.description,
+                manager: formData.manager || null,
+                location: formData.location,
+                budget: formData.budget,
+                start_date: formData.start_date,
+                expected_end_date: formData.expected_end_date,
+                status: formData.status,
+                progress: Number(formData.progress),
+            };
+
+            if (editingProject) {
+                await updateProject(editingProject.id, data);
+            } else {
+                await createProject(data);
+            }
+
+            setShowModal(false);
+            setEditingProject(null);
+            setCurrentPage(1);
+            loadProjects();
+        } catch (error) {
+            console.error("Error saving project:", error);
+            showApiError(error);
+        }
+    };
+
+    const handleDelete = async (project) => {
+        if (!window.confirm(`Are you sure you want to delete "${project.name}"?`))
+            return;
+
+        try {
+            await deleteProject(project.id);
+            setCurrentPage(1);
+            loadProjects();
+            loadAssignments();
+            loadMembers();
+        } catch (error) {
+            console.error("Error deleting project:", error);
+            showApiError(error);
+        }
+    };
+
+    // ---------- Machine handlers ----------
+    const openMachineModal = (project) => {
+        setSelectedProject(project);
+        setMachineForm(EMPTY_MACHINE);
+        setShowMachineModal(true);
+    };
+
+    const handleAssignMachine = async (e) => {
+        e.preventDefault();
+        try {
+            await createProjectMachine({
+                project: selectedProject.id,
+                machine: machineForm.machine,
+                quantity: Number(machineForm.quantity),
+            });
+            setShowMachineModal(false);
+            setMachineForm(EMPTY_MACHINE);
+            loadAssignments();
+        } catch (error) {
+            console.error(error);
+            showApiError(error);
+        }
+    };
+
+    const handleRemoveMachine = async (assignmentId) => {
+        if (!window.confirm("Remove this machine assignment?")) return;
+        try {
+            await deleteProjectMachine(assignmentId);
+            loadAssignments();
+        } catch (error) {
+            console.error(error);
+            showApiError(error);
+        }
+    };
+
+    // ---------- Member handlers ----------
+    const openMemberModal = (project) => {
+        setSelectedProject(project);
+        setMemberForm(EMPTY_MEMBER);
+        setShowMemberModal(true);
+    };
+
+    const handleAssignMember = async (e) => {
+        e.preventDefault();
+        try {
+            await createProjectMember({
+                project: selectedProject.id,
+                full_name: memberForm.full_name,
+                phone: memberForm.phone,
+                role: memberForm.role,
+            });
+            setShowMemberModal(false);
+            setMemberForm(EMPTY_MEMBER);
+            loadMembers();
+        } catch (error) {
+            console.error(error);
+            showApiError(error);
+        }
+    };
+
+    const handleRemoveMember = async (memberId) => {
+        if (!window.confirm("Remove this team member?")) return;
+        try {
+            await deleteProjectMember(memberId);
+            loadMembers();
+        } catch (error) {
+            console.error(error);
+            showApiError(error);
+        }
+        const loadExpenses = async () => {
+            try {
+                const response =
+                    await getProjectExpenses();
+
+                setExpenses(response.data);
+            } catch (error) {
+                console.error(error);
+            }
+        };
+
+    };
+
+    // ---------- Render ----------
     return (
         <div className="space-y-6">
             {/* Header */}
@@ -385,15 +489,10 @@ function ProjectsManagement() {
                 <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
                     <div className="flex items-center gap-4">
                         <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center">
-                            <FolderKanban
-                                size={24}
-                                className="text-[#1495CC]"
-                            />
+                            <FolderKanban size={24} className="text-[#1495CC]" />
                         </div>
                         <div>
-                            <p className="text-sm text-gray-500">
-                                Total Projects
-                            </p>
+                            <p className="text-sm text-gray-500">Total Projects</p>
                             <p className="text-2xl font-bold text-gray-800">
                                 {projects.length}
                             </p>
@@ -411,33 +510,21 @@ function ProjectsManagement() {
                 <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
                     <p className="text-sm text-gray-500">Planning</p>
                     <p className="text-2xl font-bold text-blue-600 mt-1">
-                        {
-                            projects.filter(
-                                (p) => p.status === "PLANNING"
-                            ).length
-                        }
+                        {projects.filter((p) => p.status === "PLANNING").length}
                     </p>
                 </div>
 
                 <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
                     <p className="text-sm text-gray-500">Active</p>
                     <p className="text-2xl font-bold text-green-600 mt-1">
-                        {
-                            projects.filter(
-                                (p) => p.status === "ACTIVE"
-                            ).length
-                        }
+                        {projects.filter((p) => p.status === "ACTIVE").length}
                     </p>
                 </div>
 
                 <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
                     <p className="text-sm text-gray-500">Completed</p>
                     <p className="text-2xl font-bold text-purple-600 mt-1">
-                        {
-                            projects.filter(
-                                (p) => p.status === "COMPLETED"
-                            ).length
-                        }
+                        {projects.filter((p) => p.status === "COMPLETED").length}
                     </p>
                 </div>
             </div>
@@ -502,156 +589,227 @@ function ProjectsManagement() {
                         No projects found.
                     </div>
                 ) : (
-                    <div className="overflow-x-auto">
-                        <table className="w-full">
+                    <div>
+                        <table className="w-full table-fixed">
                             <thead className="bg-gray-50 border-b">
                                 <tr>
-                                    <th className="text-left px-6 py-4 text-sm font-semibold text-gray-600">
-                                        Project
-                                    </th>
-                                    <th className="text-left px-6 py-4 text-sm font-semibold text-gray-600">
-                                        Progress
-                                    </th>
-                                    <th className="text-left px-6 py-4 text-sm font-semibold text-gray-600">
-                                        Location & Budget
-                                    </th>
-                                    <th className="text-left px-6 py-4 text-sm font-semibold text-gray-600">
-                                        Status
-                                    </th>
-                                    <th className="text-right px-6 py-4 text-sm font-semibold text-gray-600">
-                                        Quick Actions
-                                    </th>
+                                    <th className={`${thCls} w-[30%]`}>Project</th>
+                                    <th className={`${thCls} w-[20%]`}>Team</th>
+                                    <th className={`${thCls} w-[16%]`}>Budget</th>
+                                    <th className={`${thCls} w-[20%]`}>Machines</th>
+
+                                    <th className={`${thCls} w-[14%]`}>Status</th>
+                                    <th className={`${thCls} w-[16%] !text-right`}>Actions</th>
+
                                 </tr>
                             </thead>
+
                             <tbody>
-                                {paginatedProjects.map((project) => (
-                                    <tr
-                                        key={project.id}
-                                        className="border-b last:border-b-0 hover:bg-gray-50"
-                                    >
-                                        <td className="px-6 py-4">
-                                            <div>
-                                                <p className="font-medium text-gray-800">
+                                {paginatedProjects.map((project) => {
+                                    const projectMembers = getAssignedMembers(project.id);
+                                    const projectMachines = getAssignedMachines(project.id);
+
+                                    return (
+                                        <tr
+                                            key={project.id}
+                                            className="border-b last:border-b-0 hover:bg-gray-50 align-top"
+                                        >
+                                            {/* Project + manager, location, budget */}
+                                            <td className="px-3 py-3">
+                                                <p className="font-medium text-gray-800 truncate">
                                                     {project.name}
                                                 </p>
-                                                <p className="text-sm text-gray-500 max-w-xs truncate">
+                                                <p className="text-xs text-gray-500 truncate">
                                                     {project.description || "No description provided."}
                                                 </p>
-                                            </div>
-                                        </td>
+                                                <p className="text-xs text-gray-600 mt-1 truncate">
+                                                    {getManagerName(project)} · {project.location}
+                                                </p>
+                                                <p className="text-xs text-gray-500">
+                                                    KES {Number(project.budget || 0).toLocaleString()}
+                                                </p>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <div className="text-sm">
+                                                    <div>
+                                                        Budget:
+                                                        KES {Number(project.budget)
+                                                            .toLocaleString()}
+                                                    </div>
 
-                                        {/* Progress Bar Column */}
-                                        <td className="px-6 py-4">
-                                            <div className="w-28 bg-gray-200 rounded-full h-2">
-                                                <div
-                                                    className="bg-green-500 h-2 rounded-full transition-all duration-300"
-                                                    style={{
-                                                        width: `${project.progress || 0}%`,
-                                                    }}
-                                                />
-                                            </div>
-                                            <p className="text-xs text-gray-500 mt-1">
-                                                {project.progress || 0}% Complete
-                                            </p>
-                                        </td>
+                                                    <div className="text-red-600">
+                                                        Spent:
+                                                        KES {getProjectExpensesTotal(
+                                                            project.id
+                                                        ).toLocaleString()}
+                                                    </div>
 
-                                        <td className="px-6 py-4">
-                                            <p className="text-gray-700 font-medium">
-                                                {project.location}
-                                            </p>
-                                            <p className="text-xs text-gray-500">
-                                                KES {Number(project.budget || 0).toLocaleString()}
-                                            </p>
-                                        </td>
+                                                    <div className="text-green-600">
+                                                        Remaining:
+                                                        KES {getRemainingBudget(
+                                                            project
+                                                        ).toLocaleString()}
+                                                    </div>
+                                                </div>
+                                            </td>
 
-                                        <td className="px-6 py-4">
-                                            <span
-                                                className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusStyle(
-                                                    project.status
-                                                )}`}
-                                            >
-                                                {project.status.replace("_", " ")}
-                                            </span>
-                                        </td>
 
-                                        {/* Quick Status Action Buttons + Edit/Delete/Assign Machine */}
-                                        <td className="px-6 py-4">
-                                            <div className="flex items-center justify-end gap-2">
-
-                                                {project.status === "PLANNING" && (
-                                                    <button
-                                                        onClick={() => handleQuickStatusUpdate(project, "ACTIVE")}
-                                                        className="px-2.5 py-1 bg-blue-50 text-blue-600 rounded-lg text-xs font-medium hover:bg-blue-100 flex items-center gap-1"
-                                                        title="Start Project"
-                                                    >
-                                                        <Play size={12} /> Start
-                                                    </button>
-                                                )}
-                                                {project.status === "ACTIVE" && (
-                                                    <>
-                                                        <button
-                                                            onClick={() => handleQuickStatusUpdate(project, "ON_HOLD")}
-                                                            className="px-2.5 py-1 bg-yellow-50 text-yellow-600 rounded-lg text-xs font-medium hover:bg-yellow-100 flex items-center gap-1"
-                                                            title="Put On Hold"
+                                            {/* Team */}
+                                            <td className="px-3 py-3">
+                                                <div className="flex flex-wrap gap-1">
+                                                    {projectMembers.map((m) => (
+                                                        <span
+                                                            key={m.id}
+                                                            className="flex items-center gap-1 px-2 py-0.5 bg-green-50 text-green-700 rounded text-xs"
                                                         >
-                                                            <PauseCircle size={12} /> Hold
-                                                        </button>
-                                                        <button
-                                                            onClick={() => handleQuickStatusUpdate(project, "COMPLETED")}
-                                                            className="px-2.5 py-1 bg-purple-50 text-purple-600 rounded-lg text-xs font-medium hover:bg-purple-100 flex items-center gap-1"
-                                                            title="Mark Complete"
+                                                            {m.full_name} - {formatRole(m.role)}
+                                                            <button
+                                                                onClick={() => handleRemoveMember(m.id)}
+                                                                className="hover:text-red-600"
+                                                                title="Remove member"
+                                                            >
+                                                                <X size={12} />
+                                                            </button>
+                                                        </span>
+                                                    ))}
+                                                    {projectMembers.length === 0 && (
+                                                        <span className="text-xs text-gray-400">No workers</span>
+                                                    )}
+                                                </div>
+                                            </td>
+
+                                            {/* Machines */}
+                                            <td className="px-3 py-3">
+                                                <div className="flex flex-wrap gap-1">
+                                                    {projectMachines.map((a) => (
+                                                        <span
+                                                            key={a.id}
+                                                            className="flex items-center gap-1 px-2 py-0.5 bg-blue-50 text-blue-700 rounded text-xs"
                                                         >
-                                                            <CheckCircle2 size={12} /> Complete
+                                                            {a.machine_name} ×{a.quantity}
+                                                            <button
+                                                                onClick={() => handleRemoveMachine(a.id)}
+                                                                className="hover:text-red-600"
+                                                                title="Remove machine"
+                                                            >
+                                                                <X size={12} />
+                                                            </button>
+                                                            <button
+                                                                onClick={() => {
+                                                                    setExpenseForm({
+                                                                        project: project.id,
+                                                                        title: "",
+                                                                        category: "MATERIALS",
+                                                                        amount: "",
+                                                                        notes: "",
+                                                                    });
+
+                                                                    setShowExpenseModal(true);
+                                                                }}
+                                                                className="p-1.5 rounded-lg text-gray-500 hover:bg-gray-100"
+                                                            >
+                                                                Add Expense
+                                                            </button>
+                                                        </span>
+                                                    ))}
+                                                    {projectMachines.length === 0 && (
+                                                        <span className="text-xs text-gray-400">None</span>
+                                                    )}
+                                                </div>
+                                            </td>
+
+                                            {/* Status + progress */}
+                                            <td className="px-3 py-3">
+                                                <span
+                                                    className={`px-2.5 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${getStatusStyle(
+                                                        project.status
+                                                    )}`}
+                                                >
+                                                    {project.status.replace("_", " ")}
+                                                </span>
+                                                <div className="w-full bg-gray-200 rounded-full h-1.5 mt-2">
+                                                    <div
+                                                        className="bg-green-500 h-1.5 rounded-full transition-all duration-300"
+                                                        style={{ width: `${project.progress || 0}%` }}
+                                                    />
+                                                </div>
+                                                <p className="text-xs text-gray-500 mt-1">
+                                                    {project.progress || 0}%
+                                                </p>
+                                            </td>
+
+                                            {/* Actions (icon-only, wraps if needed) */}
+                                            <td className="px-3 py-3">
+                                                <div className="flex flex-wrap items-center justify-end gap-1">
+                                                    {project.status === "PLANNING" && (
+                                                        <button
+                                                            onClick={() => handleQuickStatusUpdate(project, "ACTIVE")}
+                                                            className="p-1.5 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100"
+                                                            title="Start Project"
+                                                        >
+                                                            <Play size={14} />
                                                         </button>
-                                                    </>
-                                                )}
-                                                {project.status === "ON_HOLD" && (
+                                                    )}
+                                                    {project.status === "ACTIVE" && (
+                                                        <>
+                                                            <button
+                                                                onClick={() => handleQuickStatusUpdate(project, "ON_HOLD")}
+                                                                className="p-1.5 rounded-lg bg-yellow-50 text-yellow-600 hover:bg-yellow-100"
+                                                                title="Put On Hold"
+                                                            >
+                                                                <PauseCircle size={14} />
+                                                            </button>
+                                                            <button
+                                                                onClick={() => handleQuickStatusUpdate(project, "COMPLETED")}
+                                                                className="p-1.5 rounded-lg bg-purple-50 text-purple-600 hover:bg-purple-100"
+                                                                title="Mark Complete"
+                                                            >
+                                                                <CheckCircle2 size={14} />
+                                                            </button>
+                                                        </>
+                                                    )}
+                                                    {project.status === "ON_HOLD" && (
+                                                        <button
+                                                            onClick={() => handleQuickStatusUpdate(project, "ACTIVE")}
+                                                            className="p-1.5 rounded-lg bg-green-50 text-green-600 hover:bg-green-100"
+                                                            title="Resume Project"
+                                                        >
+                                                            <Play size={14} />
+                                                        </button>
+                                                    )}
                                                     <button
-                                                        onClick={() => handleQuickStatusUpdate(project, "ACTIVE")}
-                                                        className="px-2.5 py-1 bg-green-50 text-green-600 rounded-lg text-xs font-medium hover:bg-green-100 flex items-center gap-1"
-                                                        title="Resume Project"
+                                                        onClick={() => openMemberModal(project)}
+                                                        className="p-1.5 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-blue-600"
+                                                        title="Add Team Member"
                                                     >
-                                                        <Play size={12} /> Resume
+                                                        <UserPlus size={14} />
                                                     </button>
-                                                )}
-
-                                                <div className="h-4 w-[1px] bg-gray-200 mx-1" />
-
-                                                <button
-                                                    onClick={() => {
-                                                        setSelectedProject(project);
-
-                                                        setMachineForm({
-                                                            machine: "",
-                                                            quantity: 1,
-                                                        });
-
-                                                        setShowMachineModal(true);
-                                                    }}
-                                                    className="p-1.5 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-green-600"
-                                                    title="Assign Machine"
-                                                >
-                                                    <Wrench size={16} />
-                                                </button>
-
-                                                <button
-                                                    onClick={() => handleEdit(project)}
-                                                    className="p-1.5 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-blue-600"
-                                                    title="Full Edit"
-                                                >
-                                                    <Pencil size={16} />
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDelete(project)}
-                                                    className="p-1.5 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-red-600"
-                                                    title="Delete"
-                                                >
-                                                    <Trash2 size={16} />
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
+                                                    <button
+                                                        onClick={() => openMachineModal(project)}
+                                                        className="p-1.5 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-green-600"
+                                                        title="Assign Machine"
+                                                    >
+                                                        <Wrench size={14} />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleEdit(project)}
+                                                        className="p-1.5 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-blue-600"
+                                                        title="Full Edit"
+                                                    >
+                                                        <Pencil size={14} />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleDelete(project)}
+                                                        className="p-1.5 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-red-600"
+                                                        title="Delete"
+                                                    >
+                                                        <Trash2 size={14} />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
                             </tbody>
                         </table>
 
@@ -660,29 +818,17 @@ function ProjectsManagement() {
                             <div className="flex items-center justify-between px-6 py-4 border-t">
                                 <p className="text-sm text-gray-500">
                                     Showing{" "}
+                                    <span className="font-medium">{startIndex + 1}</span> to{" "}
                                     <span className="font-medium">
-                                        {startIndex + 1}
-                                    </span>{" "}
-                                    to{" "}
-                                    <span className="font-medium">
-                                        {Math.min(
-                                            startIndex + itemsPerPage,
-                                            filteredProjects.length
-                                        )}
+                                        {Math.min(startIndex + itemsPerPage, filteredProjects.length)}
                                     </span>{" "}
                                     of{" "}
-                                    <span className="font-medium">
-                                        {filteredProjects.length}
-                                    </span>{" "}
+                                    <span className="font-medium">{filteredProjects.length}</span>{" "}
                                     projects
                                 </p>
                                 <div className="flex items-center gap-2">
                                     <button
-                                        onClick={() =>
-                                            setCurrentPage((page) =>
-                                                Math.max(page - 1, 1)
-                                            )
-                                        }
+                                        onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
                                         disabled={currentPage === 1}
                                         className="px-4 py-2 rounded-lg border border-gray-200 text-sm disabled:opacity-40 hover:bg-gray-50"
                                     >
@@ -693,12 +839,7 @@ function ProjectsManagement() {
                                     </span>
                                     <button
                                         onClick={() =>
-                                            setCurrentPage((page) =>
-                                                Math.min(
-                                                    page + 1,
-                                                    totalPages
-                                                )
-                                            )
+                                            setCurrentPage((p) => Math.min(p + 1, totalPages))
                                         }
                                         disabled={currentPage === totalPages}
                                         className="px-4 py-2 rounded-lg border border-gray-200 text-sm disabled:opacity-40 hover:bg-gray-50"
@@ -712,7 +853,7 @@ function ProjectsManagement() {
                 )}
             </div>
 
-            {/* Modal Form */}
+            {/* Project Modal */}
             {showModal && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
                     <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl relative max-h-[90vh] overflow-y-auto">
@@ -729,35 +870,41 @@ function ProjectsManagement() {
 
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Project Name</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Project Name
+                                </label>
                                 <input
                                     type="text"
                                     name="name"
                                     value={formData.name}
                                     onChange={handleChange}
                                     required
-                                    className="w-full px-4 py-2 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-200"
+                                    className={inputCls}
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Description
+                                </label>
                                 <textarea
                                     name="description"
                                     value={formData.description}
                                     onChange={handleChange}
                                     rows="3"
-                                    className="w-full px-4 py-2 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-200"
+                                    className={inputCls}
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Manager</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Manager
+                                </label>
                                 <select
                                     name="manager"
                                     value={formData.manager}
                                     onChange={handleChange}
-                                    className="w-full px-4 py-2 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-200"
+                                    className={inputCls}
                                 >
                                     <option value="">Select Manager</option>
                                     {managers.map((m) => (
@@ -769,64 +916,76 @@ function ProjectsManagement() {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Location
+                                </label>
                                 <input
                                     type="text"
                                     name="location"
                                     value={formData.location}
                                     onChange={handleChange}
                                     required
-                                    className="w-full px-4 py-2 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-200"
+                                    className={inputCls}
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Budget (KES)</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Budget (KES)
+                                </label>
                                 <input
                                     type="number"
                                     name="budget"
                                     value={formData.budget}
                                     onChange={handleChange}
                                     required
-                                    className="w-full px-4 py-2 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-200"
+                                    className={inputCls}
                                 />
                             </div>
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Start Date
+                                    </label>
                                     <input
                                         type="date"
                                         name="start_date"
                                         value={formData.start_date}
                                         onChange={handleChange}
                                         required
-                                        className="w-full px-4 py-2 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-200"
+                                        className={inputCls}
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Expected End Date</label>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Expected End Date
+                                    </label>
                                     <input
                                         type="date"
                                         name="expected_end_date"
                                         value={formData.expected_end_date}
                                         onChange={handleChange}
                                         required
-                                        className="w-full px-4 py-2 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-200"
+                                        className={inputCls}
                                     />
                                 </div>
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Status (Auto-sets Progress)</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Status (Auto-sets Progress)
+                                </label>
                                 <select
                                     name="status"
                                     value={formData.status}
                                     onChange={handleChange}
-                                    className="w-full px-4 py-2 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-200"
+                                    className={inputCls}
                                 >
                                     <option value="PLANNING">Planning (0%)</option>
-                                    <option value="ACTIVE">Active ({formData.progress || 25}%)</option>
+                                    <option value="ACTIVE">
+                                        Active ({formData.progress || 25}%)
+                                    </option>
                                     <option value="ON_HOLD">On Hold ({formData.progress}%)</option>
                                     <option value="COMPLETED">Completed (100%)</option>
                                     <option value="CANCELLED">Cancelled (0%)</option>
@@ -852,44 +1011,30 @@ function ProjectsManagement() {
                     </div>
                 </div>
             )}
+
+            {/* Machine Modal */}
             {showMachineModal && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
                     <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl">
+                        <h2 className="text-xl font-bold mb-1">Assign Machine</h2>
+                        <p className="text-sm text-gray-500 mb-4">
+                            {selectedProject?.name}
+                        </p>
 
-                        <h2 className="text-xl font-bold mb-4">
-                            Assign Machine
-                        </h2>
-
-                        <form
-                            onSubmit={handleAssignMachine}
-                            className="space-y-4"
-                        >
-
+                        <form onSubmit={handleAssignMachine} className="space-y-4">
                             <div>
-                                <label className="block text-sm font-medium mb-1">
-                                    Machine
-                                </label>
-
+                                <label className="block text-sm font-medium mb-1">Machine</label>
                                 <select
                                     value={machineForm.machine}
                                     onChange={(e) =>
-                                        setMachineForm({
-                                            ...machineForm,
-                                            machine: e.target.value,
-                                        })
+                                        setMachineForm({ ...machineForm, machine: e.target.value })
                                     }
                                     className="w-full px-4 py-2 border border-gray-200 rounded-xl"
                                     required
                                 >
-                                    <option value="">
-                                        Select Machine
-                                    </option>
-
+                                    <option value="">Select Machine</option>
                                     {machines.map((machine) => (
-                                        <option
-                                            key={machine.id}
-                                            value={machine.id}
-                                        >
+                                        <option key={machine.id} value={machine.id}>
                                             {machine.name}
                                         </option>
                                     ))}
@@ -897,35 +1042,27 @@ function ProjectsManagement() {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium mb-1">
-                                    Quantity
-                                </label>
-
+                                <label className="block text-sm font-medium mb-1">Quantity</label>
                                 <input
                                     type="number"
                                     min="1"
                                     value={machineForm.quantity}
                                     onChange={(e) =>
-                                        setMachineForm({
-                                            ...machineForm,
-                                            quantity: e.target.value,
-                                        })
+                                        setMachineForm({ ...machineForm, quantity: e.target.value })
                                     }
                                     className="w-full px-4 py-2 border border-gray-200 rounded-xl"
+                                    required
                                 />
                             </div>
 
                             <div className="flex justify-end gap-3">
                                 <button
                                     type="button"
-                                    onClick={() =>
-                                        setShowMachineModal(false)
-                                    }
+                                    onClick={() => setShowMachineModal(false)}
                                     className="px-4 py-2 border rounded-xl"
                                 >
                                     Cancel
                                 </button>
-
                                 <button
                                     type="submit"
                                     className="px-4 py-2 bg-[#1495CC] text-white rounded-xl"
@@ -933,7 +1070,74 @@ function ProjectsManagement() {
                                     Assign
                                 </button>
                             </div>
+                        </form>
+                    </div>
+                </div>
+            )}
 
+            {/* Member Modal */}
+            {showMemberModal && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+                    <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl">
+                        <h2 className="text-xl font-bold mb-1">Add Team Member</h2>
+                        <p className="text-sm text-gray-500 mb-4">
+                            {selectedProject?.name}
+                        </p>
+
+                        <form onSubmit={handleAssignMember} className="space-y-4">
+                            <input
+                                type="text"
+                                placeholder="Full Name"
+                                value={memberForm.full_name}
+                                onChange={(e) =>
+                                    setMemberForm({ ...memberForm, full_name: e.target.value })
+                                }
+                                required
+                                className="w-full border border-gray-200 rounded-xl px-4 py-2"
+                            />
+
+                            <input
+                                type="text"
+                                placeholder="Phone"
+                                value={memberForm.phone}
+                                onChange={(e) =>
+                                    setMemberForm({ ...memberForm, phone: e.target.value })
+                                }
+                                className="w-full border border-gray-200 rounded-xl px-4 py-2"
+                            />
+
+                            <select
+                                value={memberForm.role}
+                                onChange={(e) =>
+                                    setMemberForm({ ...memberForm, role: e.target.value })
+                                }
+                                className="w-full border border-gray-200 rounded-xl px-4 py-2"
+                            >
+                                <option value="FOREMAN">Foreman</option>
+                                <option value="WORKER">Worker</option>
+                                <option value="ELECTRICIAN">Electrician</option>
+                                <option value="PLUMBER">Plumber</option>
+                                <option value="CARPENTER">Carpenter</option>
+                                <option value="MASON">Mason</option>
+                                <option value="PAINTER">Painter</option>
+                                <option value="WELDER">Welder</option>
+                            </select>
+
+                            <div className="flex justify-end gap-3">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowMemberModal(false)}
+                                    className="px-4 py-2 border rounded-xl"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="px-4 py-2 bg-[#1495CC] text-white rounded-xl"
+                                >
+                                    Save Member
+                                </button>
+                            </div>
                         </form>
                     </div>
                 </div>
