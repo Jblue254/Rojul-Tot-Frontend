@@ -40,6 +40,7 @@ import {
     getProjectMilestones,
     createProjectMilestone,
     updateProjectMilestone,
+    deleteProjectMilestone,
 } from "../../api/projectMilestones";
 
 const EMPTY_PROJECT = {
@@ -84,6 +85,7 @@ function ProjectsManagement() {
     const [editingProject, setEditingProject] = useState(null);
     const [selectedProjectMilestones, setSelectedProjectMilestones] =
         useState([]);
+    const [editingMilestone, setEditingMilestone] = useState(null);
 
     // ---------- State: modals ----------
     const [showModal, setShowModal] = useState(false);
@@ -392,6 +394,32 @@ function ProjectsManagement() {
         e.preventDefault();
 
         try {
+            // Editing an existing milestone instead of creating a new one
+            if (editingMilestone) {
+                const updated =
+                    await updateProjectMilestone(
+                        editingMilestone.id,
+                        {
+                            title: milestoneForm.title,
+                            description: milestoneForm.description,
+                            due_date: milestoneForm.due_date,
+                        }
+                    );
+
+                setSelectedProjectMilestones(
+                    selectedProjectMilestones.map((m) =>
+                        m.id === editingMilestone.id
+                            ? { ...m, ...milestoneForm, ...updated.data }
+                            : m
+                    )
+                );
+
+                setEditingMilestone(null);
+                setShowMilestoneModal(false);
+                loadMilestones();
+                return;
+            }
+
             const response =
                 await createProjectMilestone(
                     milestoneForm
@@ -452,6 +480,60 @@ function ProjectsManagement() {
         } catch (error) {
             console.error(error);
             showApiError(error);
+        }
+    };
+
+    const handleEditMilestone = (milestone) => {
+        setEditingMilestone(milestone);
+
+        setMilestoneForm({
+            project: milestone.project,
+            title: milestone.title || "",
+            description: milestone.description || "",
+            due_date: milestone.due_date || "",
+        });
+
+        setShowMilestoneModal(true);
+    };
+
+    const handleDeleteMilestone = async (
+        milestone
+    ) => {
+
+        const confirmed =
+            window.confirm(
+                `Delete "${milestone.title}"?`
+            );
+
+        if (!confirmed) return;
+
+        try {
+
+            await deleteProjectMilestone(
+                milestone.id
+            );
+
+            // Remove it from the open list straight away
+            const remaining =
+                selectedProjectMilestones.filter(
+                    (m) => m.id !== milestone.id
+                );
+
+            setSelectedProjectMilestones(remaining);
+
+            // Status + progress follow the milestones that are left
+            syncProjectStatus(
+                selectedProject,
+                remaining
+            );
+
+            loadMilestones();
+
+        } catch (error) {
+
+            console.error(error);
+            showApiError(error);
+
         }
     };
 
@@ -1114,24 +1196,56 @@ function ProjectsManagement() {
                                         </div>
                                     </div>
 
-                                    {!milestone.completed && (
+                                    <div className="flex items-center gap-3">
+                                        {!milestone.completed && (
+                                            <button
+                                                onClick={() =>
+                                                    completeMilestone(
+                                                        milestone
+                                                    )
+                                                }
+                                                className="bg-green-500 text-white px-3 py-1 rounded"
+                                            >
+                                                Complete
+                                            </button>
+                                        )}
+
+                                        {milestone.completed && (
+                                            <span className="text-green-600">
+                                                Completed
+                                            </span>
+                                        )}
+
                                         <button
                                             onClick={() =>
-                                                completeMilestone(
+                                                handleEditMilestone(
                                                     milestone
                                                 )
                                             }
-                                            className="bg-green-500 text-white px-3 py-1 rounded"
+                                            className="
+                                            text-gray-500
+                                            hover:text-blue-600
+                                            "
+                                            title="Edit milestone"
                                         >
-                                            Complete
+                                            <Pencil size={14} />
                                         </button>
-                                    )}
 
-                                    {milestone.completed && (
-                                        <span className="text-green-600">
-                                            Completed
-                                        </span>
-                                    )}
+                                        <button
+                                            onClick={() =>
+                                                handleDeleteMilestone(
+                                                    milestone
+                                                )
+                                            }
+                                            className="
+                                            text-red-500
+                                            hover:text-red-700
+                                            "
+                                            title="Delete milestone"
+                                        >
+                                            <Trash2 size={14} />
+                                        </button>
+                                    </div>
                                 </div>
                             )
                         )}
@@ -1139,6 +1253,8 @@ function ProjectsManagement() {
                         <div className="flex justify-between pt-4">
                             <button
                                 onClick={() => {
+                                    setEditingMilestone(null);
+
                                     setMilestoneForm({
                                         project: selectedProject.id,
                                         title: "",
@@ -1167,7 +1283,9 @@ function ProjectsManagement() {
             {showMilestoneModal && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-[60]">
                     <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl">
-                        <h2 className="text-xl font-bold mb-4">Add Milestone</h2>
+                        <h2 className="text-xl font-bold mb-4">
+                            {editingMilestone ? "Edit Milestone" : "Add Milestone"}
+                        </h2>
 
                         <form onSubmit={handleMilestoneSubmit} className="space-y-4">
                             <input
@@ -1203,7 +1321,10 @@ function ProjectsManagement() {
                             <div className="flex justify-end gap-3">
                                 <button
                                     type="button"
-                                    onClick={() => setShowMilestoneModal(false)}
+                                    onClick={() => {
+                                        setShowMilestoneModal(false);
+                                        setEditingMilestone(null);
+                                    }}
                                     className="px-4 py-2 border rounded-xl"
                                 >
                                     Cancel
