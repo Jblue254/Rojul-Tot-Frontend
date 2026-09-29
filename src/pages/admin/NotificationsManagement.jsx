@@ -28,6 +28,7 @@ function NotificationsManagement() {
         loadUsers();
     }, []);
 
+
     const loadUsers = async () => {
         try {
             const response = await getUsers();
@@ -37,10 +38,17 @@ function NotificationsManagement() {
         }
     };
 
+    // FIX: this used setUnreadCount (never defined) and never filled the
+    // notifications list, so the table stayed empty. unreadCount is already
+    // worked out below from the notifications list.
     const loadNotifications = async () => {
         try {
-            const response = await getNotifications();
+
+            const response =
+                await getNotifications();
+
             setNotifications(response.data);
+
         } catch (error) {
             console.error(error);
         }
@@ -110,35 +118,169 @@ function NotificationsManagement() {
         } catch (error) {
             console.error(error);
         }
+
     };
+    const getTypeStyle = (type) => {
+
+        switch (type) {
+
+            case "PROJECT":
+                return "bg-green-100 text-green-700";
+
+            case "SYSTEM":
+                return "bg-blue-100 text-blue-700";
+
+            case "RENTAL":
+                return "bg-purple-100 text-purple-700";
+
+            case "ORDER":
+                return "bg-orange-100 text-orange-700";
+
+            case "MAINTENANCE":
+                return "bg-red-100 text-red-700";
+
+            default:
+                return "bg-gray-100 text-gray-700";
+        }
+    };
+    const markAllRead = async () => {
+
+    try {
+
+        const unread =
+            notifications.filter(
+                n => !n.is_read
+            );
+
+        await Promise.all(
+            unread.map(
+                n =>
+                updateNotification(
+                    n.id,
+                    {
+                        is_read: true
+                    }
+                )
+            )
+        );
+
+        loadNotifications();
+
+    } catch(error){
+
+        console.error(error);
+
+    }
+};
+const deleteRead = async () => {
+
+    try {
+
+        const read =
+            notifications.filter(
+                n => n.is_read
+            );
+
+        await Promise.all(
+            read.map(
+                n =>
+                deleteNotification(
+                    n.id
+                )
+            )
+        );
+
+        loadNotifications();
+
+    } catch(error){
+
+        console.error(error);
+
+    }
+};
 
     return (
         <div>
-            <div className="flex items-center justify-between mb-6">
+            {/* Header: title on the left, all actions grouped on the right */}
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
                 <h1 className="text-3xl font-bold flex items-center gap-3 m-0">
                     <Bell />
                     Notifications Management
                 </h1>
-                <button
-                    onClick={() => setShowModal(true)}
-                    className="bg-[#1495CC] text-white px-4 py-2 rounded-lg"
-                >
-                    Create Notification
-                </button>
+
+                <div className="flex flex-wrap items-center gap-3">
+                    <div className="relative mr-2">
+
+                        <Bell size={22} />
+
+                        {unreadCount > 0 && (
+                            <span
+                                className="
+            absolute
+            -top-2
+            -right-2
+            bg-red-500
+            text-white
+            text-xs
+            min-w-[18px]
+            h-[18px]
+            rounded-full
+            flex
+            items-center
+            justify-center
+            "
+                            >
+                                {unreadCount}
+                            </span>
+                        )}
+
+                    </div>
+                    <button
+                        onClick={() => setShowModal(true)}
+                        className="bg-[#1495CC] text-white px-4 py-2 rounded-lg"
+                    >
+                        Create Notification
+                    </button>
+                    {/* Moved here from inside the table card */}
+                    <button
+                        onClick={markAllRead}
+                        className="
+    bg-green-500
+    text-white
+    px-4
+    py-2
+    rounded-lg
+    "
+                    >
+                        Mark All Read
+                    </button>
+                    <button
+                        onClick={deleteRead}
+                        className="
+    bg-red-500
+    text-white
+    px-4
+    py-2
+    rounded-lg
+    "
+                    >
+                        Delete Read
+                    </button>
+                </div>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-6 mb-6 pt-2">
-                <div className="bg-white p-6 rounded-2xl shadow">
+            <div className="grid md:grid-cols-3 gap-4 mb-6 pt-2">
+                <div className="bg-white p-4 rounded-2xl shadow">
                     <h3 className="text-gray-500">Total Notifications</h3>
                     <p className="text-3xl font-bold">{notifications.length}</p>
                 </div>
 
-                <div className="bg-white p-6 rounded-2xl shadow">
+                <div className="bg-white p-4 rounded-2xl shadow">
                     <h3 className="text-gray-500">Unread</h3>
                     <p className="text-3xl font-bold text-red-500">{unreadCount}</p>
                 </div>
 
-                <div className="bg-white p-6 rounded-2xl shadow">
+                <div className="bg-white p-4 rounded-2xl shadow">
                     <h3 className="text-gray-500">Read</h3>
                     <p className="text-3xl font-bold text-green-500">{readCount}</p>
                 </div>
@@ -161,15 +303,16 @@ function NotificationsManagement() {
             </div>
 
             <div className="bg-white rounded-2xl shadow overflow-hidden">
-                <table className="w-full">
+                {/* table-fixed + widths (30+20+12+10+12+16 = 100%) so it fits the page without scrolling */}
+                <table className="w-full table-fixed text-sm">
                     <thead className="bg-gray-100">
                         <tr>
-                            <th className="text-left p-4">Title</th>
-                            <th className="text-left p-4">Recipient</th>
-                            <th className="text-left p-4">Type</th>
-                            <th className="text-left p-4">Status</th>
-                            <th className="text-left p-4">Date</th>
-                            <th className="text-left p-4">Actions</th>
+                            <th className="text-left p-3 w-[30%]">Title</th>
+                            <th className="text-left p-3 w-[20%]">Recipient</th>
+                            <th className="text-left p-3 w-[12%]">Type</th>
+                            <th className="text-left p-3 w-[10%]">Status</th>
+                            <th className="text-left p-3 w-[12%]">Date</th>
+                            <th className="text-left p-3 w-[16%]">Actions</th>
                         </tr>
                     </thead>
 
@@ -177,60 +320,72 @@ function NotificationsManagement() {
                         {filteredNotifications.map((notification) => (
                             <tr
                                 key={notification.id}
-                                className="border-t hover:bg-gray-50"
+                                className={
+                                    notification.is_read
+                                        ? "border-t hover:bg-gray-50 align-top"
+                                        : "border-t bg-blue-50 hover:bg-blue-100 align-top"
+                                }
                             >
-                                <td className="p-4">
-                                    <div className="font-semibold">
+                                <td className="p-3">
+                                    <div className="font-semibold truncate">
                                         {notification.title}
                                     </div>
-                                    <div className="text-sm text-gray-500">
+                                    <div className="text-xs text-gray-500 truncate">
                                         {notification.message}
                                     </div>
                                 </td>
 
-                                <td className="p-4">
-                                    <div>{notification.recipient_name}</div>
-                                    <div className="text-xs text-gray-500">
+                                <td className="p-3">
+                                    <div className="truncate">{notification.recipient_name}</div>
+                                    <div className="text-xs text-gray-500 truncate">
                                         {notification.recipient_email}
                                     </div>
                                 </td>
 
-                                <td className="p-4">
-                                    <span className="px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-sm">
+                                {/* FIX: the badge was empty, so the type never showed */}
+                                <td className="p-3">
+                                    <span
+                                        className={
+                                            `px-2.5 py-0.5 rounded-full text-xs ${getTypeStyle(
+                                                notification.notification_type
+                                            )
+                                            }`
+                                        }
+                                    >
                                         {notification.notification_type}
                                     </span>
                                 </td>
 
-                                <td className="p-4">
+                                <td className="p-3">
                                     {notification.is_read ? (
-                                        <span className="px-3 py-1 rounded-full bg-green-100 text-green-700 text-sm">
+                                        <span className="px-2.5 py-0.5 rounded-full bg-green-100 text-green-700 text-xs">
                                             Read
                                         </span>
                                     ) : (
-                                        <span className="px-3 py-1 rounded-full bg-red-100 text-red-700 text-sm">
+                                        <span className="px-2.5 py-0.5 rounded-full bg-red-100 text-red-700 text-xs">
                                             Unread
                                         </span>
                                     )}
                                 </td>
 
-                                <td className="p-4">
+                                <td className="p-3 text-xs">
                                     {new Date(
                                         notification.created_at
                                     ).toLocaleDateString()}
                                 </td>
 
-                                <td className="p-4">
-                                    <div className="flex gap-2">
+                                <td className="p-3">
+                                    <div className="flex flex-wrap gap-1">
                                         <button
                                             onClick={() => handleToggleRead(notification)}
-                                            className="bg-blue-500 text-white px-3 py-1 rounded"
+                                            className="bg-blue-500 text-white px-2 py-1 rounded text-xs"
                                         >
                                             {notification.is_read ? "Unread" : "Read"}
                                         </button>
 
                                         <button
                                             onClick={() => handleDelete(notification.id)}
-                                            className="bg-red-500 text-white px-3 py-1 rounded"
+                                            className="bg-red-500 text-white px-2 py-1 rounded text-xs"
                                         >
                                             Delete
                                         </button>
@@ -238,6 +393,18 @@ function NotificationsManagement() {
                                 </td>
                             </tr>
                         ))}
+
+                        {/* Empty state */}
+                        {filteredNotifications.length === 0 && (
+                            <tr>
+                                <td
+                                    colSpan="6"
+                                    className="p-8 text-center text-gray-500"
+                                >
+                                    No notifications found.
+                                </td>
+                            </tr>
+                        )}
                     </tbody>
                 </table>
             </div>
@@ -265,12 +432,13 @@ function NotificationsManagement() {
                                     Select Recipient
                                 </option>
 
+                                {/* Falls back to email/username if full_name is empty */}
                                 {users.map((user) => (
                                     <option
                                         key={user.id}
                                         value={user.id}
                                     >
-                                        {user.full_name}
+                                        {user.full_name || user.email || user.username}
                                     </option>
                                 ))}
                             </select>
