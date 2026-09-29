@@ -79,6 +79,7 @@ function App() {
             </ProtectedRoute>
           }
         >
+          
 
           <Route path="dashboard" element={<ManagerDashboard />} />
           <Route path="projects" element={<ProjectsManagement />} />

@@ -14,3 +14,6 @@ export const getUserStatistics = () =>
 
 export const getAdminDashboard = () =>
   api.get("/analytics/admin-dashboard/");
+
+export const getManagerDashboard = () =>
+  api.get("/analytics/manager-dashboard/");
