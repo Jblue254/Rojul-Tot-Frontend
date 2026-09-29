@@ -19,6 +19,7 @@ import ProjectsManagement from "./pages/admin/ProjectsManagement";
 import AnalyticsManagement from "./pages/admin/AnalyticsManagement";
 import NotificationsManagement from "./pages/admin/NotificationsManagement";
 import ManagementsRentals from "./pages/admin/ManagementsRentals";
+import ProjectMembersManagement from "./pages/admin/ProjectMembersManagement";
 
 // Customer
 import CustomerLayout from "./layouts/CustomerLayout";
@@ -28,6 +29,10 @@ import CustomerRentals from "./pages/customer/Rentals";
 import CustomerDrawings from "./pages/customer/Drawings";
 import CustomerNotifications from "./pages/customer/Notifications";
 import CustomerProfile from "./pages/customer/Profile";
+
+// Manager
+import ManagerLayout from "./layouts/ManagerLayout";
+import ManagerDashboard from "./pages/manager/ManagerDashboard";
 
 function App() {
   return (
@@ -57,10 +62,30 @@ function App() {
           <Route path="projects" element={<ProjectsManagement />} />
           <Route path="analytics" element={<AnalyticsManagement />} />
           <Route path="/admin/rentals" element={<ManagementsRentals />} />
+          <Route path="/admin/project-members" element={<ProjectMembersManagement />} />
           <Route
             path="notifications"
             element={<NotificationsManagement />}
           />
+        </Route>
+
+        {/* Manager */}
+        <Route
+          path="/manager"
+          element={
+            <ProtectedRoute>
+              <ManagerLayout />
+            </ProtectedRoute>
+          }
+        >
+
+          <Route path="dashboard" element={<ManagerDashboard />} />
+          <Route path="projects" element={<ProjectsManagement />} />
+          <Route path="project-members" element={<ProjectMembersManagement />} />
+          <Route path="milestones" element={<ProjectMilestonesManagement />} />
+          <Route path="expenses" element={<ProjectExpensesManagement />} />
+          <Route path="project-machines" element={<ProjectMachinesManagement />} />
+
         </Route>
 
         {/* Customer */}
