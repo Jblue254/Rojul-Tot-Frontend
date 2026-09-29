@@ -9,6 +9,7 @@ import {
     Play,
     CheckCircle2,
     PauseCircle,
+    Wrench,
 } from "lucide-react";
 
 import {
@@ -20,12 +21,21 @@ import {
 
 import { getUsers } from "../../api/users";
 
+import { getMachines } from "../../api/machines";
+
+import {
+    getProjectMachines,
+    createProjectMachine,
+    deleteProjectMachine,
+} from "../../api/projectMachines";
+
 function ProjectsManagement() {
     const [projects, setProjects] = useState([]);
     const [managers, setManagers] = useState([]);
     const [search, setSearch] = useState("");
     const [selectedStatus, setSelectedStatus] = useState("");
     const [selectedLocation, setSelectedLocation] = useState("");
+    
 
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 5;
@@ -46,6 +56,17 @@ function ProjectsManagement() {
     });
 
     const [loading, setLoading] = useState(true);
+
+    const [machines, setMachines] = useState([]);
+    const [assignments, setAssignments] = useState([]);
+
+    const [selectedProject, setSelectedProject] = useState(null);
+    const [showMachineModal, setShowMachineModal] = useState(false);
+
+    const [machineForm, setMachineForm] = useState({
+        machine: "",
+        quantity: 1,
+    });
 
     const loadManagers = async () => {
         try {
@@ -72,12 +93,38 @@ function ProjectsManagement() {
             setLoading(false);
         }
     };
+    const loadMachines = async () => {
+        try {
+            const response = await getMachines();
+            setMachines(response.data);
+        } catch (error) {
+            console.error(error);
+        }
+    };
 
+    const loadAssignments = async () => {
+        try {
+            const response =
+                await getProjectMachines();
+
+            setAssignments(response.data);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+    
+    const getProjectMachines = (projectId) => {
+    return assignments.filter(
+        (assignment) =>
+            assignment.project === projectId
+    );
+};
     useEffect(() => {
         loadProjects();
         loadManagers();
+        loadMachines();
+        loadAssignments();
     }, []);
-
     // Filtering
     const filteredProjects = projects.filter((project) => {
         const matchesSearch =
@@ -273,7 +320,27 @@ function ProjectsManagement() {
             }
         }
     };
+    const handleAssignMachine = async (e) => {
+        e.preventDefault();
 
+        try {
+            await createProjectMachine({
+                project: selectedProject.id,
+                machine: machineForm.machine,
+                quantity: machineForm.quantity,
+            });
+
+            setShowMachineModal(false);
+
+            loadAssignments();
+        } catch (error) {
+            console.error(error);
+
+            if (error.response?.data) {
+                alert(JSON.stringify(error.response.data));
+            }
+        }
+    };
     const getStatusStyle = (status) => {
         switch (status) {
             case "PLANNING":
@@ -303,7 +370,7 @@ function ProjectsManagement() {
                         Manage customer construction projects
                     </p>
                 </div>
-                
+
                 <button
                     onClick={handleAdd}
                     className="flex items-center gap-2 bg-[#1495CC] text-white px-5 py-3 rounded-xl hover:bg-[#107da8] transition-colors font-medium shadow-sm"
@@ -472,7 +539,7 @@ function ProjectsManagement() {
                                                 </p>
                                             </div>
                                         </td>
-                                        
+
                                         {/* Progress Bar Column */}
                                         <td className="px-6 py-4">
                                             <div className="w-28 bg-gray-200 rounded-full h-2">
@@ -507,9 +574,10 @@ function ProjectsManagement() {
                                             </span>
                                         </td>
 
-                                        {/* Quick Status Action Buttons + Edit/Delete */}
+                                        {/* Quick Status Action Buttons + Edit/Delete/Assign Machine */}
                                         <td className="px-6 py-4">
                                             <div className="flex items-center justify-end gap-2">
+
                                                 {project.status === "PLANNING" && (
                                                     <button
                                                         onClick={() => handleQuickStatusUpdate(project, "ACTIVE")}
@@ -548,6 +616,23 @@ function ProjectsManagement() {
                                                 )}
 
                                                 <div className="h-4 w-[1px] bg-gray-200 mx-1" />
+
+                                                <button
+                                                    onClick={() => {
+                                                        setSelectedProject(project);
+
+                                                        setMachineForm({
+                                                            machine: "",
+                                                            quantity: 1,
+                                                        });
+
+                                                        setShowMachineModal(true);
+                                                    }}
+                                                    className="p-1.5 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-green-600"
+                                                    title="Assign Machine"
+                                                >
+                                                    <Wrench size={16} />
+                                                </button>
 
                                                 <button
                                                     onClick={() => handleEdit(project)}
@@ -637,7 +722,7 @@ function ProjectsManagement() {
                         >
                             <X size={20} />
                         </button>
-                        
+
                         <h2 className="text-xl font-bold text-gray-800 mb-4">
                             {editingProject ? "Edit Project" : "Add New Project"}
                         </h2>
@@ -763,6 +848,92 @@ function ProjectsManagement() {
                                     Save Project
                                 </button>
                             </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+            {showMachineModal && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+                    <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl">
+
+                        <h2 className="text-xl font-bold mb-4">
+                            Assign Machine
+                        </h2>
+
+                        <form
+                            onSubmit={handleAssignMachine}
+                            className="space-y-4"
+                        >
+
+                            <div>
+                                <label className="block text-sm font-medium mb-1">
+                                    Machine
+                                </label>
+
+                                <select
+                                    value={machineForm.machine}
+                                    onChange={(e) =>
+                                        setMachineForm({
+                                            ...machineForm,
+                                            machine: e.target.value,
+                                        })
+                                    }
+                                    className="w-full px-4 py-2 border border-gray-200 rounded-xl"
+                                    required
+                                >
+                                    <option value="">
+                                        Select Machine
+                                    </option>
+
+                                    {machines.map((machine) => (
+                                        <option
+                                            key={machine.id}
+                                            value={machine.id}
+                                        >
+                                            {machine.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium mb-1">
+                                    Quantity
+                                </label>
+
+                                <input
+                                    type="number"
+                                    min="1"
+                                    value={machineForm.quantity}
+                                    onChange={(e) =>
+                                        setMachineForm({
+                                            ...machineForm,
+                                            quantity: e.target.value,
+                                        })
+                                    }
+                                    className="w-full px-4 py-2 border border-gray-200 rounded-xl"
+                                />
+                            </div>
+
+                            <div className="flex justify-end gap-3">
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        setShowMachineModal(false)
+                                    }
+                                    className="px-4 py-2 border rounded-xl"
+                                >
+                                    Cancel
+                                </button>
+
+                                <button
+                                    type="submit"
+                                    className="px-4 py-2 bg-[#1495CC] text-white rounded-xl"
+                                >
+                                    Assign
+                                </button>
+                            </div>
+
                         </form>
                     </div>
                 </div>
