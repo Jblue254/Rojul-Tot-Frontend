@@ -8,7 +8,7 @@ import {
   Package,
 } from "lucide-react";
 
-import { getArchitecturalDashboard } from "../../services/analytics";
+import { getArchitecturalDashboard } from "../../api/analytics";
 
 export default function ArchitecturalDashboard() {
   const [loading, setLoading] = useState(true);

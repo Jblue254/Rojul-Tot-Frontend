@@ -31,8 +31,16 @@ import CustomerNotifications from "./pages/customer/Notifications";
 import CustomerProfile from "./pages/customer/Profile";
 
 // Manager
-import ManagerLayout from "./layouts/ManagerLayout";
 import ManagerDashboard from "./pages/manager/ManagerDashboard";
+import ProjectMachinesManagement from "./pages/manager/ProjectMachinesManagement";
+import ProjectCostsManagement from "./pages/manager/ProjectCostsManagement";
+import ProjectMilestonesManagement from "./pages/manager/ProjectMilestonesManagement";
+import ManagerReviews from "./pages/manager/ManagerReviews";
+import ManagerReports from "./pages/manager/ManagerReports";
+import ManagerProfile from "./pages/manager/ManagerProfile";
+
+import ManagerLayout from "./layouts/ManagerLayout";
+
 
 // Equipment
 import EquipmentLayout from "./layouts/EquipmentLayout";
@@ -41,7 +49,7 @@ import EquipmentDashboard from "./pages/equipment/EquipmentDashboard";
 import ProjectAssignments from "./pages/equipment/ProjectAssignments";
 import MaintenanceManagement from "./pages/equipment/MaintenanceManagement";
 import EquipmentNotifications from "./pages/equipment/EquipmentNotifications";
-import Profil
+import EquipmentProfile from "./pages/equipment/EquipmentProfile";
 
 //Architectural
 import ArchitecturalManagerLayout from "./layouts/ArchitecturalManagerLayout";
@@ -85,22 +93,57 @@ function App() {
         </Route>
 
         {/* Manager */}
-        <Route
-          path="/manager"
-          element={
-            <ProtectedRoute>
-              <ManagerLayout />
-            </ProtectedRoute>
-          }
-        >
-          <Route path="dashboard" element={<ManagerDashboard />} />
-          <Route path="projects" element={<ProjectsManagement />} />
-          <Route path="project-members" element={<ProjectMembersManagement />} />
-          <Route path="milestones" element={<ProjectMilestonesManagement />} />
-          <Route path="expenses" element={<ProjectExpensesManagement />} />
-          <Route path="project-machines" element={<ProjectMachinesManagement />} />
 
-        </Route>
+        <Route
+  path="/manager"
+  element={<ManagerLayout />}
+>
+  <Route
+    index
+    element={<ManagerDashboard />}
+  />
+
+  <Route
+    path="projects"
+    element={<ProjectsManagement />}
+  />
+
+  <Route
+    path="members"
+    element={<ProjectMembersManagement />}
+  />
+
+  <Route
+    path="machines"
+    element={<ProjectMachinesManagement />}
+  />
+
+  <Route
+    path="costs"
+    element={<ProjectCostsManagement />}
+  />
+
+  <Route
+    path="milestones"
+    element={<ProjectMilestonesManagement />}
+  />
+
+  <Route
+    path="reviews"
+    element={<ManagerReviews />}
+  />
+
+  <Route
+    path="reports"
+    element={<ManagerReports />}
+  />
+
+  <Route
+    path="profile"
+    element={<ManagerProfile />}
+  />
+</Route>
+
 
         {/* Equipment */}
 

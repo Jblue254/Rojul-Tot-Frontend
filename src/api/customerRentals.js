@@ -1,7 +1,12 @@
 import api from "./axios";
 
 export const getMachines = (params = {}) =>
-  api.get("/machinery/machines/", {params,});
+  api.get("/machinery/machines/", {
+    params,
+  });
+
+export const getCategories = () =>
+  api.get("/machinery/categories/");
 
 export const getRentals = () =>
   api.get("/rentals/");
