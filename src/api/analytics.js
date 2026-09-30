@@ -17,3 +17,6 @@ export const getAdminDashboard = () =>
 
 export const getManagerDashboard = () =>
   api.get("/analytics/manager-dashboard/");
+
+export const getEquipmentDashboard = () =>
+  api.get("/analytics/equipment-dashboard/");

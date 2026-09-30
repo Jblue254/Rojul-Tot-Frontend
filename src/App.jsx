@@ -34,6 +34,10 @@ import CustomerProfile from "./pages/customer/Profile";
 import ManagerLayout from "./layouts/ManagerLayout";
 import ManagerDashboard from "./pages/manager/ManagerDashboard";
 
+// Equipment
+import EquipmentLayout from "./layouts/EquipmentLayout";
+import EquipmentDashboard from "./pages/equipment/EquipmentDashboard";
+
 function App() {
   return (
     <BrowserRouter>
@@ -89,6 +93,27 @@ function App() {
           <Route path="project-machines" element={<ProjectMachinesManagement />} />
 
         </Route>
+        
+        {/* Equipment */}
+
+        <Route path="/equipment" element={<EquipmentLayout />}>
+  <Route index element={<EquipmentDashboard />} />
+
+  <Route
+    path="machines"
+    element={<MachinesManagement />}
+  />
+
+  <Route
+    path="rentals"
+    element={<ManagementsRentals />}
+  />
+
+  <Route
+    path="maintenance"
+    element={<MaintenanceManagement />}
+  />
+</Route>
 
         {/* Customer */}
         <Route
