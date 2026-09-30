@@ -2,18 +2,29 @@ import { useEffect, useState } from "react";
 import { Search, X } from "lucide-react";
 import {
   getMachines,
+  getCategories,
   getRentals,
   createRental,
   deleteRental,
 } from "../../api/customerRentals";
 
+const statusIcons = {
+  PENDING: "⏳",
+  APPROVED: "👍",
+  ACTIVE: "🚜",
+  COMPLETED: "✅",
+  CANCELLED: "❌",
+};
+
 function Rentals() {
   const [showModal, setShowModal] = useState(false);
   const [selectedMachine, setSelectedMachine] = useState(null);
+  const [detailsMachine, setDetailsMachine] = useState(null);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("");
   const [location, setLocation] = useState("");
   const [machines, setMachines] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [rentals, setRentals] = useState([]);
 
   const [rentalData, setRentalData] = useState({
@@ -24,8 +35,21 @@ function Rentals() {
   });
 
   useEffect(() => {
+    loadCategories();
+  }, []);
+
+  useEffect(() => {
     loadData();
   }, [search, category, location]);
+
+  const loadCategories = async () => {
+    try {
+      const response = await getCategories();
+      setCategories(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const loadData = async () => {
     try {
@@ -103,6 +127,13 @@ function Rentals() {
         days
       : 0;
 
+  const rentalStats = {
+    total: rentals.length,
+    pending: rentals.filter((r) => r.status === "PENDING").length,
+    active: rentals.filter((r) => r.status === "ACTIVE").length,
+    completed: rentals.filter((r) => r.status === "COMPLETED").length,
+  };
+
   return (
     <div>
       <h1 className="text-3xl font-bold mb-8">
@@ -124,13 +155,19 @@ function Rentals() {
           />
         </div>
 
-        <input
-          type="number"
-          placeholder="Category ID"
+        <select
           value={category}
           onChange={(e) => setCategory(e.target.value)}
           className="w-full border p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1495CC]"
-        />
+        >
+          <option value="">All Categories</option>
+
+          {categories.map((cat) => (
+            <option key={cat.id} value={cat.id}>
+              {cat.name}
+            </option>
+          ))}
+        </select>
 
         <input
           type="text"
@@ -190,21 +227,61 @@ function Rentals() {
                 </p>
               </div>
 
-              <button
-                onClick={() => {
-                  setSelectedMachine(machine);
-                  setShowModal(true);
-                }}
-                className="mt-4 bg-[#1495CC] text-white px-4 py-2 rounded-lg font-medium hover:bg-[#1182b3] transition-colors"
-              >
-                Rent Machine
-              </button>
+              <div className="mt-4 flex gap-3">
+                <button
+                  onClick={() => setDetailsMachine(machine)}
+                  className="flex-1 bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-lg font-medium transition-colors"
+                >
+                  View Details
+                </button>
+
+                <button
+                  onClick={() => {
+                    setSelectedMachine(machine);
+                    setShowModal(true);
+                  }}
+                  className="flex-1 bg-[#1495CC] text-white px-4 py-2 rounded-lg font-medium hover:bg-[#1182b3] transition-colors"
+                >
+                  Rent Machine
+                </button>
+              </div>
             </div>
           ))}
         </div>
       )}
 
-      <h2 className="text-xl font-semibold mt-10 mb-4">
+      {/* Rental Summary Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-10 mb-6">
+        <div className="bg-white p-4 rounded-2xl shadow">
+          <p className="text-sm text-gray-500">Total Rentals</p>
+          <p className="text-2xl font-bold text-gray-800">
+            {rentalStats.total}
+          </p>
+        </div>
+
+        <div className="bg-white p-4 rounded-2xl shadow">
+          <p className="text-sm text-gray-500">Pending</p>
+          <p className="text-2xl font-bold text-yellow-600">
+            {rentalStats.pending}
+          </p>
+        </div>
+
+        <div className="bg-white p-4 rounded-2xl shadow">
+          <p className="text-sm text-gray-500">Active</p>
+          <p className="text-2xl font-bold text-green-600">
+            {rentalStats.active}
+          </p>
+        </div>
+
+        <div className="bg-white p-4 rounded-2xl shadow">
+          <p className="text-sm text-gray-500">Completed</p>
+          <p className="text-2xl font-bold text-purple-600">
+            {rentalStats.completed}
+          </p>
+        </div>
+      </div>
+
+      <h2 className="text-xl font-semibold mb-4">
         My Rentals
       </h2>
 
@@ -251,7 +328,7 @@ function Rentals() {
                       : "bg-red-100 text-red-700"
                   }`}
                 >
-                  {rental.status}
+                  {statusIcons[rental.status] || "❌"} {rental.status}
                 </span>
 
                 {rental.status === "PENDING" && (
@@ -279,6 +356,71 @@ function Rentals() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Machine Details Modal */}
+      {detailsMachine && (
+        <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto relative">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-bold">
+                {detailsMachine.name}
+              </h2>
+              <button
+                onClick={() => setDetailsMachine(null)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {detailsMachine.image && (
+              <img
+                src={detailsMachine.image}
+                alt={detailsMachine.name}
+                className="w-full h-48 object-cover rounded-xl mb-4"
+              />
+            )}
+
+            <div className="space-y-3 text-sm">
+              <p>
+                <strong>Description:</strong>{" "}
+                {detailsMachine.description || "No description provided."}
+              </p>
+
+              <p>
+                <strong>Category:</strong>{" "}
+                {detailsMachine.category_name}
+              </p>
+
+              <p>
+                <strong>Location:</strong>{" "}
+                {detailsMachine.location}
+              </p>
+
+              <p>
+                <strong>Quantity Available:</strong>{" "}
+                {detailsMachine.quantity}
+              </p>
+
+              <p>
+                <strong>Price Per Day:</strong> KES{" "}
+                {Number(detailsMachine.price_per_day).toLocaleString()}
+              </p>
+            </div>
+
+            <button
+              onClick={() => {
+                setSelectedMachine(detailsMachine);
+                setDetailsMachine(null);
+                setShowModal(true);
+              }}
+              className="mt-6 w-full bg-[#1495CC] text-white p-3 rounded-xl font-semibold hover:bg-[#1182b3] transition-colors"
+            >
+              Rent Machine
+            </button>
+          </div>
         </div>
       )}
 
@@ -384,7 +526,7 @@ function Rentals() {
                 </p>
 
                 <p className="font-bold text-gray-800 text-base">
-                  Estimated Total: KES {estimatedTotal}
+                  Estimated Total: KES {Number(estimatedTotal).toLocaleString()}
                 </p>
               </div>
 
