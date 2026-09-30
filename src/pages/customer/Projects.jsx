@@ -145,9 +145,10 @@ function Projects() {
           projects.map((project) => (
             <div
               key={project.id}
-              className="bg-white p-6 rounded-2xl shadow flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
+              className="bg-white p-6 rounded-2xl shadow flex flex-col md:flex-row justify-between items-start gap-6"
             >
-              <div>
+              <div className="flex-1">
+
                 <div className="flex items-center gap-2 mb-3">
                   <FolderKanban />
                   <h2 className="font-bold text-xl">
@@ -155,11 +156,13 @@ function Projects() {
                   </h2>
                 </div>
 
-                <p className="text-gray-600 mb-3">
+                <p className="text-gray-600 mb-4">
                   {project.description}
                 </p>
 
-                <div className="mt-2 mb-3">
+                {/* Status */}
+
+                <div className="mb-4">
                   <span
                     className={`px-3 py-1 rounded-full text-sm font-medium ${
                       project.status === "PLANNING"
@@ -177,39 +180,130 @@ function Projects() {
                   </span>
                 </div>
 
-                <p>
-                  <strong>Budget:</strong> KES {project.budget}
-                </p>
+                {/* Progress */}
 
-                <p>
-                  <strong>Location:</strong> {project.location}
-                </p>
+                <div className="mb-5">
+                  <div className="flex justify-between text-sm mb-1">
+                    <span>Progress</span>
 
-                <p>
-                  <strong>Start Date:</strong> {project.start_date}
-                </p>
+                    <span>
+                      {project.status === "COMPLETED"
+                        ? "100%"
+                        : project.status === "ACTIVE"
+                        ? "60%"
+                        : project.status === "ON_HOLD"
+                        ? "40%"
+                        : "10%"}
+                    </span>
+                  </div>
 
-                <p>
-                  <strong>Expected End:</strong> {project.expected_end_date}
-                </p>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div
+                      className={`h-2 rounded-full ${
+                        project.status === "COMPLETED"
+                          ? "bg-green-500"
+                          : "bg-blue-500"
+                      }`}
+                      style={{
+                        width:
+                          project.status === "COMPLETED"
+                            ? "100%"
+                            : project.status === "ACTIVE"
+                            ? "60%"
+                            : project.status === "ON_HOLD"
+                            ? "40%"
+                            : "10%",
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {/* Details */}
+
+                <div className="grid md:grid-cols-2 gap-3 text-sm">
+
+                  <p>
+                    <strong>Budget:</strong> KES{" "}
+                    {Number(project.budget).toLocaleString()}
+                  </p>
+
+                  <p>
+                    <strong>Location:</strong>{" "}
+                    {project.location}
+                  </p>
+
+                  <p>
+                    <strong>Start Date:</strong>{" "}
+                    {project.start_date}
+                  </p>
+
+                  <p>
+                    <strong>Expected End:</strong>{" "}
+                    {project.expected_end_date}
+                  </p>
+
+                  <p>
+                    <strong>Manager:</strong>{" "}
+                    {project.manager_email ||
+                      "Not Assigned"}
+                  </p>
+
+                </div>
+
+                {/* Customer Actions */}
+
+                <div className="flex flex-wrap gap-3 mt-5">
+
+                  <button
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg"
+                  >
+                    Milestones
+                  </button>
+
+                  <button
+                    className="px-4 py-2 bg-green-600 text-white rounded-lg"
+                  >
+                    Gallery
+                  </button>
+
+                  <button
+                    className="px-4 py-2 bg-purple-600 text-white rounded-lg"
+                  >
+                    Reviews
+                  </button>
+
+                </div>
+
               </div>
+
+              {/* Edit/Delete */}
 
               {project.status === "PLANNING" && (
                 <div className="flex items-center gap-3">
+
                   <button
-                    onClick={() => handleEdit(project)}
-                    className="p-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl flex items-center gap-1 text-sm font-medium transition-colors"
+                    onClick={() =>
+                      handleEdit(project)
+                    }
+                    className="p-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl flex items-center gap-1"
                   >
-                    <Pencil size={16} /> Edit
+                    <Pencil size={16} />
+                    Edit
                   </button>
+
                   <button
-                    onClick={() => handleDelete(project.id)}
-                    className="p-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl flex items-center gap-1 text-sm font-medium transition-colors"
+                    onClick={() =>
+                      handleDelete(project.id)
+                    }
+                    className="p-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl flex items-center gap-1"
                   >
-                    <Trash2 size={16} /> Delete
+                    <Trash2 size={16} />
+                    Delete
                   </button>
+
                 </div>
               )}
+
             </div>
           ))
         )}
