@@ -36,7 +36,12 @@ import ManagerDashboard from "./pages/manager/ManagerDashboard";
 
 // Equipment
 import EquipmentLayout from "./layouts/EquipmentLayout";
+
 import EquipmentDashboard from "./pages/equipment/EquipmentDashboard";
+import ProjectAssignments from "./pages/equipment/ProjectAssignments";
+import MaintenanceManagement from "./pages/equipment/MaintenanceManagement";
+import EquipmentNotifications from "./pages/equipment/EquipmentNotifications";
+import EquipmentProfile from "./pages/equipment/EquipmentProfile";
 
 function App() {
   return (
@@ -83,7 +88,7 @@ function App() {
             </ProtectedRoute>
           }
         >
-          
+
 
           <Route path="dashboard" element={<ManagerDashboard />} />
           <Route path="projects" element={<ProjectsManagement />} />
@@ -93,27 +98,53 @@ function App() {
           <Route path="project-machines" element={<ProjectMachinesManagement />} />
 
         </Route>
-        
+
         {/* Equipment */}
 
-        <Route path="/equipment" element={<EquipmentLayout />}>
-  <Route index element={<EquipmentDashboard />} />
+        <Route
+          path="/equipment"
+          element={
+            <ProtectedRoute>
+              <EquipmentLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route
+            index
+            element={<EquipmentDashboard />}
+          />
 
-  <Route
-    path="machines"
-    element={<MachinesManagement />}
-  />
+          <Route
+            path="machines"
+            element={<MachinesManagement />}
+          />
 
-  <Route
-    path="rentals"
-    element={<ManagementsRentals />}
-  />
+          <Route
+            path="rentals"
+            element={<ManagementsRentals />}
+          />
 
-  <Route
-    path="maintenance"
-    element={<MaintenanceManagement />}
-  />
-</Route>
+          <Route
+            path="assignments"
+            element={<ProjectAssignments />}
+          />
+
+          <Route
+            path="maintenance"
+            element={<MaintenanceManagement />}
+          />
+
+          <Route
+            path="notifications"
+            element={<EquipmentNotifications />}
+          />
+
+          <Route
+            path="profile"
+            element={<EquipmentProfile />}
+          />
+        </Route>
+
 
         {/* Customer */}
         <Route
