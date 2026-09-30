@@ -3,13 +3,12 @@ import { useState } from "react";
 import { loginUser, getProfile } from "../api/auth";
 import { useAuth } from "../context/AuthContext";
 
-
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
   const navigate = useNavigate();
   const { setUser } = useAuth();
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -29,28 +28,52 @@ function Login() {
         "refresh",
         response.data.refresh
       );
-      const profile = await getProfile();
 
-      setUser(profile.data);
+      const profileResponse =
+        await getProfile();
 
-      if (profile.data.role === "ADMIN") {
-        navigate("/admin");
-      } else {
-        navigate("/customer");
+      const user = profileResponse.data;
+
+      setUser(user);
+
+      switch (user.role) {
+        case "ADMIN":
+          navigate("/admin");
+          break;
+
+        case "MANAGER":
+          navigate("/manager");
+          break;
+
+        case "EQUIPMENT_MANAGER":
+          navigate("/equipment");
+          break;
+
+        case "ARCHITECTURAL_MANAGER":
+          navigate("/architectural");
+          break;
+
+        case "CUSTOMER":
+        default:
+          navigate("/customer");
+          break;
       }
     } catch (error) {
       console.error(error);
-      console.log(error.response?.data);
-      alert(JSON.stringify(error.response?.data));
+
+      alert(
+        error.response?.data?.detail ||
+          JSON.stringify(
+            error.response?.data
+          ) ||
+          "Login failed"
+      );
     }
   };
-
-
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center px-6">
       <div className="bg-white shadow-xl rounded-3xl p-8 w-full max-w-md">
-
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-[#1495CC]">
             Welcome Back
@@ -61,8 +84,10 @@ function Login() {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-5"
+        >
           <div>
             <label className="block mb-2 font-medium">
               Email
@@ -73,7 +98,10 @@ function Login() {
               placeholder="Enter your email"
               className="w-full border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#1495CC]"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) =>
+                setEmail(e.target.value)
+              }
+              required
             />
           </div>
 
@@ -87,7 +115,12 @@ function Login() {
               placeholder="Enter your password"
               className="w-full border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#1495CC]"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) =>
+                setPassword(
+                  e.target.value
+                )
+              }
+              required
             />
           </div>
 
@@ -97,7 +130,6 @@ function Login() {
           >
             Login
           </button>
-
         </form>
 
         <p className="text-center mt-6 text-gray-600">
@@ -109,7 +141,6 @@ function Login() {
             Register
           </Link>
         </p>
-
       </div>
     </div>
   );

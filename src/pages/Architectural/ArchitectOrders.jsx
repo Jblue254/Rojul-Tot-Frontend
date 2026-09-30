@@ -8,7 +8,7 @@ import {
 import {
   getOrders,
   updateOrder,
-} from "../../services/orders";
+} from "../../api/orders";
 
 export default function ArchitectOrders() {
   const [orders, setOrders] = useState([]);

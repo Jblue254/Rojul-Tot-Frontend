@@ -10,7 +10,7 @@ import {
 import {
   getProfile,
   updateProfile,
-} from "../../services/auth";
+} from "../../api/auth";
 
 export default function ArchitectProfile() {
   const [loading, setLoading] = useState(true);

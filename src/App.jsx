@@ -54,6 +54,9 @@ import EquipmentProfile from "./pages/equipment/EquipmentProfile";
 //Architectural
 import ArchitecturalManagerLayout from "./layouts/ArchitecturalManagerLayout";
 import ArchitecturalDashboard from "./pages/Architectural/ArchitecturalDashboard";
+import ArchitectOrders from "./pages/Architectural/ArchitectOrders";
+import ArchitectReviews from "./pages/Architectural/ArchitectReviews"; 
+import ArchitectProfile from "./pages/Architectural/ArchitectProfile"; 
 
 
 function App() {
@@ -61,12 +64,18 @@ function App() {
     <BrowserRouter>
       <Routes>
 
-        {/* Public */}
+        {/* =========================
+            PUBLIC
+        ========================= */}
+
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        {/* Admin */}
+        {/* =========================
+            ADMIN
+        ========================= */}
+
         <Route
           path="/admin"
           element={
@@ -76,15 +85,51 @@ function App() {
           }
         >
           <Route index element={<AdminDashboard />} />
-          <Route path="users" element={<UsersPage />} />
-          <Route path="machines" element={<MachinesManagement />} />
-          <Route path="categories" element={<CategoriesManagement />} />
-          <Route path="drawings" element={<DrawingsManagement />} />
-          <Route path="drawing-categories" element={<DrawingCategoriesManagement />} />
-          <Route path="projects" element={<ProjectsManagement />} />
-          <Route path="analytics" element={<AnalyticsManagement />} />
-          <Route path="rentals" element={<ManagementsRentals />} />
-          <Route path="project-members" element={<ProjectMembersManagement />} />
+
+          <Route
+            path="users"
+            element={<UsersPage />}
+          />
+
+          <Route
+            path="machines"
+            element={<MachinesManagement />}
+          />
+
+          <Route
+            path="categories"
+            element={<CategoriesManagement />}
+          />
+
+          <Route
+            path="drawings"
+            element={<DrawingsManagement />}
+          />
+
+          <Route
+            path="drawing-categories"
+            element={<DrawingCategoriesManagement />}
+          />
+
+          <Route
+            path="projects"
+            element={<ProjectsManagement />}
+          />
+
+          <Route
+            path="project-members"
+            element={<ProjectMembersManagement />}
+          />
+
+          <Route
+            path="rentals"
+            element={<ManagementsRentals />}
+          />
+
+          <Route
+            path="analytics"
+            element={<AnalyticsManagement />}
+          />
 
           <Route
             path="notifications"
@@ -92,60 +137,67 @@ function App() {
           />
         </Route>
 
-        {/* Manager */}
+        {/* =========================
+            MANAGER
+        ========================= */}
 
         <Route
-  path="/manager"
-  element={<ManagerLayout />}
->
-  <Route
-    index
-    element={<ManagerDashboard />}
-  />
+          path="/manager"
+          element={
+            <ProtectedRoute>
+              <ManagerLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route
+            index
+            element={<ManagerDashboard />}
+          />
 
-  <Route
-    path="projects"
-    element={<ProjectsManagement />}
-  />
+          <Route
+            path="projects"
+            element={<ProjectsManagement />}
+          />
 
-  <Route
-    path="members"
-    element={<ProjectMembersManagement />}
-  />
+          <Route
+            path="members"
+            element={<ProjectMembersManagement />}
+          />
 
-  <Route
-    path="machines"
-    element={<ProjectMachinesManagement />}
-  />
+          <Route
+            path="machines"
+            element={<ProjectMachinesManagement />}
+          />
 
-  <Route
-    path="costs"
-    element={<ProjectCostsManagement />}
-  />
+          <Route
+            path="costs"
+            element={<ProjectCostsManagement />}
+          />
 
-  <Route
-    path="milestones"
-    element={<ProjectMilestonesManagement />}
-  />
+          <Route
+            path="milestones"
+            element={<ProjectMilestonesManagement />}
+          />
 
-  <Route
-    path="reviews"
-    element={<ManagerReviews />}
-  />
+          <Route
+            path="reviews"
+            element={<ManagerReviews />}
+          />
 
-  <Route
-    path="reports"
-    element={<ManagerReports />}
-  />
+          <Route
+            path="reports"
+            element={<ManagerReports />}
+          />
 
-  <Route
-    path="profile"
-    element={<ManagerProfile />}
-  />
-</Route>
+          <Route
+            path="profile"
+            element={<ManagerProfile />}
+          />
+        </Route>
 
-
-        {/* Equipment */}
+        {/* =========================
+            EQUIPMENT
+        ========================= */}
 
         <Route
           path="/equipment"
@@ -190,15 +242,21 @@ function App() {
             element={<EquipmentProfile />}
           />
         </Route>
-        {/* Architectural */}
 
+        {/* =========================
+            ARCHITECTURAL
+        ========================= */}
 
         <Route
           path="/architectural"
-          element={<ArchitecturalManagerLayout />}
+          element={
+            <ProtectedRoute>
+              <ArchitecturalManagerLayout />
+            </ProtectedRoute>
+          }
         >
           <Route
-            path="dashboard"
+            index
             element={<ArchitecturalDashboard />}
           />
 
@@ -211,10 +269,27 @@ function App() {
             path="categories"
             element={<DrawingCategoriesManagement />}
           />
+
+          <Route
+            path="orders"
+            element={<ArchitectOrders />}
+          />
+
+          <Route
+            path="reviews"
+            element={<ArchitectReviews />}
+          />
+
+          <Route
+            path="profile"
+            element={<ArchitectProfile />}
+          />
         </Route>
 
+        {/* =========================
+            CUSTOMER
+        ========================= */}
 
-        {/* Customer */}
         <Route
           path="/customer"
           element={
@@ -223,12 +298,35 @@ function App() {
             </ProtectedRoute>
           }
         >
-          <Route index element={<CustomerDashboard />} />
-          <Route path="projects" element={<CustomerProjects />} />
-          <Route path="rentals" element={<CustomerRentals />} />
-          <Route path="drawings" element={<CustomerDrawings />} />
-          <Route path="notifications" element={<CustomerNotifications />} />
-          <Route path="profile" element={<CustomerProfile />} />
+          <Route
+            index
+            element={<CustomerDashboard />}
+          />
+
+          <Route
+            path="projects"
+            element={<CustomerProjects />}
+          />
+
+          <Route
+            path="rentals"
+            element={<CustomerRentals />}
+          />
+
+          <Route
+            path="drawings"
+            element={<CustomerDrawings />}
+          />
+
+          <Route
+            path="notifications"
+            element={<CustomerNotifications />}
+          />
+
+          <Route
+            path="profile"
+            element={<CustomerProfile />}
+          />
         </Route>
 
       </Routes>

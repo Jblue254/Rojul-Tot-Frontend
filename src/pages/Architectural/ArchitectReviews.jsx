@@ -9,7 +9,7 @@ import {
 import {
   getReviews,
   deleteReview,
-} from "../../services/reviews";
+} from "../../api/reviews";
 
 export default function ArchitectReviews() {
   const [reviews, setReviews] = useState([]);
