@@ -41,13 +41,12 @@ import EquipmentDashboard from "./pages/equipment/EquipmentDashboard";
 import ProjectAssignments from "./pages/equipment/ProjectAssignments";
 import MaintenanceManagement from "./pages/equipment/MaintenanceManagement";
 import EquipmentNotifications from "./pages/equipment/EquipmentNotifications";
-import EquipmentProfile from "./pages/equipment/EquipmentProfile";
+import Profil
 
 //Architectural
 import ArchitecturalManagerLayout from "./layouts/ArchitecturalManagerLayout";
 import ArchitecturalDashboard from "./pages/Architectural/ArchitecturalDashboard";
-import DrawingsManagement from "./pages/admin/DrawingsManagement";
-import DrawingCategoriesManagement from "./pages/admin/DrawingCategoriesManagement";
+
 
 function App() {
   return (
