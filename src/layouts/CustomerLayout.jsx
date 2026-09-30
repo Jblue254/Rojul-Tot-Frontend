@@ -1,4 +1,4 @@
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, useNavigate } from "react-router-dom";
 
 import {
   LayoutDashboard,
@@ -10,6 +10,18 @@ import {
 } from "lucide-react";
 
 function CustomerLayout() {
+   const navigate = useNavigate();
+
+    const handleLogout = () => {
+        // Clear your auth tokens or user data from localStorage
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("refresh_token");
+        // Or if you store a generic user object:
+        localStorage.removeItem("user");
+
+        // Redirect to login page
+        navigate("/"); // Adjust this path if your login route is different
+    };
   return (
     <div className="flex min-h-screen bg-[#F8FAFC]">
 
@@ -73,6 +85,15 @@ function CustomerLayout() {
         </nav>
 
       </aside>
+       <div className="pt-4 border-t border-gray-100">
+                    <button
+                        onClick={handleLogout}
+                        className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-red-50 text-red-600 hover:text-red-700 transition-colors font-medium"
+                    >
+                        <LogOut size={20} />
+                        Logout
+                    </button>
+                </div>
 
       {/* Content */}
       <main className="flex-1 p-8">

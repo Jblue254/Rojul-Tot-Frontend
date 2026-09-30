@@ -1,4 +1,4 @@
-import { NavLink, Outlet } from "react-router-dom";
+import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   FolderKanban,
@@ -12,6 +12,18 @@ import {
 } from "lucide-react";
 
 function ManagerLayout() {
+   const navigate = useNavigate();
+
+    const handleLogout = () => {
+        // Clear your auth tokens or user data from localStorage
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("refresh_token");
+        // Or if you store a generic user object:
+        localStorage.removeItem("user");
+
+        // Redirect to login page
+        navigate("/"); // Adjust this path if your login route is different
+    };
   const linkClass = ({ isActive }) =>
     `flex items-center gap-3 px-4 py-3 rounded-lg transition ${
       isActive
@@ -101,6 +113,15 @@ function ManagerLayout() {
           </NavLink>
         </nav>
       </aside>
+       <div className="pt-4 border-t border-gray-100">
+                    <button
+                        onClick={handleLogout}
+                        className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-red-50 text-red-600 hover:text-red-700 transition-colors font-medium"
+                    >
+                        <LogOut size={20} />
+                        Logout
+                    </button>
+                </div>
 
       <main className="flex-1 p-6 overflow-auto">
         <Outlet />
