@@ -1,134 +1,88 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import {
-  LayoutDashboard,
-  FolderKanban,
-  Users,
-  Wrench,
-  DollarSign,
-  Flag,
-  Star,
-  FileText,
-  User,
-  LogOut,
+    LayoutDashboard,
+    FolderKanban,
+    Users,
+    Wrench,
+    DollarSign,
+    Flag,
+    Star,
+    FileText,
+    User,
+    LogOut,
 } from "lucide-react";
 
+const NAV_ITEMS = [
+    { to: "/manager", label: "Dashboard", icon: LayoutDashboard, end: true },
+    { to: "/manager/projects", label: "Projects", icon: FolderKanban },
+    { to: "/manager/members", label: "Team Members", icon: Users },
+    { to: "/manager/machines", label: "Machines", icon: Wrench },
+    { to: "/manager/costs", label: "Project Costs", icon: DollarSign },
+    { to: "/manager/milestones", label: "Milestones", icon: Flag },
+    { to: "/manager/reviews", label: "Reviews", icon: Star },
+    { to: "/manager/reports", label: "Reports", icon: FileText },
+    { to: "/manager/profile", label: "Profile", icon: User },
+];
+
+const linkClasses = ({ isActive }) =>
+    [
+        "flex items-center gap-3 p-3 rounded-xl transition-colors",
+        "focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1495CC]/40",
+        isActive
+            ? "bg-blue-50 text-[#1495CC] font-medium"
+            : "text-gray-700 hover:bg-blue-50 hover:text-[#1495CC]",
+    ].join(" ");
+
 function ManagerLayout() {
-  const navigate = useNavigate();
+    const navigate = useNavigate();
 
-  const handleLogout = () => {
-    // Clear your auth tokens or user data from localStorage
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("refresh_token");
-    // Or if you store a generic user object:
-    localStorage.removeItem("user");
+    const handleLogout = () => {
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("refresh_token");
+        localStorage.removeItem("user");
 
-    // Redirect to login page
-    navigate("/"); // Adjust this path if your login route is different
-  };
-  const linkClass = ({ isActive }) =>
-    `flex items-center gap-3 px-4 py-3 rounded-lg transition ${isActive
-      ? "bg-blue-600 text-white"
-      : "text-gray-700 hover:bg-gray-100"
-    }`;
+        // replace: true stops the Back button from returning to a protected page
+        navigate("/", { replace: true });
+    };
 
-  return (
-    <div className="flex min-h-screen bg-gray-50">
-      <aside className="w-72 bg-white border-r p-5">
-        <h2 className="text-2xl font-bold mb-8">
-          Manager Panel
-        </h2>
+    return (
+        <div className="flex min-h-screen bg-[#F8FAFC]">
+            {/* Sidebar */}
+            <aside className="sticky top-0 h-screen w-72 shrink-0 overflow-y-auto bg-white shadow-lg p-6 flex flex-col justify-between">
+                <div>
+                    <h1 className="text-2xl font-bold text-[#1495CC] mb-8">
+                        Manager Panel
+                    </h1>
 
-        <nav className="space-y-2">
-          <NavLink
-            to="/manager"
-            end
-            className={linkClass}
-          >
-            <LayoutDashboard size={18} />
-            Dashboard
-          </NavLink>
+                    <nav className="space-y-3" aria-label="Main navigation">
+                        {NAV_ITEMS.map(({ to, label, icon: Icon, end }) => (
+                            <NavLink key={to} to={to} end={end} className={linkClasses}>
+                                <Icon size={20} />
+                                {label}
+                            </NavLink>
+                        ))}
+                    </nav>
+                </div>
 
-          <NavLink
-            to="/manager/projects"
-            className={linkClass}
-          >
-            <FolderKanban size={18} />
-            Projects
-          </NavLink>
+                {/* Logout Button Section */}
+                <div className="pt-4 mt-6 border-t border-gray-100">
+                    <button
+                        type="button"
+                        onClick={handleLogout}
+                        className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-red-50 text-red-600 hover:text-red-700 transition-colors font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-red-300"
+                    >
+                        <LogOut size={20} />
+                        Logout
+                    </button>
+                </div>
+            </aside>
 
-          <NavLink
-            to="/manager/members"
-            className={linkClass}
-          >
-            <Users size={18} />
-            Team Members
-          </NavLink>
-
-          <NavLink
-            to="/manager/machines"
-            className={linkClass}
-          >
-            <Wrench size={18} />
-            Machines
-          </NavLink>
-
-          <NavLink
-            to="/manager/costs"
-            className={linkClass}
-          >
-            <DollarSign size={18} />
-            Project Costs
-          </NavLink>
-
-          <NavLink
-            to="/manager/milestones"
-            className={linkClass}
-          >
-            <Flag size={18} />
-            Milestones
-          </NavLink>
-
-          <NavLink
-            to="/manager/reviews"
-            className={linkClass}
-          >
-            <Star size={18} />
-            Reviews
-          </NavLink>
-
-          <NavLink
-            to="/manager/reports"
-            className={linkClass}
-          >
-            <FileText size={18} />
-            Reports
-          </NavLink>
-
-          <NavLink
-            to="/manager/profile"
-            className={linkClass}
-          >
-            <User size={18} />
-            Profile
-          </NavLink>
-        </nav>
-        <div className="pt-4 border-t border-gray-100">
-        <button
-          onClick={handleLogout}
-          className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-red-50 text-red-600 hover:text-red-700 transition-colors font-medium"
-        >
-          <LogOut size={20} />
-          Logout
-        </button>
-      </div>
-      </aside>
-      
-
-      <main className="flex-1 p-6 overflow-auto">
-        <Outlet />
-      </main>
-    </div>
-  );
+            {/* Content */}
+            <main className="flex-1 min-w-0 p-8">
+                <Outlet />
+            </main>
+        </div>
+    );
 }
 
 export default ManagerLayout;

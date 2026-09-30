@@ -1,109 +1,82 @@
-import { Link, Outlet, useNavigate } from "react-router-dom";
-
+import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import {
-  LayoutDashboard,
-  FolderKanban,
-  Wrench,
-  ScrollText,
-  Bell,
-  User,
-  LogOut,
+    LayoutDashboard,
+    FolderKanban,
+    Wrench,
+    ScrollText,
+    Bell,
+    User,
+    LogOut,
 } from "lucide-react";
 
+const NAV_ITEMS = [
+    { to: "/customer", label: "Dashboard", icon: LayoutDashboard, end: true },
+    { to: "/customer/projects", label: "My Projects", icon: FolderKanban },
+    { to: "/customer/rentals", label: "My Rentals", icon: Wrench },
+    { to: "/customer/drawings", label: "Drawings", icon: ScrollText },
+    { to: "/customer/notifications", label: "Notifications", icon: Bell },
+    { to: "/customer/profile", label: "Profile", icon: User },
+];
+
+const linkClasses = ({ isActive }) =>
+    [
+        "flex items-center gap-3 p-3 rounded-xl transition-colors",
+        "focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1495CC]/40",
+        isActive
+            ? "bg-blue-50 text-[#1495CC] font-medium"
+            : "text-gray-700 hover:bg-blue-50 hover:text-[#1495CC]",
+    ].join(" ");
+
 function CustomerLayout() {
-   const navigate = useNavigate();
+    const navigate = useNavigate();
 
     const handleLogout = () => {
-        // Clear your auth tokens or user data from localStorage
         localStorage.removeItem("access_token");
         localStorage.removeItem("refresh_token");
-        // Or if you store a generic user object:
         localStorage.removeItem("user");
 
-        // Redirect to login page
-        navigate("/"); // Adjust this path if your login route is different
+        // replace: true stops the Back button from returning to a protected page
+        navigate("/", { replace: true });
     };
-  return (
-    <div className="flex min-h-screen bg-[#F8FAFC]">
 
-      {/* Sidebar */}
-      <aside className="w-72 bg-white shadow-lg p-6">
+    return (
+        <div className="flex min-h-screen bg-[#F8FAFC]">
+            {/* Sidebar */}
+            <aside className="sticky top-0 h-screen w-72 shrink-0 overflow-y-auto bg-white shadow-lg p-6 flex flex-col justify-between">
+                <div>
+                    <h1 className="text-2xl font-bold text-[#1495CC] mb-8">
+                        RojulTot
+                    </h1>
 
-        <h1 className="text-2xl font-bold text-[#1495CC] mb-8">
-          RojulTot
-        </h1>
+                    <nav className="space-y-3" aria-label="Main navigation">
+                        {NAV_ITEMS.map(({ to, label, icon: Icon, end }) => (
+                            <NavLink key={to} to={to} end={end} className={linkClasses}>
+                                <Icon size={20} />
+                                {label}
+                            </NavLink>
+                        ))}
+                    </nav>
+                </div>
 
-        <nav className="space-y-3">
-
-          <Link
-            to="/customer"
-            className="flex items-center gap-3 p-3 rounded-xl hover:bg-blue-50"
-          >
-            <LayoutDashboard size={20} />
-            Dashboard
-          </Link>
-
-          <Link
-            to="/customer/projects"
-            className="flex items-center gap-3 p-3 rounded-xl hover:bg-blue-50"
-          >
-            <FolderKanban size={20} />
-            My Projects
-          </Link>
-
-          <Link
-            to="/customer/rentals"
-            className="flex items-center gap-3 p-3 rounded-xl hover:bg-blue-50"
-          >
-            <Wrench size={20} />
-            My Rentals
-          </Link>
-
-          <Link
-            to="/customer/drawings"
-            className="flex items-center gap-3 p-3 rounded-xl hover:bg-blue-50"
-          >
-            <ScrollText size={20} />
-            Drawings
-          </Link>
-
-          <Link
-            to="/customer/notifications"
-            className="flex items-center gap-3 p-3 rounded-xl hover:bg-blue-50"
-          >
-            <Bell size={20} />
-            Notifications
-          </Link>
-
-          <Link
-            to="/customer/profile"
-            className="flex items-center gap-3 p-3 rounded-xl hover:bg-blue-50"
-          >
-            <User size={20} />
-            Profile
-          </Link>
-
-        </nav>
-        <div className="pt-4 border-t border-gray-100">
+                {/* Logout Button Section */}
+                <div className="pt-4 mt-6 border-t border-gray-100">
                     <button
+                        type="button"
                         onClick={handleLogout}
-                        className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-red-50 text-red-600 hover:text-red-700 transition-colors font-medium"
+                        className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-red-50 text-red-600 hover:text-red-700 transition-colors font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-red-300"
                     >
                         <LogOut size={20} />
                         Logout
                     </button>
                 </div>
+            </aside>
 
-      </aside>
-       
-
-      {/* Content */}
-      <main className="flex-1 p-8">
-        <Outlet />
-      </main>
-
-    </div>
-  );
+            {/* Content */}
+            <main className="flex-1 min-w-0 p-8">
+                <Outlet />
+            </main>
+        </div>
+    );
 }
 
 export default CustomerLayout;
