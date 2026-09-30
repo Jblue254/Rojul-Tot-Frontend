@@ -43,6 +43,12 @@ import MaintenanceManagement from "./pages/equipment/MaintenanceManagement";
 import EquipmentNotifications from "./pages/equipment/EquipmentNotifications";
 import EquipmentProfile from "./pages/equipment/EquipmentProfile";
 
+//Architectural
+import ArchitecturalManagerLayout from "./layouts/ArchitecturalManagerLayout";
+import ArchitecturalDashboard from "./pages/Architectural/ArchitecturalDashboard";
+import DrawingsManagement from "./pages/admin/DrawingsManagement";
+import DrawingCategoriesManagement from "./pages/admin/DrawingCategoriesManagement";
+
 function App() {
   return (
     <BrowserRouter>
@@ -88,8 +94,6 @@ function App() {
             </ProtectedRoute>
           }
         >
-
-
           <Route path="dashboard" element={<ManagerDashboard />} />
           <Route path="projects" element={<ProjectsManagement />} />
           <Route path="project-members" element={<ProjectMembersManagement />} />
@@ -142,6 +146,28 @@ function App() {
           <Route
             path="profile"
             element={<EquipmentProfile />}
+          />
+        </Route>
+        {/* Architectural */}
+
+
+        <Route
+          path="/architectural"
+          element={<ArchitecturalManagerLayout />}
+        >
+          <Route
+            path="dashboard"
+            element={<ArchitecturalDashboard />}
+          />
+
+          <Route
+            path="drawings"
+            element={<DrawingsManagement />}
+          />
+
+          <Route
+            path="categories"
+            element={<DrawingCategoriesManagement />}
           />
         </Route>
 

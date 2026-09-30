@@ -20,3 +20,6 @@ export const getManagerDashboard = () =>
 
 export const getEquipmentDashboard = () =>
   api.get("/analytics/equipment-dashboard/");
+
+export const getArchitecturalDashboard = () =>
+  api.get("/analytics/architectural-dashboard/");
