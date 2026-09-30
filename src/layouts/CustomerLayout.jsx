@@ -7,6 +7,7 @@ import {
   ScrollText,
   Bell,
   User,
+  LogOut,
 } from "lucide-react";
 
 function CustomerLayout() {
@@ -83,9 +84,7 @@ function CustomerLayout() {
           </Link>
 
         </nav>
-
-      </aside>
-       <div className="pt-4 border-t border-gray-100">
+        <div className="pt-4 border-t border-gray-100">
                     <button
                         onClick={handleLogout}
                         className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-red-50 text-red-600 hover:text-red-700 transition-colors font-medium"
@@ -94,6 +93,9 @@ function CustomerLayout() {
                         Logout
                     </button>
                 </div>
+
+      </aside>
+       
 
       {/* Content */}
       <main className="flex-1 p-8">

@@ -9,26 +9,26 @@ import {
   Star,
   FileText,
   User,
+  LogOut,
 } from "lucide-react";
 
 function ManagerLayout() {
-   const navigate = useNavigate();
+  const navigate = useNavigate();
 
-    const handleLogout = () => {
-        // Clear your auth tokens or user data from localStorage
-        localStorage.removeItem("access_token");
-        localStorage.removeItem("refresh_token");
-        // Or if you store a generic user object:
-        localStorage.removeItem("user");
+  const handleLogout = () => {
+    // Clear your auth tokens or user data from localStorage
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
+    // Or if you store a generic user object:
+    localStorage.removeItem("user");
 
-        // Redirect to login page
-        navigate("/"); // Adjust this path if your login route is different
-    };
+    // Redirect to login page
+    navigate("/"); // Adjust this path if your login route is different
+  };
   const linkClass = ({ isActive }) =>
-    `flex items-center gap-3 px-4 py-3 rounded-lg transition ${
-      isActive
-        ? "bg-blue-600 text-white"
-        : "text-gray-700 hover:bg-gray-100"
+    `flex items-center gap-3 px-4 py-3 rounded-lg transition ${isActive
+      ? "bg-blue-600 text-white"
+      : "text-gray-700 hover:bg-gray-100"
     }`;
 
   return (
@@ -112,16 +112,17 @@ function ManagerLayout() {
             Profile
           </NavLink>
         </nav>
+        <div className="pt-4 border-t border-gray-100">
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-red-50 text-red-600 hover:text-red-700 transition-colors font-medium"
+        >
+          <LogOut size={20} />
+          Logout
+        </button>
+      </div>
       </aside>
-       <div className="pt-4 border-t border-gray-100">
-                    <button
-                        onClick={handleLogout}
-                        className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-red-50 text-red-600 hover:text-red-700 transition-colors font-medium"
-                    >
-                        <LogOut size={20} />
-                        Logout
-                    </button>
-                </div>
+      
 
       <main className="flex-1 p-6 overflow-auto">
         <Outlet />

@@ -42,6 +42,7 @@ function MaintenanceManagement() {
     } catch (error) {
       console.error(error);
     }
+    console.log(machines.data);
   };
 
   const handleChange = (e) => {
