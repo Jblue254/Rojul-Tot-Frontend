@@ -1,5 +1,9 @@
 import api from "./axios";
 
+// Public drawings
+export const getPublicDrawings = () =>
+  api.get("/drawings/public/");
+
 // Drawings
 export const getDrawings = (params = {}) =>
   api.get("/drawings/", { params });

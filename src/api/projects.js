@@ -11,3 +11,9 @@ export const updateProject = (id, data) =>
 
 export const deleteProject = (id) =>
   api.delete(`/projects/${id}/`);
+export const getPublicProjects = () =>
+  api.get("/projects/public/");
+
+export const getFeaturedProjects = () =>
+  api.get("/projects/featured/");
+

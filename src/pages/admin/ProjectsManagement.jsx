@@ -53,6 +53,7 @@ const EMPTY_PROJECT = {
     expected_end_date: "",
     status: "PLANNING",
     progress: 0,
+    image: null,
 };
 
 const EMPTY_MEMBER = { full_name: "", phone: "", role: "WORKER" };
@@ -637,17 +638,16 @@ function ProjectsManagement() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const data = {
-                name: formData.name,
-                description: formData.description,
-                manager: formData.manager || null,
-                location: formData.location,
-                budget: formData.budget,
-                start_date: formData.start_date,
-                expected_end_date: formData.expected_end_date,
-                status: formData.status,
-                progress: Number(formData.progress),
-            };
+            const data = new FormData();
+
+            Object.keys(formData).forEach((key) => {
+                if (
+                    formData[key] !== null &&
+                    formData[key] !== undefined
+                ) {
+                    data.append(key, formData[key]);
+                }
+            });
 
             if (editingProject) {
                 await updateProject(editingProject.id, data);
@@ -1531,6 +1531,32 @@ function ProjectsManagement() {
                                         className={inputCls}
                                     />
                                 </div>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Project Image
+                                </label>
+
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={(e) =>
+                                        setFormData({
+                                            ...formData,
+                                            image: e.target.files[0],
+                                        })
+                                    }
+                                    className="w-full border border-gray-200 rounded-xl px-4 py-2"
+                                />
+
+                                {editingProject?.image && (
+                                    <img
+                                        src={editingProject.image}
+                                        alt="Project"
+                                        className="mt-3 h-32 w-full object-cover rounded-xl"
+                                    />
+                                )}
                             </div>
 
                             <div>

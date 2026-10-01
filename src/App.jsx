@@ -34,6 +34,7 @@ import CustomerProjects from "./pages/customer/Projects";
 import CustomerRentals from "./pages/customer/Rentals";
 import CustomerDrawings from "./pages/customer/Drawings";
 import CustomerProfile from "./pages/customer/Profile";
+import Notifications from "./pages/customer/Notifications";
 
 // Manager
 import ManagerLayout from "./layouts/ManagerLayout";
@@ -178,7 +179,7 @@ function App() {
           <Route path="projects" element={<CustomerProjects />} />
           <Route path="rentals" element={<CustomerRentals />} />
           <Route path="drawings" element={<CustomerDrawings />} />
-          <Route path="notifications" element={<NotificationsManagement />} />
+          <Route path="notifications" element={<Notifications />} />
           <Route path="profile" element={<CustomerProfile />} />
         </Route>
       </Routes>
