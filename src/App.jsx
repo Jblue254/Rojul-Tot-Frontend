@@ -4,9 +4,14 @@ import {
   Route,
 } from "react-router-dom";
 
+//Public
 import HomePage from "./pages/HomePage";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import MachinesPage from "./pages/public/MachinesPage";
+import DrawingsPage from "./pages/public/DrawingsPage";
+import ProjectsPage from "./pages/public/ProjectsPage";
+
 
 import ProtectedRoute from "./routes/ProtectedRoute";
 import AdminRoute from "./routes/AdminRoute";
@@ -71,6 +76,9 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/machines" element={<MachinesPage />}/>
+        <Route path="/drawings" element={<DrawingsPage />} />
+        <Route path="/projects" element={<ProjectsPage />} />
 
         {/* =========================
             ADMIN

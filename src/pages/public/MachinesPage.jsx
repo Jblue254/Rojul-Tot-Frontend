@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, Search, Wrench } from "lucide-react";
-import { getMachines } from "../api/machines";
+import { getPublicMachines } from "../../api/machines";
+import MainLayout from "../../layouts/MainLayout";
 
 const PLACEHOLDER = "/images/placeholder-machine.jpg";
 
@@ -26,7 +27,7 @@ function MachinesPage() {
 
   const loadMachines = async () => {
     try {
-      const response = await getMachines();
+      const response = await getPublicMachines();
 
       // Handles both a plain array and a paginated { results: [...] } response
       const list = response.data?.results ?? response.data ?? [];
@@ -58,29 +59,29 @@ function MachinesPage() {
   };
 
   return (
-    <div>
-      {/* Page header */}
-      <section className="bg-[#F8FAFC] py-12">
-        <div className="max-w-7xl mx-auto px-6 text-center">
-          <span className="uppercase tracking-[0.25em] text-sm text-[#1495CC] font-semibold">
-            Equipment
-          </span>
+    <MainLayout>
+      <div className="bg-[#F8FAFC] min-h-screen">
+        {/* Hero */}
+        <section className="bg-gradient-to-r from-[#0F172A] to-[#1495CC] text-white py-16">
+          <div className="max-w-7xl mx-auto px-6 text-center">
+            <span className="uppercase tracking-[0.3em] text-sm text-blue-200 font-semibold">
+              Equipment
+            </span>
 
-          <h1 className="text-3xl md:text-4xl font-bold mt-3 mb-3">
-            Our Machines
-          </h1>
+            <h1 className="text-3xl md:text-4xl font-bold mt-4 mb-4">
+              Our Machines
+            </h1>
 
-          <p className="text-sm text-gray-600 max-w-2xl mx-auto">
-            Browse reliable construction machinery available for rent.
-          </p>
-        </div>
-      </section>
+            <p className="max-w-3xl mx-auto text-sm md:text-base text-blue-100">
+              Browse reliable construction machinery available for rent,
+              from excavators and loaders to compactors and more.
+            </p>
+          </div>
+        </section>
 
-      {/* Listing */}
-      <section className="py-12 bg-white">
-        <div className="max-w-7xl mx-auto px-6">
+        <div className="max-w-7xl mx-auto px-6 py-10">
           {/* Filters */}
-          <div className="flex flex-col md:flex-row gap-3 mb-8">
+          <div className="bg-white rounded-3xl shadow-lg p-4 mb-8 flex flex-col md:flex-row gap-3">
             <div className="relative flex-1">
               <Search
                 size={18}
@@ -92,14 +93,14 @@ function MachinesPage() {
                 placeholder="Search machines..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 text-sm border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-200"
+                className="w-full pl-10 pr-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1495CC]"
               />
             </div>
 
             <select
               value={status}
               onChange={(e) => setStatus(e.target.value)}
-              className="px-4 py-2.5 text-sm border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-200"
+              className="w-full md:w-64 px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1495CC]"
             >
               <option value="ALL">All Statuses</option>
               <option value="AVAILABLE">Available</option>
@@ -118,7 +119,7 @@ function MachinesPage() {
               {error}
             </div>
           ) : filteredMachines.length === 0 ? (
-            <div className="bg-gray-50 rounded-3xl p-8 text-center">
+            <div className="bg-white rounded-3xl p-8 text-center shadow-sm">
               <Wrench
                 size={40}
                 className="mx-auto mb-3 text-[#1495CC]"
@@ -151,7 +152,7 @@ function MachinesPage() {
                 {filteredMachines.map((machine) => (
                   <div
                     key={machine.id}
-                    className="group bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl border border-gray-100 transition-all duration-300"
+                    className="group bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300"
                   >
                     {/* Image */}
                     <div className="overflow-hidden">
@@ -213,8 +214,8 @@ function MachinesPage() {
             </>
           )}
         </div>
-      </section>
-    </div>
+      </div>
+    </MainLayout>
   );
 }
 
