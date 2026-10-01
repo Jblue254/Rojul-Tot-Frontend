@@ -11,12 +11,12 @@ import {
 } from "lucide-react";
 
 const NAV_ITEMS = [
-    { to: "/architectural/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { to: "/architectural", label: "Dashboard", icon: LayoutDashboard },
     { to: "/architectural/drawings", label: "Drawings", icon: ScrollText },
     { to: "/architectural/categories", label: "Categories", icon: Tags },
     { to: "/architectural/orders", label: "Orders", icon: ClipboardList },
     { to: "/architectural/reviews", label: "Reviews", icon: Star },
-    { to: "/architectural/notifications", label: "Notifications", icon: Bell },
+    { to: "/architectural/notifications", label: "Notifications",icon: Bell },
     { to: "/architectural/profile", label: "Profile", icon: User },
 ];
 

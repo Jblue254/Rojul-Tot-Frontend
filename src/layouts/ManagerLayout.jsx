@@ -10,6 +10,7 @@ import {
     FileText,
     User,
     LogOut,
+    Bell,
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -19,6 +20,7 @@ const NAV_ITEMS = [
     { to: "/manager/machines", label: "Machines", icon: Wrench },
     { to: "/manager/costs", label: "Project Costs", icon: DollarSign },
     { to: "/manager/milestones", label: "Milestones", icon: Flag },
+    { to: "/manager/notifications", label: "Notifications", icon: Bell },
     { to: "/manager/reviews", label: "Reviews", icon: Star },
     { to: "/manager/reports", label: "Reports", icon: FileText },
     { to: "/manager/profile", label: "Profile", icon: User },

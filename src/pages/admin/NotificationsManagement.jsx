@@ -27,6 +27,15 @@ function NotificationsManagement() {
   }, []);
 
   const loadData = async () => {
+    const loadUsers = async () => {
+  try {
+    const response = await getUsers();
+    console.log(response.data);
+    setUsers(response.data);
+  } catch (error) {
+    console.error(error);
+  }
+};
     try {
       const [notificationsRes, usersRes] =
         await Promise.all([

@@ -5,6 +5,7 @@ import {
     ClipboardList,
     Settings,
     LogOut,
+    Bell,
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -12,6 +13,7 @@ const NAV_ITEMS = [
     { to: "/equipment/machines", label: "Machines", icon: Wrench },
     { to: "/equipment/rentals", label: "Rentals", icon: ClipboardList },
     { to: "/equipment/maintenance", label: "Maintenance", icon: Settings },
+    { to: "/equipment/notifications", label: "Notifications", icon: Bell },
 ];
 
 const linkClasses = ({ isActive }) =>

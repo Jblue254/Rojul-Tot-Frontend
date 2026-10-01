@@ -1,4 +1,8 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+} from "react-router-dom";
 
 import HomePage from "./pages/HomePage";
 import Login from "./pages/Login";
@@ -6,6 +10,9 @@ import Register from "./pages/Register";
 
 import ProtectedRoute from "./routes/ProtectedRoute";
 import AdminRoute from "./routes/AdminRoute";
+
+// Shared
+import NotificationsManagement from "./pages/admin/NotificationsManagement";
 
 // Admin
 import AdminLayout from "./layouts/AdminLayout";
@@ -17,7 +24,6 @@ import DrawingsManagement from "./pages/admin/DrawingsManagement";
 import DrawingCategoriesManagement from "./pages/admin/DrawingCategoriesManagement";
 import ProjectsManagement from "./pages/admin/ProjectsManagement";
 import AnalyticsManagement from "./pages/admin/AnalyticsManagement";
-import NotificationsManagement from "./pages/admin/NotificationsManagement";
 import ManagementsRentals from "./pages/admin/ManagementsRentals";
 import ProjectMembersManagement from "./pages/admin/ProjectMembersManagement";
 
@@ -27,10 +33,10 @@ import CustomerDashboard from "./pages/customer/CustomerDashboard";
 import CustomerProjects from "./pages/customer/Projects";
 import CustomerRentals from "./pages/customer/Rentals";
 import CustomerDrawings from "./pages/customer/Drawings";
-import CustomerNotifications from "./pages/customer/Notifications";
 import CustomerProfile from "./pages/customer/Profile";
 
 // Manager
+import ManagerLayout from "./layouts/ManagerLayout";
 import ManagerDashboard from "./pages/manager/ManagerDashboard";
 import ProjectMachinesManagement from "./pages/manager/ProjectMachinesManagement";
 import ProjectCostsManagement from "./pages/manager/ProjectCostsManagement";
@@ -39,31 +45,24 @@ import ManagerReviews from "./pages/manager/ManagerReviews";
 import ManagerReports from "./pages/manager/ManagerReports";
 import ManagerProfile from "./pages/manager/ManagerProfile";
 
-import ManagerLayout from "./layouts/ManagerLayout";
-
-
 // Equipment
 import EquipmentLayout from "./layouts/EquipmentLayout";
-
 import EquipmentDashboard from "./pages/equipment/EquipmentDashboard";
 import ProjectAssignments from "./pages/equipment/ProjectAssignments";
 import MaintenanceManagement from "./pages/equipment/MaintenanceManagement";
-import EquipmentNotifications from "./pages/equipment/EquipmentNotifications";
 import EquipmentProfile from "./pages/equipment/EquipmentProfile";
 
-//Architectural
+// Architectural
 import ArchitecturalManagerLayout from "./layouts/ArchitecturalManagerLayout";
 import ArchitecturalDashboard from "./pages/Architectural/ArchitecturalDashboard";
 import ArchitectOrders from "./pages/Architectural/ArchitectOrders";
-import ArchitectReviews from "./pages/Architectural/ArchitectReviews"; 
-import ArchitectProfile from "./pages/Architectural/ArchitectProfile"; 
-
+import ArchitectReviews from "./pages/Architectural/ArchitectReviews";
+import ArchitectProfile from "./pages/Architectural/ArchitectProfile";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-
         {/* =========================
             PUBLIC
         ========================= */}
@@ -85,56 +84,16 @@ function App() {
           }
         >
           <Route index element={<AdminDashboard />} />
-
-          <Route
-            path="users"
-            element={<UsersPage />}
-          />
-
-          <Route
-            path="machines"
-            element={<MachinesManagement />}
-          />
-
-          <Route
-            path="categories"
-            element={<CategoriesManagement />}
-          />
-
-          <Route
-            path="drawings"
-            element={<DrawingsManagement />}
-          />
-
-          <Route
-            path="drawing-categories"
-            element={<DrawingCategoriesManagement />}
-          />
-
-          <Route
-            path="projects"
-            element={<ProjectsManagement />}
-          />
-
-          <Route
-            path="project-members"
-            element={<ProjectMembersManagement />}
-          />
-
-          <Route
-            path="rentals"
-            element={<ManagementsRentals />}
-          />
-
-          <Route
-            path="analytics"
-            element={<AnalyticsManagement />}
-          />
-
-          <Route
-            path="notifications"
-            element={<NotificationsManagement />}
-          />
+          <Route path="users" element={<UsersPage />} />
+          <Route path="machines" element={<MachinesManagement />} />
+          <Route path="categories" element={<CategoriesManagement />} />
+          <Route path="drawings" element={<DrawingsManagement />} />
+          <Route path="drawing-categories" element={<DrawingCategoriesManagement />} />
+          <Route path="projects" element={<ProjectsManagement />} />
+          <Route path="project-members" element={<ProjectMembersManagement />}/>
+          <Route path="rentals" element={<ManagementsRentals />} />
+          <Route path="analytics" element={<AnalyticsManagement />} />
+          <Route path="notifications" element={<NotificationsManagement />} />
         </Route>
 
         {/* =========================
@@ -149,50 +108,16 @@ function App() {
             </ProtectedRoute>
           }
         >
-          <Route
-            index
-            element={<ManagerDashboard />}
-          />
-
-          <Route
-            path="projects"
-            element={<ProjectsManagement />}
-          />
-
-          <Route
-            path="members"
-            element={<ProjectMembersManagement />}
-          />
-
-          <Route
-            path="machines"
-            element={<ProjectMachinesManagement />}
-          />
-
-          <Route
-            path="costs"
-            element={<ProjectCostsManagement />}
-          />
-
-          <Route
-            path="milestones"
-            element={<ProjectMilestonesManagement />}
-          />
-
-          <Route
-            path="reviews"
-            element={<ManagerReviews />}
-          />
-
-          <Route
-            path="reports"
-            element={<ManagerReports />}
-          />
-
-          <Route
-            path="profile"
-            element={<ManagerProfile />}
-          />
+          <Route index element={<ManagerDashboard />} />
+          <Route path="projects" element={<ProjectsManagement />} />
+          <Route path="members" element={<ProjectMembersManagement />} />
+          <Route path="machines" element={<ProjectMachinesManagement />} />
+          <Route path="costs" element={<ProjectCostsManagement />} />
+          <Route path="milestones" element={<ProjectMilestonesManagement />} />
+          <Route path="reviews" element={<ManagerReviews />} />
+          <Route path="reports" element={<ManagerReports />} />
+          <Route path="notifications" element={<NotificationsManagement />} />
+          <Route path="profile" element={<ManagerProfile />} />
         </Route>
 
         {/* =========================
@@ -207,40 +132,13 @@ function App() {
             </ProtectedRoute>
           }
         >
-          <Route
-            index
-            element={<EquipmentDashboard />}
-          />
-
-          <Route
-            path="machines"
-            element={<MachinesManagement />}
-          />
-
-          <Route
-            path="rentals"
-            element={<ManagementsRentals />}
-          />
-
-          <Route
-            path="assignments"
-            element={<ProjectAssignments />}
-          />
-
-          <Route
-            path="maintenance"
-            element={<MaintenanceManagement />}
-          />
-
-          <Route
-            path="notifications"
-            element={<EquipmentNotifications />}
-          />
-
-          <Route
-            path="profile"
-            element={<EquipmentProfile />}
-          />
+          <Route index element={<EquipmentDashboard />} />
+          <Route path="machines" element={<MachinesManagement />} />
+          <Route path="rentals" element={<ManagementsRentals />} />
+          <Route path="assignments" element={<ProjectAssignments />} />
+          <Route path="maintenance" element={<MaintenanceManagement />} />
+          <Route path="notifications" element={<NotificationsManagement />} />
+          <Route path="profile" element={<EquipmentProfile />} />
         </Route>
 
         {/* =========================
@@ -255,35 +153,13 @@ function App() {
             </ProtectedRoute>
           }
         >
-          <Route
-            index
-            element={<ArchitecturalDashboard />}
-          />
-
-          <Route
-            path="drawings"
-            element={<DrawingsManagement />}
-          />
-
-          <Route
-            path="categories"
-            element={<DrawingCategoriesManagement />}
-          />
-
-          <Route
-            path="orders"
-            element={<ArchitectOrders />}
-          />
-
-          <Route
-            path="reviews"
-            element={<ArchitectReviews />}
-          />
-
-          <Route
-            path="profile"
-            element={<ArchitectProfile />}
-          />
+          <Route index element={<ArchitecturalDashboard />} />
+          <Route path="drawings" element={<DrawingsManagement />} />
+          <Route path="categories" element={<DrawingCategoriesManagement />} />
+          <Route path="orders" element={<ArchitectOrders />} />
+          <Route path="reviews" element={<ArchitectReviews />} />
+          <Route path="notifications" element={<NotificationsManagement />} />
+          <Route path="profile" element={<ArchitectProfile />} />
         </Route>
 
         {/* =========================
@@ -298,37 +174,13 @@ function App() {
             </ProtectedRoute>
           }
         >
-          <Route
-            index
-            element={<CustomerDashboard />}
-          />
-
-          <Route
-            path="projects"
-            element={<CustomerProjects />}
-          />
-
-          <Route
-            path="rentals"
-            element={<CustomerRentals />}
-          />
-
-          <Route
-            path="drawings"
-            element={<CustomerDrawings />}
-          />
-
-          <Route
-            path="notifications"
-            element={<CustomerNotifications />}
-          />
-
-          <Route
-            path="profile"
-            element={<CustomerProfile />}
-          />
+          <Route index element={<CustomerDashboard />} />
+          <Route path="projects" element={<CustomerProjects />} />
+          <Route path="rentals" element={<CustomerRentals />} />
+          <Route path="drawings" element={<CustomerDrawings />} />
+          <Route path="notifications" element={<NotificationsManagement />} />
+          <Route path="profile" element={<CustomerProfile />} />
         </Route>
-
       </Routes>
     </BrowserRouter>
   );
