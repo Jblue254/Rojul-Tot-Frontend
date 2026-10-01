@@ -17,3 +17,5 @@ export const getPublicProjects = () =>
 export const getFeaturedProjects = () =>
   api.get("/projects/featured/");
 
+export const getProject = (id) =>
+  api.get(`/projects/public/${id}/`);

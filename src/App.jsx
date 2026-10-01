@@ -11,7 +11,7 @@ import Register from "./pages/Register";
 import MachinesPage from "./pages/public/MachinesPage";
 import DrawingsPage from "./pages/public/DrawingsPage";
 import ProjectsPage from "./pages/public/ProjectsPage";
-
+import ProjectDetailPage from "./pages/public/ProjectDetailPage";
 
 import ProtectedRoute from "./routes/ProtectedRoute";
 import AdminRoute from "./routes/AdminRoute";
@@ -79,6 +79,7 @@ function App() {
         <Route path="/machines" element={<MachinesPage />}/>
         <Route path="/drawings" element={<DrawingsPage />} />
         <Route path="/projects" element={<ProjectsPage />} />
+        <Route path="/projects/:id" element={<ProjectDetailPage />} />
 
         {/* =========================
             ADMIN
