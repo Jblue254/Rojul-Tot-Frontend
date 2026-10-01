@@ -25,4 +25,4 @@ export const getCategories = () =>
   api.get("/machinery/categories/");
 
 export const getPublicMachines = () =>
-  api.get("/machines/public/");
+  api.get("/machinery/public/");

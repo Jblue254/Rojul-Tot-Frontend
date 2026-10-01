@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, Wrench } from "lucide-react";
 import { getMachines } from "../../api/machines";
+import { getPublicMachines } from "../../api/machines";
 
 const PLACEHOLDER = "/images/placeholder-machine.jpg";
 
@@ -13,21 +14,13 @@ function FeaturedMachines() {
     loadMachines();
   }, []);
 
-const loadMachines = async () => {
+  const loadMachines = async () => {
   try {
-    const response = await getMachines();
+    const response = await getPublicMachines();
 
-    console.log("Response:", response.data);
+    console.log("Machines API:", response.data);
 
-    const list = response.data?.results ?? response.data ?? [];
-
-    console.log("List:", list);
-
-    const featuredMachines = list
-      .filter((machine) => machine.status === "AVAILABLE")
-      .slice(0, 3);
-
-    console.log("Featured:", featuredMachines);
+    const featuredMachines = response.data.slice(0, 3);
 
     setMachines(featuredMachines);
   } catch (error) {
