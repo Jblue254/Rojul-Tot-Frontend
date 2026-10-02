@@ -12,6 +12,8 @@ import MachinesPage from "./pages/public/MachinesPage";
 import DrawingsPage from "./pages/public/DrawingsPage";
 import ProjectsPage from "./pages/public/ProjectsPage";
 import ProjectDetailPage from "./pages/public/ProjectDetailPage";
+import ContactPage from "./pages/public/ContactPage";
+import MachineDetailPage from "./pages/public/MachineDetailPage";
 
 import ProtectedRoute from "./routes/ProtectedRoute";
 import AdminRoute from "./routes/AdminRoute";
@@ -80,6 +82,8 @@ function App() {
         <Route path="/drawings" element={<DrawingsPage />} />
         <Route path="/projects" element={<ProjectsPage />} />
         <Route path="/projects/:id" element={<ProjectDetailPage />} />
+        <Route path="/contact" element={<ContactPage />} />
+        <Route path="/machines/:id" element={<MachineDetailPage />} />
 
         {/* =========================
             ADMIN

@@ -4,7 +4,10 @@ import api from "./axios";
 export const getPublicDrawings = () =>
   api.get("/drawings/public/");
 
-// Drawings
+export const getDrawing = (id) =>
+  api.get(`/drawings/public/${id}/`);
+
+// Protected drawings
 export const getDrawings = (params = {}) =>
   api.get("/drawings/", { params });
 
@@ -25,7 +28,7 @@ export const updateDrawing = (id, data) =>
 export const deleteDrawing = (id) =>
   api.delete(`/drawings/${id}/`);
 
-// Drawing categories
+// Categories
 export const getDrawingCategories = () =>
   api.get("/drawings/categories/");
 
