@@ -11,6 +11,7 @@ import {
     User,
     LogOut,
     Bell,
+    Mail,
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -24,6 +25,7 @@ const NAV_ITEMS = [
     { to: "/manager/reviews", label: "Reviews", icon: Star },
     { to: "/manager/reports", label: "Reports", icon: FileText },
     { to: "/manager/profile", label: "Profile", icon: User },
+    { to: "/manager/contacts", label: "Contacts", icon: Mail },
 ];
 
 const linkClasses = ({ isActive }) =>

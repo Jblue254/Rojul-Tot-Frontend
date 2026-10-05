@@ -10,6 +10,7 @@ import {
     BarChart3,
     ClipboardList,
     LogOut,
+    Mail,
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -24,6 +25,7 @@ const NAV_ITEMS = [
     { to: "/admin/project-members", label: "Project Members", icon: Users },
     { to: "/admin/notifications", label: "Notifications", icon: Bell },
     { to: "/admin/analytics", label: "Analytics", icon: BarChart3 },
+    { to: "/admin/contacts", label: "Contacts", icon: Mail },
 ];
 
 const linkClasses = ({ isActive }) =>

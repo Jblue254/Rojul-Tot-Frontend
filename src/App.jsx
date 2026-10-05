@@ -33,6 +33,7 @@ import ProjectsManagement from "./pages/admin/ProjectsManagement";
 import AnalyticsManagement from "./pages/admin/AnalyticsManagement";
 import ManagementsRentals from "./pages/admin/ManagementsRentals";
 import ProjectMembersManagement from "./pages/admin/ProjectMembersManagement";
+import ContactsManagement from "./pages/admin/ContactsManagement";
 
 // Customer
 import CustomerLayout from "./layouts/CustomerLayout";
@@ -108,6 +109,7 @@ function App() {
           <Route path="rentals" element={<ManagementsRentals />} />
           <Route path="analytics" element={<AnalyticsManagement />} />
           <Route path="notifications" element={<NotificationsManagement />} />
+          <Route path="contacts" element={<ContactsManagement />} />
         </Route>
 
         {/* =========================
@@ -132,6 +134,7 @@ function App() {
           <Route path="reports" element={<ManagerReports />} />
           <Route path="notifications" element={<NotificationsManagement />} />
           <Route path="profile" element={<ManagerProfile />} />
+          <Route path="contacts" element={<ContactsManagement />} />
         </Route>
 
         {/* =========================
