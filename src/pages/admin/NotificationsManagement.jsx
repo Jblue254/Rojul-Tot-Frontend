@@ -132,7 +132,7 @@ function NotificationsManagement() {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-3xl font-bold">
+        <h1 className="text-3xl font-bold text-gray-900">
           Notifications Management
         </h1>
 
@@ -143,23 +143,23 @@ function NotificationsManagement() {
 
       {/* Stats */}
 
-      <div className="grid md:grid-cols-3 gap-4 mb-8">
-        <div className="bg-white p-6 rounded-2xl shadow">
-          <p className="text-gray-500">
+      <div className="grid sm:grid-cols-3 gap-4 mb-8">
+        <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 border-l-4 border-l-[#1495CC]">
+          <p className="text-sm text-gray-500">
             Total Notifications
           </p>
 
-          <h2 className="text-3xl font-bold mt-2">
+          <h2 className="text-3xl font-bold text-gray-900 mt-1">
             {notifications.length}
           </h2>
         </div>
 
-        <div className="bg-white p-6 rounded-2xl shadow">
-          <p className="text-gray-500">
+        <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 border-l-4 border-l-[#1495CC]">
+          <p className="text-sm text-gray-500">
             Unread Notifications
           </p>
 
-          <h2 className="text-3xl font-bold text-blue-600 mt-2">
+          <h2 className="text-3xl font-bold text-[#1495CC] mt-1">
             {
               notifications.filter(
                 (n) => !n.is_read
@@ -168,12 +168,12 @@ function NotificationsManagement() {
           </h2>
         </div>
 
-        <div className="bg-white p-6 rounded-2xl shadow">
-          <p className="text-gray-500">
+        <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 border-l-4 border-l-[#1495CC]">
+          <p className="text-sm text-gray-500">
             Read Notifications
           </p>
 
-          <h2 className="text-3xl font-bold text-green-600 mt-2">
+          <h2 className="text-3xl font-bold text-green-600 mt-1">
             {
               notifications.filter(
                 (n) => n.is_read
@@ -185,8 +185,8 @@ function NotificationsManagement() {
 
       {/* Create Notification */}
 
-      <div className="bg-white rounded-2xl shadow p-6 mb-8">
-        <h2 className="text-xl font-semibold mb-4">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-8">
+        <h2 className="text-xl font-bold text-gray-900 mb-4">
           Create Notification
         </h2>
 
@@ -199,7 +199,7 @@ function NotificationsManagement() {
             value={formData.recipient}
             onChange={handleChange}
             required
-            className="border rounded-lg p-3"
+            className="w-full bg-white border border-gray-300 rounded-xl px-4 py-3 outline-none transition-colors focus:border-[#1495CC] focus:ring-2 focus:ring-[#1495CC]/30"
           >
             <option value="">
               Select User
@@ -225,7 +225,7 @@ function NotificationsManagement() {
             name="notification_type"
             value={formData.notification_type}
             onChange={handleChange}
-            className="border rounded-lg p-3"
+            className="w-full bg-white border border-gray-300 rounded-xl px-4 py-3 outline-none transition-colors focus:border-[#1495CC] focus:ring-2 focus:ring-[#1495CC]/30"
           >
             <option value="SYSTEM">
               System
@@ -255,7 +255,7 @@ function NotificationsManagement() {
             value={formData.title}
             onChange={handleChange}
             required
-            className="border rounded-lg p-3 md:col-span-2"
+            className="w-full border border-gray-300 rounded-xl px-4 py-3 outline-none transition-colors focus:border-[#1495CC] focus:ring-2 focus:ring-[#1495CC]/30 md:col-span-2"
           />
 
           <textarea
@@ -265,12 +265,12 @@ function NotificationsManagement() {
             value={formData.message}
             onChange={handleChange}
             required
-            className="border rounded-lg p-3 md:col-span-2"
+            className="w-full border border-gray-300 rounded-xl px-4 py-3 outline-none transition-colors focus:border-[#1495CC] focus:ring-2 focus:ring-[#1495CC]/30 resize-none md:col-span-2"
           />
 
           <button
             type="submit"
-            className="bg-blue-600 text-white px-5 py-3 rounded-lg hover:bg-blue-700"
+            className="bg-[#1495CC] text-white px-6 py-3 rounded-xl font-semibold hover:bg-[#0E7AA8] transition-colors md:justify-self-start focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1495CC]/50 focus-visible:ring-offset-2"
           >
             Create Notification
           </button>
@@ -287,7 +287,7 @@ function NotificationsManagement() {
           onChange={(e) =>
             setSearch(e.target.value)
           }
-          className="border rounded-lg p-3 flex-1"
+          className="bg-white border border-gray-300 rounded-xl px-4 py-3 flex-1 outline-none transition-colors focus:border-[#1495CC] focus:ring-2 focus:ring-[#1495CC]/30"
         />
 
         <select
@@ -295,7 +295,7 @@ function NotificationsManagement() {
           onChange={(e) =>
             setTypeFilter(e.target.value)
           }
-          className="border rounded-lg p-3"
+          className="bg-white border border-gray-300 rounded-xl px-4 py-3 md:w-60 outline-none transition-colors focus:border-[#1495CC] focus:ring-2 focus:ring-[#1495CC]/30"
         >
           <option value="ALL">
             All Types
@@ -331,12 +331,12 @@ function NotificationsManagement() {
             (notification) => (
               <div
                 key={notification.id}
-                className="bg-white rounded-2xl shadow p-5"
+                className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-shadow"
               >
-                <div className="flex justify-between items-start">
-                  <div>
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="font-bold text-lg">
+                <div className="flex justify-between items-start gap-4">
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-3 mb-2">
+                      <h3 className="font-bold text-lg text-gray-900">
                         {notification.title}
                       </h3>
 
@@ -351,7 +351,7 @@ function NotificationsManagement() {
                       </span>
                     </div>
 
-                    <p className="text-gray-600">
+                    <p className="text-gray-600 break-words">
                       {notification.message}
                     </p>
 
@@ -390,7 +390,7 @@ function NotificationsManagement() {
                         notification.id
                       )
                     }
-                    className="bg-red-500 text-white px-3 py-2 rounded-lg hover:bg-red-600"
+                    className="shrink-0 bg-red-50 text-red-600 px-4 py-2 rounded-xl text-sm font-medium hover:bg-red-100 hover:text-red-700 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-red-300"
                   >
                     Delete
                   </button>
@@ -399,7 +399,7 @@ function NotificationsManagement() {
             )
           )
         ) : (
-          <div className="bg-white rounded-2xl shadow p-8 text-center text-gray-500">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-10 text-center text-gray-500">
             No notifications found.
           </div>
         )}

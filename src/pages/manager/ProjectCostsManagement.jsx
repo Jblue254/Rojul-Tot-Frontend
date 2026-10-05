@@ -152,11 +152,11 @@ function ProjectCostsManagement() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold mb-6">Project Costs</h1>
+      <h1 className="text-3xl font-bold text-gray-900 mb-8">Project Costs</h1>
 
       {/* Form Section */}
-      <div className="bg-white p-6 rounded-2xl shadow mb-8">
-        <h2 className="text-xl font-semibold mb-4">
+      <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-8">
+        <h2 className="text-xl font-bold text-gray-900 mb-4">
           {editingId ? "Update Cost" : "Add Cost"}
         </h2>
 
@@ -166,7 +166,7 @@ function ProjectCostsManagement() {
             value={formData.project}
             onChange={handleChange}
             required
-            className="border p-3 rounded-lg"
+            className="w-full bg-white border border-gray-300 px-4 py-3 rounded-xl outline-none transition-colors focus:border-[#1495CC] focus:ring-2 focus:ring-[#1495CC]/30"
           >
             <option value="">Select Project</option>
             {projects.map((proj) => (
@@ -183,14 +183,14 @@ function ProjectCostsManagement() {
             value={formData.title}
             onChange={handleChange}
             required
-            className="border p-3 rounded-lg"
+            className="w-full border border-gray-300 px-4 py-3 rounded-xl outline-none transition-colors focus:border-[#1495CC] focus:ring-2 focus:ring-[#1495CC]/30"
           />
 
           <select
             name="category"
             value={formData.category}
             onChange={handleChange}
-            className="border p-3 rounded-lg"
+            className="w-full bg-white border border-gray-300 px-4 py-3 rounded-xl outline-none transition-colors focus:border-[#1495CC] focus:ring-2 focus:ring-[#1495CC]/30"
           >
             <option value="MATERIALS">Materials</option>
             <option value="LABOUR">Labour</option>
@@ -208,7 +208,7 @@ function ProjectCostsManagement() {
             value={formData.amount}
             onChange={handleChange}
             required
-            className="border p-3 rounded-lg"
+            className="w-full border border-gray-300 px-4 py-3 rounded-xl outline-none transition-colors focus:border-[#1495CC] focus:ring-2 focus:ring-[#1495CC]/30"
           />
 
           <textarea
@@ -216,13 +216,13 @@ function ProjectCostsManagement() {
             placeholder="Notes"
             value={formData.notes}
             onChange={handleChange}
-            className="border p-3 rounded-lg md:col-span-2"
+            className="w-full border border-gray-300 px-4 py-3 rounded-xl outline-none transition-colors focus:border-[#1495CC] focus:ring-2 focus:ring-[#1495CC]/30 resize-none md:col-span-2"
           />
 
           <div className="flex gap-3">
             <button
               type="submit"
-              className="bg-blue-600 text-white px-5 py-3 rounded-lg"
+              className="bg-[#1495CC] text-white px-6 py-3 rounded-xl font-semibold hover:bg-[#0E7AA8] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1495CC]/50 focus-visible:ring-offset-2"
             >
               {editingId ? "Update Cost" : "Add Cost"}
             </button>
@@ -231,7 +231,7 @@ function ProjectCostsManagement() {
               <button
                 type="button"
                 onClick={resetForm}
-                className="bg-gray-500 text-white px-5 py-3 rounded-lg"
+                className="bg-gray-100 text-gray-700 px-6 py-3 rounded-xl font-medium hover:bg-gray-200 transition-colors"
               >
                 Cancel
               </button>
@@ -245,7 +245,7 @@ function ProjectCostsManagement() {
         <select
           value={selectedProject}
           onChange={(e) => setSelectedProject(e.target.value)}
-          className="border p-3 rounded-lg bg-white shadow-sm"
+          className="w-full bg-white border border-gray-300 px-4 py-3 rounded-xl outline-none transition-colors focus:border-[#1495CC] focus:ring-2 focus:ring-[#1495CC]/30"
         >
           <option value="">All Projects</option>
           {projects.map((proj) => (
@@ -258,7 +258,7 @@ function ProjectCostsManagement() {
         <select
           value={selectedCategory}
           onChange={(e) => setSelectedCategory(e.target.value)}
-          className="border p-3 rounded-lg bg-white shadow-sm"
+          className="w-full bg-white border border-gray-300 px-4 py-3 rounded-xl outline-none transition-colors focus:border-[#1495CC] focus:ring-2 focus:ring-[#1495CC]/30"
         >
           <option value="">All Categories</option>
           <option value="MATERIALS">Materials</option>
@@ -274,59 +274,59 @@ function ProjectCostsManagement() {
           placeholder="Search title..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="border p-3 rounded-lg bg-white shadow-sm"
+          className="w-full bg-white border border-gray-300 px-4 py-3 rounded-xl outline-none transition-colors focus:border-[#1495CC] focus:ring-2 focus:ring-[#1495CC]/30"
         />
       </div>
 
       {/* Budget Alerts */}
       {budgetPercentage >= 100 && (
-        <div className="bg-red-100 text-red-700 p-4 rounded-xl mb-6 font-medium">
+        <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-xl mb-6 font-medium">
           Budget exceeded.
         </div>
       )}
 
       {budgetPercentage >= 80 && budgetPercentage < 100 && (
-        <div className="bg-yellow-100 text-yellow-700 p-4 rounded-xl mb-6 font-medium">
+        <div className="bg-yellow-50 border border-yellow-200 text-yellow-700 p-4 rounded-xl mb-6 font-medium">
           Budget usage exceeds 80%.
         </div>
       )}
 
       {/* Summary Cards */}
-      <div className="grid md:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white p-6 rounded-2xl shadow">
-          <p className="text-gray-500">Budget</p>
-          <h2 className="text-2xl font-bold">
+      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 border-l-4 border-l-[#1495CC]">
+          <p className="text-sm text-gray-500">Budget</p>
+          <h2 className="text-2xl font-bold text-gray-900 mt-1">
             KES {projectBudget.toLocaleString()}
           </h2>
         </div>
 
-        <div className="bg-white p-6 rounded-2xl shadow">
-          <p className="text-gray-500">Spent</p>
-          <h2 className="text-2xl font-bold text-red-600">
+        <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 border-l-4 border-l-[#1495CC]">
+          <p className="text-sm text-gray-500">Spent</p>
+          <h2 className="text-2xl font-bold text-red-600 mt-1">
             KES {totalSpent.toLocaleString()}
           </h2>
         </div>
 
-        <div className="bg-white p-6 rounded-2xl shadow">
-          <p className="text-gray-500">Remaining</p>
-          <h2 className="text-2xl font-bold text-green-600">
+        <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 border-l-4 border-l-[#1495CC]">
+          <p className="text-sm text-gray-500">Remaining</p>
+          <h2 className="text-2xl font-bold text-green-600 mt-1">
             KES {remainingBudget.toLocaleString()}
           </h2>
         </div>
 
-        <div className="bg-white p-6 rounded-2xl shadow">
-          <p className="text-gray-500">Usage</p>
-          <h2 className="text-2xl font-bold">
+        <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 border-l-4 border-l-[#1495CC]">
+          <p className="text-sm text-gray-500">Usage</p>
+          <h2 className="text-2xl font-bold text-gray-900 mt-1">
             {budgetPercentage.toFixed(1)}%
           </h2>
         </div>
       </div>
 
       {/* Progress Bar */}
-      <div className="bg-white p-6 rounded-2xl shadow mb-8">
-        <div className="w-full bg-gray-200 rounded-full h-4">
+      <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-8">
+        <div className="w-full bg-gray-100 rounded-full h-3 overflow-hidden">
           <div
-            className={`h-4 rounded-full ${
+            className={`h-3 rounded-full transition-all ${
               budgetPercentage >= 100
                 ? "bg-red-600"
                 : budgetPercentage >= 80
@@ -341,54 +341,65 @@ function ProjectCostsManagement() {
       </div>
 
       {/* Costs Table */}
-      <div className="bg-white p-6 rounded-2xl shadow overflow-x-auto">
-        <table className="w-full">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="overflow-x-auto">
+        <table className="w-full text-sm">
           <thead>
-            <tr className="border-b">
-              <th className="text-left p-3">Project</th>
-              <th className="text-left p-3">Title</th>
-              <th className="text-left p-3">Category</th>
-              <th className="text-left p-3">Amount</th>
-              <th className="text-left p-3">Created By</th>
-              <th className="text-left p-3">Actions</th>
+            <tr className="bg-[#1495CC] text-white">
+              <th className="text-left px-4 py-3 font-semibold">Project</th>
+              <th className="text-left px-4 py-3 font-semibold">Title</th>
+              <th className="text-left px-4 py-3 font-semibold">Category</th>
+              <th className="text-left px-4 py-3 font-semibold">Amount</th>
+              <th className="text-left px-4 py-3 font-semibold">Created By</th>
+              <th className="text-left px-4 py-3 font-semibold">Actions</th>
             </tr>
           </thead>
           <tbody>
             {filteredCosts.length > 0 ? (
               filteredCosts.map((cost) => (
-                <tr key={cost.id} className="border-b">
-                  <td className="p-3">{cost.project_name}</td>
-                  <td className="p-3">{cost.title}</td>
-                  <td className="p-3">{cost.category}</td>
-                  <td className="p-3">
+                <tr
+                  key={cost.id}
+                  className="border-t border-gray-100 hover:bg-blue-50/40 transition-colors"
+                >
+                  <td className="px-4 py-3 font-medium text-gray-900">{cost.project_name}</td>
+                  <td className="px-4 py-3 text-gray-700">{cost.title}</td>
+                  <td className="px-4 py-3">
+                    <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-blue-50 text-[#1495CC] whitespace-nowrap">
+                      {cost.category}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 whitespace-nowrap font-medium text-gray-900">
                     KES {Number(cost.amount).toLocaleString()}
                   </td>
-                  <td className="p-3">{cost.created_by_email}</td>
-                  <td className="p-3 flex gap-2">
+                  <td className="px-4 py-3 text-gray-600">{cost.created_by_email}</td>
+                  <td className="px-4 py-3">
+                    <div className="flex gap-2">
                     <button
                       onClick={() => handleEdit(cost)}
-                      className="bg-yellow-500 text-white px-3 py-1 rounded"
+                      className="bg-blue-50 text-[#1495CC] px-3 py-1.5 rounded-xl font-medium hover:bg-blue-100 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1495CC]/40"
                     >
                       Edit
                     </button>
                     <button
                       onClick={() => handleDelete(cost.id)}
-                      className="bg-red-600 text-white px-3 py-1 rounded"
+                      className="bg-red-50 text-red-600 px-3 py-1.5 rounded-xl font-medium hover:bg-red-100 hover:text-red-700 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-red-300"
                     >
                       Delete
                     </button>
+                    </div>
                   </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="6" className="text-center p-6 text-gray-500">
+                <td colSpan="6" className="text-center p-10 text-gray-500">
                   No project costs found matching your criteria.
                 </td>
               </tr>
             )}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   );

@@ -89,8 +89,8 @@ function ProjectMachinesManagement() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">
+      <div className="mb-2">
+        <h1 className="text-3xl font-bold text-gray-900">
           Project Machines
         </h1>
 
@@ -102,23 +102,23 @@ function ProjectMachinesManagement() {
 
       {/* Statistics */}
 
-      <div className="grid md:grid-cols-3 gap-5">
-        <div className="bg-white border rounded-xl p-5">
-          <p className="text-gray-500">
+      <div className="grid sm:grid-cols-3 gap-4">
+        <div className="bg-white border border-gray-100 border-l-4 border-l-[#1495CC] rounded-2xl shadow-sm p-5">
+          <p className="text-sm text-gray-500">
             Total Assignments
           </p>
 
-          <h2 className="text-3xl font-bold">
+          <h2 className="text-3xl font-bold text-gray-900 mt-1">
             {assignments.length}
           </h2>
         </div>
 
-        <div className="bg-white border rounded-xl p-5">
-          <p className="text-gray-500">
+        <div className="bg-white border border-gray-100 border-l-4 border-l-[#1495CC] rounded-2xl shadow-sm p-5">
+          <p className="text-sm text-gray-500">
             Projects Using Machines
           </p>
 
-          <h2 className="text-3xl font-bold">
+          <h2 className="text-3xl font-bold text-gray-900 mt-1">
             {
               new Set(
                 assignments.map(
@@ -129,12 +129,12 @@ function ProjectMachinesManagement() {
           </h2>
         </div>
 
-        <div className="bg-white border rounded-xl p-5">
-          <p className="text-gray-500">
+        <div className="bg-white border border-gray-100 border-l-4 border-l-[#1495CC] rounded-2xl shadow-sm p-5">
+          <p className="text-sm text-gray-500">
             Available Machines
           </p>
 
-          <h2 className="text-3xl font-bold">
+          <h2 className="text-3xl font-bold text-green-600 mt-1">
             {
               machines.filter(
                 (m) =>
@@ -147,8 +147,8 @@ function ProjectMachinesManagement() {
 
       {/* Create Assignment */}
 
-      <div className="bg-white border rounded-xl p-6">
-        <h2 className="text-xl font-semibold mb-4">
+      <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-6">
+        <h2 className="text-xl font-bold text-gray-900 mb-4">
           Assign Machine
         </h2>
 
@@ -164,7 +164,7 @@ function ProjectMachinesManagement() {
                 project: e.target.value,
               })
             }
-            className="border rounded-lg p-3"
+            className="w-full bg-white border border-gray-300 rounded-xl px-4 py-3 outline-none transition-colors focus:border-[#1495CC] focus:ring-2 focus:ring-[#1495CC]/30"
             required
           >
             <option value="">
@@ -189,7 +189,7 @@ function ProjectMachinesManagement() {
                 machine: e.target.value,
               })
             }
-            className="border rounded-lg p-3"
+            className="w-full bg-white border border-gray-300 rounded-xl px-4 py-3 outline-none transition-colors focus:border-[#1495CC] focus:ring-2 focus:ring-[#1495CC]/30"
             required
           >
             <option value="">
@@ -208,7 +208,7 @@ function ProjectMachinesManagement() {
 
           <button
             type="submit"
-            className="bg-blue-600 text-white rounded-lg px-5"
+            className="bg-[#1495CC] text-white rounded-xl px-6 py-3 font-semibold hover:bg-[#0E7AA8] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1495CC]/50 focus-visible:ring-offset-2"
           >
             Assign
           </button>
@@ -217,7 +217,7 @@ function ProjectMachinesManagement() {
 
       {/* Filters */}
 
-      <div className="bg-white border rounded-xl p-5">
+      <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-5">
         <select
           value={selectedProject}
           onChange={(e) =>
@@ -225,7 +225,7 @@ function ProjectMachinesManagement() {
               e.target.value
             )
           }
-          className="border rounded-lg p-3"
+          className="w-full md:w-80 bg-white border border-gray-300 rounded-xl px-4 py-3 outline-none transition-colors focus:border-[#1495CC] focus:ring-2 focus:ring-[#1495CC]/30"
         >
           <option value="">
             All Projects
@@ -244,19 +244,20 @@ function ProjectMachinesManagement() {
 
       {/* Assignments Table */}
 
-      <div className="bg-white border rounded-xl overflow-hidden">
-        <table className="w-full">
-          <thead className="bg-gray-100">
+      <div className="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden">
+        <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead className="bg-[#1495CC] text-white">
             <tr>
-              <th className="p-3 text-left">
+              <th className="px-4 py-3 text-left font-semibold">
                 Project
               </th>
 
-              <th className="p-3 text-left">
+              <th className="px-4 py-3 text-left font-semibold">
                 Machine
               </th>
 
-              <th className="p-3 text-left">
+              <th className="px-4 py-3 text-left font-semibold">
                 Actions
               </th>
             </tr>
@@ -267,24 +268,24 @@ function ProjectMachinesManagement() {
               (assignment) => (
                 <tr
                   key={assignment.id}
-                  className="border-t"
+                  className="border-t border-gray-100 hover:bg-blue-50/40 transition-colors"
                 >
-                  <td className="p-3">
+                  <td className="px-4 py-3 font-medium text-gray-900">
                     {assignment.project_name}
                   </td>
 
-                  <td className="p-3">
+                  <td className="px-4 py-3 text-gray-700">
                     {assignment.machine_name}
                   </td>
 
-                  <td className="p-3">
+                  <td className="px-4 py-3">
                     <button
                       onClick={() =>
                         handleDelete(
                           assignment.id
                         )
                       }
-                      className="bg-red-600 text-white px-3 py-1 rounded"
+                      className="bg-red-50 text-red-600 px-3 py-1.5 rounded-xl font-medium hover:bg-red-100 hover:text-red-700 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-red-300"
                     >
                       Remove
                     </button>
@@ -298,7 +299,7 @@ function ProjectMachinesManagement() {
               <tr>
                 <td
                   colSpan="3"
-                  className="text-center p-8 text-gray-500"
+                  className="text-center p-10 text-gray-500"
                 >
                   No machine assignments found.
                 </td>
@@ -306,6 +307,7 @@ function ProjectMachinesManagement() {
             )}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   );

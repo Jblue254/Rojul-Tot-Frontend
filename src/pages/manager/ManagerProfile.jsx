@@ -78,7 +78,7 @@ function ManagerProfile() {
 
   if (loading) {
     return (
-      <div className="p-6">
+      <div className="text-gray-500">
         Loading profile...
       </div>
     );
@@ -86,8 +86,8 @@ function ManagerProfile() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">
+      <div className="mb-2">
+        <h1 className="text-3xl font-bold text-gray-900">
           My Profile
         </h1>
 
@@ -96,7 +96,7 @@ function ManagerProfile() {
         </p>
       </div>
 
-      <div className="bg-white border rounded-xl p-6">
+      <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-6 md:p-8">
         <form
           onSubmit={handleSubmit}
           className="space-y-5"
@@ -104,14 +104,14 @@ function ManagerProfile() {
           {/* Name */}
 
           <div>
-            <label className="block mb-2 font-medium">
+            <label className="block mb-2 font-medium text-gray-900">
               Full Name
             </label>
 
             <div className="relative">
               <User
                 size={18}
-                className="absolute left-3 top-3 text-gray-400"
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
               />
 
               <input
@@ -119,7 +119,7 @@ function ManagerProfile() {
                 name="full_name"
                 value={formData.full_name}
                 onChange={handleChange}
-                className="w-full border rounded-lg pl-10 p-3"
+                className="w-full border border-gray-300 rounded-xl pl-12 pr-4 py-3 outline-none transition-colors focus:border-[#1495CC] focus:ring-2 focus:ring-[#1495CC]/30"
               />
             </div>
           </div>
@@ -127,21 +127,21 @@ function ManagerProfile() {
           {/* Email */}
 
           <div>
-            <label className="block mb-2 font-medium">
+            <label className="block mb-2 font-medium text-gray-900">
               Email
             </label>
 
             <div className="relative">
               <Mail
                 size={18}
-                className="absolute left-3 top-3 text-gray-400"
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
               />
 
               <input
                 type="email"
                 value={formData.email}
                 disabled
-                className="w-full border rounded-lg pl-10 p-3 bg-gray-100"
+                className="w-full border border-gray-200 rounded-xl pl-12 pr-4 py-3 bg-gray-50 text-gray-500 cursor-not-allowed"
               />
             </div>
           </div>
@@ -149,14 +149,14 @@ function ManagerProfile() {
           {/* Phone */}
 
           <div>
-            <label className="block mb-2 font-medium">
+            <label className="block mb-2 font-medium text-gray-900">
               Phone
             </label>
 
             <div className="relative">
               <Phone
                 size={18}
-                className="absolute left-3 top-3 text-gray-400"
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
               />
 
               <input
@@ -164,7 +164,7 @@ function ManagerProfile() {
                 name="phone"
                 value={formData.phone}
                 onChange={handleChange}
-                className="w-full border rounded-lg pl-10 p-3"
+                className="w-full border border-gray-300 rounded-xl pl-12 pr-4 py-3 outline-none transition-colors focus:border-[#1495CC] focus:ring-2 focus:ring-[#1495CC]/30"
               />
             </div>
           </div>
@@ -172,14 +172,14 @@ function ManagerProfile() {
           {/* Address */}
 
           <div>
-            <label className="block mb-2 font-medium">
+            <label className="block mb-2 font-medium text-gray-900">
               Address
             </label>
 
             <div className="relative">
               <MapPin
                 size={18}
-                className="absolute left-3 top-3 text-gray-400"
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
               />
 
               <input
@@ -187,7 +187,7 @@ function ManagerProfile() {
                 name="address"
                 value={formData.address}
                 onChange={handleChange}
-                className="w-full border rounded-lg pl-10 p-3"
+                className="w-full border border-gray-300 rounded-xl pl-12 pr-4 py-3 outline-none transition-colors focus:border-[#1495CC] focus:ring-2 focus:ring-[#1495CC]/30"
               />
             </div>
           </div>
@@ -195,21 +195,21 @@ function ManagerProfile() {
           {/* Role */}
 
           <div>
-            <label className="block mb-2 font-medium">
+            <label className="block mb-2 font-medium text-gray-900">
               Role
             </label>
 
             <div className="relative">
               <Shield
                 size={18}
-                className="absolute left-3 top-3 text-gray-400"
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
               />
 
               <input
                 type="text"
                 value={formData.role}
                 disabled
-                className="w-full border rounded-lg pl-10 p-3 bg-gray-100"
+                className="w-full border border-gray-200 rounded-xl pl-12 pr-4 py-3 bg-gray-50 text-gray-500 cursor-not-allowed"
               />
             </div>
           </div>
@@ -218,7 +218,7 @@ function ManagerProfile() {
 
           <button
             type="submit"
-            className="flex items-center gap-2 bg-blue-600 text-white px-5 py-3 rounded-lg hover:bg-blue-700"
+            className="flex items-center gap-2 bg-[#1495CC] text-white px-6 py-3 rounded-xl font-semibold hover:bg-[#0E7AA8] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1495CC]/50 focus-visible:ring-offset-2"
           >
             <Save size={18} />
             Save Changes

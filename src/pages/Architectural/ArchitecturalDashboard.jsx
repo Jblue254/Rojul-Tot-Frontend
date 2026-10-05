@@ -102,7 +102,7 @@ export default function ArchitecturalDashboard() {
 
   if (loading) {
     return (
-      <div className="p-6">
+      <div className="text-gray-500">
         Loading dashboard...
       </div>
     );
@@ -111,8 +111,8 @@ export default function ArchitecturalDashboard() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold">
+      <div className="mb-2">
+        <h1 className="text-3xl font-bold text-gray-900">
           Architectural Dashboard
         </h1>
 
@@ -123,29 +123,29 @@ export default function ArchitecturalDashboard() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
         {cards.map((card) => {
           const Icon = card.icon;
 
           return (
             <div
               key={card.title}
-              className="bg-white border rounded-xl p-5 shadow-sm"
+              className="bg-white border border-gray-100 border-l-4 border-l-[#1495CC] rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow"
             >
-              <div className="flex justify-between items-center">
-                <div>
-                  <p className="text-sm text-gray-500">
+              <div className="flex justify-between items-center gap-3">
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-gray-500">
                     {card.title}
                   </p>
 
-                  <h2 className="text-2xl font-bold mt-2">
+                  <h2 className="text-2xl font-bold text-gray-900 mt-2 truncate">
                     {card.value}
                   </h2>
                 </div>
 
                 <Icon
-                  size={30}
-                  className="text-blue-600"
+                  size={22}
+                  className="shrink-0 p-2.5 rounded-xl bg-blue-50 text-[#1495CC] box-content"
                 />
               </div>
             </div>
@@ -154,34 +154,34 @@ export default function ArchitecturalDashboard() {
       </div>
 
       {/* Recent Orders */}
-      <div className="bg-white border rounded-xl shadow-sm">
-        <div className="p-5 border-b">
-          <h2 className="text-xl font-semibold">
+      <div className="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden">
+        <div className="p-5 border-b border-gray-100">
+          <h2 className="text-xl font-bold text-gray-900">
             Recent Orders
           </h2>
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full text-sm">
             <thead>
-              <tr className="bg-gray-50">
-                <th className="text-left p-4">
+              <tr className="bg-[#1495CC] text-white">
+                <th className="text-left px-4 py-3 font-semibold">
                   Order ID
                 </th>
 
-                <th className="text-left p-4">
+                <th className="text-left px-4 py-3 font-semibold">
                   Customer
                 </th>
 
-                <th className="text-left p-4">
+                <th className="text-left px-4 py-3 font-semibold">
                   Status
                 </th>
 
-                <th className="text-left p-4">
+                <th className="text-left px-4 py-3 font-semibold">
                   Amount
                 </th>
 
-                <th className="text-left p-4">
+                <th className="text-left px-4 py-3 font-semibold">
                   Date
                 </th>
               </tr>
@@ -192,27 +192,27 @@ export default function ArchitecturalDashboard() {
                 (order) => (
                   <tr
                     key={order.id}
-                    className="border-t"
+                    className="border-t border-gray-100 hover:bg-blue-50/40 transition-colors"
                   >
-                    <td className="p-4">
+                    <td className="px-4 py-3 text-gray-500">
                       #{order.id}
                     </td>
 
-                    <td className="p-4">
+                    <td className="px-4 py-3 font-medium text-gray-900">
                       {order.customer}
                     </td>
 
-                    <td className="p-4">
-                      <span className="px-2 py-1 rounded-full bg-gray-100 text-sm">
+                    <td className="px-4 py-3">
+                      <span className="px-2.5 py-1 rounded-full bg-blue-50 text-[#1495CC] text-xs font-medium whitespace-nowrap">
                         {order.status}
                       </span>
                     </td>
 
-                    <td className="p-4">
+                    <td className="px-4 py-3 font-medium text-gray-900">
                       ${order.total_amount}
                     </td>
 
-                    <td className="p-4">
+                    <td className="px-4 py-3 text-gray-700">
                       {new Date(
                         order.created_at
                       ).toLocaleDateString()}
@@ -225,7 +225,7 @@ export default function ArchitecturalDashboard() {
                 <tr>
                   <td
                     colSpan={5}
-                    className="text-center py-8 text-gray-500"
+                    className="text-center py-10 text-gray-500"
                   >
                     No recent orders found.
                   </td>
@@ -237,38 +237,38 @@ export default function ArchitecturalDashboard() {
       </div>
 
       {/* Drawing Status */}
-      <div className="bg-white border rounded-xl shadow-sm p-5">
-        <h2 className="text-xl font-semibold mb-4">
+      <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-5">
+        <h2 className="text-xl font-bold text-gray-900 mb-4">
           Drawing Status Summary
         </h2>
 
-        <div className="grid md:grid-cols-3 gap-4">
-          <div className="border rounded-lg p-4">
-            <p className="text-gray-500">
+        <div className="grid sm:grid-cols-3 gap-4">
+          <div className="bg-[#F8FAFC] border border-gray-100 rounded-xl p-4">
+            <p className="text-sm text-gray-500">
               Available
             </p>
 
-            <h3 className="text-3xl font-bold mt-2">
+            <h3 className="text-3xl font-bold text-green-600 mt-2">
               {dashboard.available_drawings}
             </h3>
           </div>
 
-          <div className="border rounded-lg p-4">
-            <p className="text-gray-500">
+          <div className="bg-[#F8FAFC] border border-gray-100 rounded-xl p-4">
+            <p className="text-sm text-gray-500">
               Sold Out
             </p>
 
-            <h3 className="text-3xl font-bold mt-2">
+            <h3 className="text-3xl font-bold text-orange-600 mt-2">
               {dashboard.sold_out_drawings}
             </h3>
           </div>
 
-          <div className="border rounded-lg p-4">
-            <p className="text-gray-500">
+          <div className="bg-[#F8FAFC] border border-gray-100 rounded-xl p-4">
+            <p className="text-sm text-gray-500">
               Inactive
             </p>
 
-            <h3 className="text-3xl font-bold mt-2">
+            <h3 className="text-3xl font-bold text-gray-700 mt-2">
               {dashboard.inactive_drawings}
             </h3>
           </div>

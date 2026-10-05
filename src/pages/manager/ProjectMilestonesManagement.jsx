@@ -195,54 +195,54 @@ function ProjectMilestonesManagement() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold mb-8">
+      <h1 className="text-3xl font-bold text-gray-900 mb-8">
         Project Milestones
       </h1>
 
       {/* Stats */}
 
-      <div className="grid md:grid-cols-4 gap-6 mb-8">
+      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
 
-        <div className="bg-white p-6 rounded-2xl shadow">
-          <p className="text-gray-500">
+        <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 border-l-4 border-l-[#1495CC]">
+          <p className="text-sm text-gray-500">
             Total
           </p>
 
-          <h2 className="text-3xl font-bold">
+          <h2 className="text-3xl font-bold text-gray-900 mt-1">
             {totalMilestones}
           </h2>
         </div>
 
-        <div className="bg-white p-6 rounded-2xl shadow">
-          <p className="text-gray-500">
+        <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 border-l-4 border-l-[#1495CC]">
+          <p className="text-sm text-gray-500">
             Completed
           </p>
 
-          <h2 className="text-3xl font-bold text-green-600">
+          <h2 className="text-3xl font-bold text-green-600 mt-1">
             {
               completedMilestones
             }
           </h2>
         </div>
 
-        <div className="bg-white p-6 rounded-2xl shadow">
-          <p className="text-gray-500">
+        <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 border-l-4 border-l-[#1495CC]">
+          <p className="text-sm text-gray-500">
             Pending
           </p>
 
-          <h2 className="text-3xl font-bold text-orange-600">
+          <h2 className="text-3xl font-bold text-orange-600 mt-1">
             {
               pendingMilestones
             }
           </h2>
         </div>
 
-        <div className="bg-white p-6 rounded-2xl shadow">
-          <p className="text-gray-500">
+        <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 border-l-4 border-l-[#1495CC]">
+          <p className="text-sm text-gray-500">
             Completion
           </p>
 
-          <h2 className="text-3xl font-bold">
+          <h2 className="text-3xl font-bold text-gray-900 mt-1">
             {completionRate}%
           </h2>
         </div>
@@ -251,15 +251,15 @@ function ProjectMilestonesManagement() {
 
       {/* Progress */}
 
-      <div className="bg-white p-6 rounded-2xl shadow mb-8">
-        <h2 className="font-semibold mb-4">
+      <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-6">
+        <h2 className="font-bold text-gray-900 mb-4">
           Progress
         </h2>
 
-        <div className="w-full bg-gray-200 rounded-full h-4">
+        <div className="w-full bg-gray-100 rounded-full h-3 overflow-hidden">
 
           <div
-            className="bg-blue-600 h-4 rounded-full"
+            className="bg-[#1495CC] h-3 rounded-full transition-all"
             style={{
               width: `${completionRate}%`,
             }}
@@ -270,7 +270,7 @@ function ProjectMilestonesManagement() {
 
       {/* Filter */}
 
-      <div className="bg-white p-6 rounded-2xl shadow mb-8">
+      <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 mb-6">
 
         <select
           value={
@@ -281,7 +281,7 @@ function ProjectMilestonesManagement() {
               e.target.value
             )
           }
-          className="border p-3 rounded-lg w-full"
+          className="w-full bg-white border border-gray-300 px-4 py-3 rounded-xl outline-none transition-colors focus:border-[#1495CC] focus:ring-2 focus:ring-[#1495CC]/30"
         >
           <option value="">
             All Projects
@@ -309,9 +309,9 @@ function ProjectMilestonesManagement() {
 
       {/* Form */}
 
-      <div className="bg-white p-6 rounded-2xl shadow mb-8">
+      <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-8">
 
-        <h2 className="text-xl font-semibold mb-4">
+        <h2 className="text-xl font-bold text-gray-900 mb-4">
           {editingId
             ? "Update Milestone"
             : "Create Milestone"}
@@ -333,7 +333,7 @@ function ProjectMilestonesManagement() {
               handleChange
             }
             required
-            className="border p-3 rounded-lg"
+            className="w-full bg-white border border-gray-300 px-4 py-3 rounded-xl outline-none transition-colors focus:border-[#1495CC] focus:ring-2 focus:ring-[#1495CC]/30"
           >
             <option value="">
               Select Project
@@ -367,7 +367,7 @@ function ProjectMilestonesManagement() {
               handleChange
             }
             required
-            className="border p-3 rounded-lg"
+            className="w-full border border-gray-300 px-4 py-3 rounded-xl outline-none transition-colors focus:border-[#1495CC] focus:ring-2 focus:ring-[#1495CC]/30"
           />
 
           <input
@@ -381,7 +381,7 @@ function ProjectMilestonesManagement() {
               handleChange
             }
             required
-            className="border p-3 rounded-lg md:col-span-2"
+            className="w-full border border-gray-300 px-4 py-3 rounded-xl outline-none transition-colors focus:border-[#1495CC] focus:ring-2 focus:ring-[#1495CC]/30 md:col-span-2"
           />
 
           <textarea
@@ -393,14 +393,14 @@ function ProjectMilestonesManagement() {
             onChange={
               handleChange
             }
-            className="border p-3 rounded-lg md:col-span-2"
+            className="w-full border border-gray-300 px-4 py-3 rounded-xl outline-none transition-colors focus:border-[#1495CC] focus:ring-2 focus:ring-[#1495CC]/30 resize-none md:col-span-2"
           />
 
           <div className="flex gap-3">
 
             <button
               type="submit"
-              className="bg-blue-600 text-white px-5 py-3 rounded-lg"
+              className="bg-[#1495CC] text-white px-6 py-3 rounded-xl font-semibold hover:bg-[#0E7AA8] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1495CC]/50 focus-visible:ring-offset-2"
             >
               {editingId
                 ? "Update"
@@ -413,7 +413,7 @@ function ProjectMilestonesManagement() {
                 onClick={
                   resetForm
                 }
-                className="bg-gray-500 text-white px-5 py-3 rounded-lg"
+                className="bg-gray-100 text-gray-700 px-6 py-3 rounded-xl font-medium hover:bg-gray-200 transition-colors"
               >
                 Cancel
               </button>
@@ -427,9 +427,9 @@ function ProjectMilestonesManagement() {
 
       {/* Upcoming */}
 
-      <div className="bg-white p-6 rounded-2xl shadow mb-8">
+      <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-8">
 
-        <h2 className="text-xl font-semibold mb-4">
+        <h2 className="text-xl font-bold text-gray-900 mb-4">
           Upcoming Milestones
         </h2>
 
@@ -439,9 +439,9 @@ function ProjectMilestonesManagement() {
               key={
                 milestone.id
               }
-              className="border-b py-3"
+              className="border-b border-gray-100 last:border-b-0 py-3"
             >
-              <p className="font-medium">
+              <p className="font-medium text-gray-900">
                 {
                   milestone.title
                 }
@@ -462,30 +462,32 @@ function ProjectMilestonesManagement() {
 
       {/* Table */}
 
-      <div className="bg-white p-6 rounded-2xl shadow overflow-x-auto">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
 
-        <table className="w-full">
+        <div className="overflow-x-auto">
+
+        <table className="w-full text-sm">
 
           <thead>
-            <tr className="border-b">
+            <tr className="bg-[#1495CC] text-white">
 
-              <th className="p-3 text-left">
+              <th className="px-4 py-3 text-left font-semibold">
                 Project
               </th>
 
-              <th className="p-3 text-left">
+              <th className="px-4 py-3 text-left font-semibold">
                 Title
               </th>
 
-              <th className="p-3 text-left">
+              <th className="px-4 py-3 text-left font-semibold">
                 Due Date
               </th>
 
-              <th className="p-3 text-left">
+              <th className="px-4 py-3 text-left font-semibold">
                 Status
               </th>
 
-              <th className="p-3 text-left">
+              <th className="px-4 py-3 text-left font-semibold">
                 Actions
               </th>
 
@@ -502,39 +504,41 @@ function ProjectMilestonesManagement() {
                   key={
                     milestone.id
                   }
-                  className="border-b"
+                  className="border-t border-gray-100 hover:bg-blue-50/40 transition-colors"
                 >
-                  <td className="p-3">
+                  <td className="px-4 py-3 font-medium text-gray-900">
                     {
                       milestone.project_name
                     }
                   </td>
 
-                  <td className="p-3">
+                  <td className="px-4 py-3 text-gray-700">
                     {
                       milestone.title
                     }
                   </td>
 
-                  <td className="p-3">
+                  <td className="px-4 py-3 whitespace-nowrap text-gray-700">
                     {
                       milestone.due_date
                     }
                   </td>
 
-                  <td className="p-3">
+                  <td className="px-4 py-3">
                     {milestone.completed ? (
-                      <span className="text-green-600 font-semibold">
+                      <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
                         Completed
                       </span>
                     ) : (
-                      <span className="text-orange-600 font-semibold">
+                      <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-700">
                         Pending
                       </span>
                     )}
                   </td>
 
-                  <td className="p-3 flex gap-2">
+                  <td className="px-4 py-3">
+
+                    <div className="flex gap-2">
 
                     {!milestone.completed && (
                       <button
@@ -543,7 +547,7 @@ function ProjectMilestonesManagement() {
                             milestone
                           )
                         }
-                        className="bg-green-600 text-white px-3 py-1 rounded"
+                        className="bg-green-600 text-white px-3 py-1.5 rounded-xl font-medium hover:bg-green-700 transition-colors"
                       >
                         Complete
                       </button>
@@ -555,7 +559,7 @@ function ProjectMilestonesManagement() {
                           milestone
                         )
                       }
-                      className="bg-yellow-500 text-white px-3 py-1 rounded"
+                      className="bg-blue-50 text-[#1495CC] px-3 py-1.5 rounded-xl font-medium hover:bg-blue-100 transition-colors"
                     >
                       Edit
                     </button>
@@ -566,10 +570,12 @@ function ProjectMilestonesManagement() {
                           milestone.id
                         )
                       }
-                      className="bg-red-600 text-white px-3 py-1 rounded"
+                      className="bg-red-50 text-red-600 px-3 py-1.5 rounded-xl font-medium hover:bg-red-100 hover:text-red-700 transition-colors"
                     >
                       Delete
                     </button>
+
+                    </div>
 
                   </td>
                 </tr>
@@ -579,6 +585,8 @@ function ProjectMilestonesManagement() {
           </tbody>
 
         </table>
+
+        </div>
 
       </div>
     </div>

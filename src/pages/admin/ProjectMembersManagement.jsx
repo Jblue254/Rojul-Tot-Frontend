@@ -108,15 +108,15 @@ function ProjectMembersManagement() {
     };
 
     return (
-        <div className="p-6">
+        <div>
             {/* Header & Controls */}
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                        <Users className="w-7 h-7 text-indigo-600" />
+                    <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
+                        <Users className="w-8 h-8 text-[#1495CC]" />
                         Project Members Management
                     </h1>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-gray-500 mt-2">
                         Manage workers and staff assigned to construction projects.
                     </p>
                 </div>
@@ -131,7 +131,7 @@ function ProjectMembersManagement() {
                         });
                         setShowModal(true);
                     }}
-                    className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition"
+                    className="flex items-center justify-center gap-2 bg-[#1495CC] text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-[#0E7AA8] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1495CC]/50 focus-visible:ring-offset-2"
                 >
                     <Plus className="w-4 h-4" />
                     New Member
@@ -144,94 +144,96 @@ function ProjectMembersManagement() {
                     Loading project members...
                 </div>
             ) : (
-                <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
-                    <table className="w-full text-left border-collapse">
-                        <thead>
-                            <tr className="bg-gray-50 border-b border-gray-200 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                                <th className="px-6 py-3">Project</th>
-                                <th className="px-6 py-3">Member Name</th>
-                                <th className="px-6 py-3">Phone</th>
-                                <th className="px-6 py-3">Role</th>
-                                <th className="px-6 py-3 text-right">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-200 text-sm">
-                            {members.length === 0 ? (
-                                <tr>
-                                    <td colSpan="5" className="text-center py-8 text-gray-500">
-                                        No project members found.
-                                    </td>
+                <div className="bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm">
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse">
+                            <thead>
+                                <tr className="bg-[#1495CC] text-white text-sm font-semibold">
+                                    <th className="px-4 py-3">Project</th>
+                                    <th className="px-4 py-3">Member Name</th>
+                                    <th className="px-4 py-3">Phone</th>
+                                    <th className="px-4 py-3">Role</th>
+                                    <th className="px-4 py-3 text-right">Actions</th>
                                 </tr>
-                            ) : (
-                                members.map((member) => (
-                                    <tr key={member.id} className="hover:bg-gray-50">
-                                        <td className="px-6 py-4 font-medium text-gray-900">
-                                            {member.project_name}
-                                        </td>
-                                        <td className="px-6 py-4 text-gray-800">
-                                            {member.full_name}
-                                        </td>
-                                        <td className="px-6 py-4 text-gray-600">
-                                            {member.phone || "N/A"}
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                                {member.role}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4 text-right">
-                                            <div className="flex items-center justify-end gap-2">
-                                                <button
-                                                    onClick={() => {
-                                                        setEditingMember(member);
-                                                        setFormData({
-                                                            project: member.project || "",
-                                                            full_name: member.full_name || "",
-                                                            phone: member.phone || "",
-                                                            role: member.role || "WORKER",
-                                                        });
-                                                        setShowModal(true);
-                                                    }}
-                                                    title="Edit Member"
-                                                    className="p-1 text-gray-400 hover:text-blue-600 transition"
-                                                >
-                                                    <Pencil className="w-4 h-4" />
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDelete(member)}
-                                                    title="Delete Member"
-                                                    className="p-1 text-gray-400 hover:text-red-600 transition"
-                                                >
-                                                    <Trash2 className="w-4 h-4" />
-                                                </button>
-                                            </div>
+                            </thead>
+                            <tbody className="divide-y divide-gray-100 text-sm">
+                                {members.length === 0 ? (
+                                    <tr>
+                                        <td colSpan="5" className="text-center py-10 text-gray-500">
+                                            No project members found.
                                         </td>
                                     </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
+                                ) : (
+                                    members.map((member) => (
+                                        <tr key={member.id} className="hover:bg-blue-50/40 transition-colors">
+                                            <td className="px-4 py-3 font-medium text-gray-900">
+                                                {member.project_name}
+                                            </td>
+                                            <td className="px-4 py-3 text-gray-800">
+                                                {member.full_name}
+                                            </td>
+                                            <td className="px-4 py-3 text-gray-600">
+                                                {member.phone || "N/A"}
+                                            </td>
+                                            <td className="px-4 py-3">
+                                                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-50 text-[#1495CC] whitespace-nowrap">
+                                                    {member.role}
+                                                </span>
+                                            </td>
+                                            <td className="px-4 py-3 text-right">
+                                                <div className="flex items-center justify-end gap-1">
+                                                    <button
+                                                        onClick={() => {
+                                                            setEditingMember(member);
+                                                            setFormData({
+                                                                project: member.project || "",
+                                                                full_name: member.full_name || "",
+                                                                phone: member.phone || "",
+                                                                role: member.role || "WORKER",
+                                                            });
+                                                            setShowModal(true);
+                                                        }}
+                                                        title="Edit Member"
+                                                        className="p-2 rounded-xl text-[#1495CC] hover:bg-blue-50 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1495CC]/40"
+                                                    >
+                                                        <Pencil className="w-4 h-4" />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleDelete(member)}
+                                                        title="Delete Member"
+                                                        className="p-2 rounded-xl text-red-500 hover:bg-red-50 hover:text-red-700 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-red-300"
+                                                    >
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             )}
 
             {/* Modal */}
             {showModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-                    <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
-                        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-                            <h2 className="text-lg font-bold text-gray-900">
+                    <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+                        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+                            <h2 className="text-xl font-bold text-gray-900">
                                 {editingMember ? "Edit Project Member" : "Add Project Member"}
                             </h2>
                             <button
                                 onClick={() => setShowModal(false)}
-                                className="text-gray-400 hover:text-gray-600"
+                                className="p-1.5 rounded-xl text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
                             >
                                 <X className="w-5 h-5" />
                             </button>
                         </div>
                         <form onSubmit={handleSubmit} className="p-6 space-y-4">
                             <div>
-                                <label className="block text-xs font-medium text-gray-700 uppercase mb-1">
+                                <label className="block text-sm font-medium text-gray-900 mb-2">
                                     Project
                                 </label>
                                 <select
@@ -239,7 +241,7 @@ function ProjectMembersManagement() {
                                     required
                                     value={formData.project}
                                     onChange={handleChange}
-                                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-white"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm outline-none transition-colors focus:border-[#1495CC] focus:ring-2 focus:ring-[#1495CC]/30 bg-white"
                                 >
                                     <option value="">
                                         Select Project
@@ -256,7 +258,7 @@ function ProjectMembersManagement() {
                             </div>
 
                             <div>
-                                <label className="block text-xs font-medium text-gray-700 uppercase mb-1">
+                                <label className="block text-sm font-medium text-gray-900 mb-2">
                                     Name
                                 </label>
                                 <input
@@ -266,12 +268,12 @@ function ProjectMembersManagement() {
                                     placeholder="e.g. John Doe"
                                     value={formData.full_name}
                                     onChange={handleChange}
-                                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm outline-none transition-colors focus:border-[#1495CC] focus:ring-2 focus:ring-[#1495CC]/30"
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-xs font-medium text-gray-700 uppercase mb-1">
+                                <label className="block text-sm font-medium text-gray-900 mb-2">
                                     Phone
                                 </label>
                                 <input
@@ -280,19 +282,19 @@ function ProjectMembersManagement() {
                                     placeholder="e.g. +254700000000"
                                     value={formData.phone}
                                     onChange={handleChange}
-                                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm outline-none transition-colors focus:border-[#1495CC] focus:ring-2 focus:ring-[#1495CC]/30"
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-xs font-medium text-gray-700 uppercase mb-1">
+                                <label className="block text-sm font-medium text-gray-900 mb-2">
                                     Role
                                 </label>
                                 <select
                                     name="role"
                                     value={formData.role}
                                     onChange={handleChange}
-                                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-white"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm outline-none transition-colors focus:border-[#1495CC] focus:ring-2 focus:ring-[#1495CC]/30 bg-white"
                                 >
                                     {memberRoles.map((role) => (
                                         <option
@@ -308,17 +310,17 @@ function ProjectMembersManagement() {
                                 </select>
                             </div>
 
-                            <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-200">
+                            <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
                                 <button
                                     type="button"
                                     onClick={() => setShowModal(false)}
-                                    className="px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 transition"
+                                    className="px-5 py-2.5 bg-gray-100 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-200 transition-colors"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     type="submit"
-                                    className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition"
+                                    className="px-5 py-2.5 bg-[#1495CC] text-white rounded-xl text-sm font-semibold hover:bg-[#0E7AA8] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1495CC]/50 focus-visible:ring-offset-2"
                                 >
                                     {editingMember ? "Update Member" : "Create Member"}
                                 </button>

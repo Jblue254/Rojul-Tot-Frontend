@@ -95,26 +95,26 @@ function ArchitectOrders() {
 
   return (
     <div>
-      <div className="flex flex-col md:flex-row justify-between gap-4 mb-8">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-bold">
+          <h1 className="text-3xl font-bold text-gray-900">
             Orders Management
           </h1>
 
-          <p className="text-gray-500">
+          <p className="text-gray-500 mt-2">
             Manage drawing orders
           </p>
         </div>
 
         <button
           onClick={loadOrders}
-          className="bg-[#1495CC] text-white px-5 py-2 rounded-xl"
+          className="bg-[#1495CC] text-white px-6 py-2.5 rounded-xl font-semibold hover:bg-[#0E7AA8] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1495CC]/50 focus-visible:ring-offset-2"
         >
           Refresh
         </button>
       </div>
 
-      <div className="bg-white p-5 rounded-2xl shadow mb-6">
+      <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 mb-6">
         <div className="grid md:grid-cols-2 gap-4">
           <input
             type="text"
@@ -123,7 +123,7 @@ function ArchitectOrders() {
             onChange={(e) =>
               setSearch(e.target.value)
             }
-            className="border p-3 rounded-xl"
+            className="w-full border border-gray-300 px-4 py-3 rounded-xl outline-none transition-colors focus:border-[#1495CC] focus:ring-2 focus:ring-[#1495CC]/30"
           />
 
           <select
@@ -133,7 +133,7 @@ function ArchitectOrders() {
                 e.target.value
               )
             }
-            className="border p-3 rounded-xl"
+            className="w-full bg-white border border-gray-300 px-4 py-3 rounded-xl outline-none transition-colors focus:border-[#1495CC] focus:ring-2 focus:ring-[#1495CC]/30"
           >
             <option value="">
               All Statuses
@@ -163,12 +163,12 @@ function ArchitectOrders() {
       </div>
 
       {loading ? (
-        <div className="bg-white rounded-2xl p-10 text-center shadow">
+        <div className="bg-white rounded-2xl p-10 text-center shadow-sm border border-gray-100 text-gray-500">
           Loading orders...
         </div>
       ) : filteredOrders.length === 0 ? (
-        <div className="bg-white rounded-2xl p-10 text-center shadow">
-          <h2 className="text-xl font-semibold">
+        <div className="bg-white rounded-2xl p-10 text-center shadow-sm border border-gray-100">
+          <h2 className="text-xl font-bold text-gray-900">
             No Orders Found
           </h2>
 
@@ -181,11 +181,11 @@ function ArchitectOrders() {
           {filteredOrders.map((order) => (
             <div
               key={order.id}
-              className="bg-white shadow rounded-2xl p-6"
+              className="bg-white shadow-sm border border-gray-100 rounded-2xl p-6 hover:shadow-md transition-shadow"
             >
               <div className="flex flex-col lg:flex-row justify-between gap-4">
                 <div>
-                  <h2 className="font-bold text-xl">
+                  <h2 className="font-bold text-xl text-gray-900">
                     Order #{order.id}
                   </h2>
 
@@ -208,7 +208,7 @@ function ArchitectOrders() {
 
                 <div>
                   <span
-                    className={`px-4 py-2 rounded-full text-sm font-medium ${statusColor(
+                    className={`inline-block px-4 py-1.5 rounded-full text-sm font-medium ${statusColor(
                       order.status
                     )}`}
                   >
@@ -219,7 +219,7 @@ function ArchitectOrders() {
 
               {order.items?.length > 0 && (
                 <div className="mt-5">
-                  <h3 className="font-semibold mb-3">
+                  <h3 className="font-semibold text-gray-900 mb-3">
                     Items
                   </h3>
 
@@ -228,7 +228,7 @@ function ArchitectOrders() {
                       (item) => (
                         <div
                           key={item.id}
-                          className="bg-gray-50 rounded-xl p-3 flex justify-between"
+                          className="bg-[#F8FAFC] border border-gray-100 rounded-xl p-3 flex justify-between gap-3 text-gray-700"
                         >
                           <span>
                             {
@@ -236,7 +236,7 @@ function ArchitectOrders() {
                             }
                           </span>
 
-                          <span>
+                          <span className="shrink-0">
                             Qty:
                             {" "}
                             {
@@ -250,7 +250,7 @@ function ArchitectOrders() {
                 </div>
               )}
 
-              <div className="flex flex-wrap gap-2 mt-6">
+              <div className="flex flex-wrap gap-2 mt-6 pt-5 border-t border-gray-100">
                 <button
                   onClick={() =>
                     handleStatusUpdate(
@@ -258,7 +258,7 @@ function ArchitectOrders() {
                       "PAID"
                     )
                   }
-                  className="bg-blue-500 text-white px-4 py-2 rounded-lg"
+                  className="bg-[#1495CC] text-white px-4 py-2 rounded-xl font-medium hover:bg-[#0E7AA8] transition-colors"
                 >
                   Paid
                 </button>
@@ -270,7 +270,7 @@ function ArchitectOrders() {
                       "PROCESSING"
                     )
                   }
-                  className="bg-purple-500 text-white px-4 py-2 rounded-lg"
+                  className="bg-purple-600 text-white px-4 py-2 rounded-xl font-medium hover:bg-purple-700 transition-colors"
                 >
                   Processing
                 </button>
@@ -282,7 +282,7 @@ function ArchitectOrders() {
                       "COMPLETED"
                     )
                   }
-                  className="bg-green-500 text-white px-4 py-2 rounded-lg"
+                  className="bg-green-600 text-white px-4 py-2 rounded-xl font-medium hover:bg-green-700 transition-colors"
                 >
                   Complete
                 </button>
@@ -294,7 +294,7 @@ function ArchitectOrders() {
                       "CANCELLED"
                     )
                   }
-                  className="bg-red-500 text-white px-4 py-2 rounded-lg"
+                  className="bg-red-50 text-red-600 px-4 py-2 rounded-xl font-medium hover:bg-red-100 hover:text-red-700 transition-colors"
                 >
                   Cancel
                 </button>

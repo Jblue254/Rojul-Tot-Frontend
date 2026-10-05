@@ -91,7 +91,7 @@ export default function ArchitectReviews() {
 
   if (loading) {
     return (
-      <div className="p-6">
+      <div className="text-gray-500">
         Loading reviews...
       </div>
     );
@@ -100,8 +100,8 @@ export default function ArchitectReviews() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold">
+      <div className="mb-2">
+        <h1 className="text-3xl font-bold text-gray-900">
           Drawing Reviews
         </h1>
 
@@ -112,33 +112,33 @@ export default function ArchitectReviews() {
       </div>
 
       {/* Summary */}
-      <div className="grid md:grid-cols-3 gap-5">
-        <div className="bg-white border rounded-xl p-5">
-          <p className="text-gray-500">
+      <div className="grid sm:grid-cols-3 gap-4">
+        <div className="bg-white border border-gray-100 border-l-4 border-l-[#1495CC] rounded-2xl shadow-sm p-5">
+          <p className="text-sm text-gray-500">
             Total Reviews
           </p>
 
-          <h2 className="text-3xl font-bold mt-2">
+          <h2 className="text-3xl font-bold text-gray-900 mt-1">
             {filteredReviews.length}
           </h2>
         </div>
 
-        <div className="bg-white border rounded-xl p-5">
-          <p className="text-gray-500">
+        <div className="bg-white border border-gray-100 border-l-4 border-l-[#1495CC] rounded-2xl shadow-sm p-5">
+          <p className="text-sm text-gray-500">
             Average Rating
           </p>
 
-          <h2 className="text-3xl font-bold mt-2">
+          <h2 className="text-3xl font-bold text-gray-900 mt-1">
             {averageRating}
           </h2>
         </div>
 
-        <div className="bg-white border rounded-xl p-5">
-          <p className="text-gray-500">
+        <div className="bg-white border border-gray-100 border-l-4 border-l-[#1495CC] rounded-2xl shadow-sm p-5">
+          <p className="text-sm text-gray-500">
             Five Star Reviews
           </p>
 
-          <h2 className="text-3xl font-bold mt-2">
+          <h2 className="text-3xl font-bold text-gray-900 mt-1">
             {
               filteredReviews.filter(
                 (r) => r.rating === 5
@@ -149,12 +149,12 @@ export default function ArchitectReviews() {
       </div>
 
       {/* Filters */}
-      <div className="bg-white border rounded-xl p-5">
+      <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-5">
         <div className="grid md:grid-cols-2 gap-4">
           <div className="relative">
             <Search
               size={18}
-              className="absolute left-3 top-3 text-gray-400"
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
             />
 
             <input
@@ -167,7 +167,7 @@ export default function ArchitectReviews() {
                   search: e.target.value,
                 })
               }
-              className="w-full border rounded-lg pl-10 p-2"
+              className="w-full border border-gray-300 rounded-xl pl-12 pr-4 py-3 outline-none transition-colors focus:border-[#1495CC] focus:ring-2 focus:ring-[#1495CC]/30"
             />
           </div>
 
@@ -179,7 +179,7 @@ export default function ArchitectReviews() {
                 rating: e.target.value,
               })
             }
-            className="border rounded-lg p-2"
+            className="w-full bg-white border border-gray-300 rounded-xl px-4 py-3 outline-none transition-colors focus:border-[#1495CC] focus:ring-2 focus:ring-[#1495CC]/30"
           >
             <option value="">
               All Ratings
@@ -214,9 +214,9 @@ export default function ArchitectReviews() {
           (review) => (
             <div
               key={review.id}
-              className="bg-white border rounded-xl p-5"
+              className="bg-white border border-gray-100 rounded-2xl shadow-sm p-5 hover:shadow-md transition-shadow"
             >
-              <div className="flex justify-between items-start">
+              <div className="flex justify-between items-start gap-4">
                 <div>
                   <div className="flex items-center gap-2 mb-2">
                     <Star
@@ -224,7 +224,7 @@ export default function ArchitectReviews() {
                       className="text-yellow-500"
                     />
 
-                    <span className="font-semibold">
+                    <span className="font-semibold text-gray-900">
                       {review.rating}/5
                     </span>
                   </div>
@@ -241,10 +241,11 @@ export default function ArchitectReviews() {
                       review.id
                     )
                   }
-                  className="p-2 border rounded-lg hover:bg-red-50"
+                  aria-label="Delete review"
+                  className="p-2 rounded-xl text-red-500 hover:bg-red-50 hover:text-red-700 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-red-300"
                 >
                   <Trash2
-                    size={16}
+                    size={18}
                   />
                 </button>
               </div>
@@ -252,10 +253,10 @@ export default function ArchitectReviews() {
               <div className="mt-4 flex items-start gap-3">
                 <MessageSquare
                   size={18}
-                  className="text-gray-500 mt-1"
+                  className="text-[#1495CC] mt-1 shrink-0"
                 />
 
-                <p>
+                <p className="text-gray-700 break-words">
                   {review.comment ||
                     "No comment provided."}
                 </p>
@@ -272,7 +273,7 @@ export default function ArchitectReviews() {
         )}
 
         {!filteredReviews.length && (
-          <div className="bg-white border rounded-xl p-10 text-center text-gray-500">
+          <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-10 text-center text-gray-500">
             No reviews found.
           </div>
         )}

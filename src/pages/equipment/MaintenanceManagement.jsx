@@ -130,21 +130,21 @@ function MaintenanceManagement() {
     switch (status) {
       case "PENDING":
         return (
-          <span className="px-3 py-1 rounded-full text-sm bg-yellow-100 text-yellow-700">
+          <span className="px-2.5 py-1 rounded-full text-xs font-medium whitespace-nowrap bg-yellow-100 text-yellow-700">
             Pending
           </span>
         );
 
       case "IN_PROGRESS":
         return (
-          <span className="px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-700">
+          <span className="px-2.5 py-1 rounded-full text-xs font-medium whitespace-nowrap bg-blue-100 text-blue-700">
             In Progress
           </span>
         );
 
       case "COMPLETED":
         return (
-          <span className="px-3 py-1 rounded-full text-sm bg-green-100 text-green-700">
+          <span className="px-2.5 py-1 rounded-full text-xs font-medium whitespace-nowrap bg-green-100 text-green-700">
             Completed
           </span>
         );
@@ -157,15 +157,15 @@ function MaintenanceManagement() {
   return (
     <div>
 
-      <h1 className="text-3xl font-bold mb-6">
+      <h1 className="text-3xl font-bold text-gray-900 mb-8">
         Maintenance Management
       </h1>
 
       {/* Form */}
 
-      <div className="bg-white rounded-2xl shadow p-6 mb-8">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-8">
 
-        <h2 className="text-xl font-semibold mb-4">
+        <h2 className="text-xl font-bold text-gray-900 mb-4">
           {editingId
             ? "Update Maintenance Record"
             : "Create Maintenance Record"}
@@ -181,7 +181,7 @@ function MaintenanceManagement() {
             value={formData.machine}
             onChange={handleChange}
             required
-            className="border rounded-lg p-3"
+            className="w-full bg-white border border-gray-300 rounded-xl px-4 py-3 outline-none transition-colors focus:border-[#1495CC] focus:ring-2 focus:ring-[#1495CC]/30"
           >
             <option value="">
               Select Machine
@@ -204,7 +204,7 @@ function MaintenanceManagement() {
             value={formData.service_type}
             onChange={handleChange}
             required
-            className="border rounded-lg p-3"
+            className="w-full border border-gray-300 rounded-xl px-4 py-3 outline-none transition-colors focus:border-[#1495CC] focus:ring-2 focus:ring-[#1495CC]/30"
           />
 
           <input
@@ -215,14 +215,14 @@ function MaintenanceManagement() {
             value={formData.cost}
             onChange={handleChange}
             required
-            className="border rounded-lg p-3"
+            className="w-full border border-gray-300 rounded-xl px-4 py-3 outline-none transition-colors focus:border-[#1495CC] focus:ring-2 focus:ring-[#1495CC]/30"
           />
 
           <select
             name="status"
             value={formData.status}
             onChange={handleChange}
-            className="border rounded-lg p-3"
+            className="w-full bg-white border border-gray-300 rounded-xl px-4 py-3 outline-none transition-colors focus:border-[#1495CC] focus:ring-2 focus:ring-[#1495CC]/30"
           >
             <option value="PENDING">
               Pending
@@ -243,7 +243,7 @@ function MaintenanceManagement() {
             value={formData.service_date}
             onChange={handleChange}
             required
-            className="border rounded-lg p-3"
+            className="w-full border border-gray-300 rounded-xl px-4 py-3 outline-none transition-colors focus:border-[#1495CC] focus:ring-2 focus:ring-[#1495CC]/30"
           />
 
           <input
@@ -251,7 +251,7 @@ function MaintenanceManagement() {
             name="next_service_date"
             value={formData.next_service_date}
             onChange={handleChange}
-            className="border rounded-lg p-3"
+            className="w-full border border-gray-300 rounded-xl px-4 py-3 outline-none transition-colors focus:border-[#1495CC] focus:ring-2 focus:ring-[#1495CC]/30"
           />
 
           <textarea
@@ -260,14 +260,14 @@ function MaintenanceManagement() {
             placeholder="Description"
             value={formData.description}
             onChange={handleChange}
-            className="border rounded-lg p-3 md:col-span-2"
+            className="w-full border border-gray-300 rounded-xl px-4 py-3 outline-none transition-colors focus:border-[#1495CC] focus:ring-2 focus:ring-[#1495CC]/30 resize-none md:col-span-2"
           />
 
           <div className="md:col-span-2 flex gap-3">
 
             <button
               type="submit"
-              className="bg-blue-600 text-white px-5 py-3 rounded-lg"
+              className="bg-[#1495CC] text-white px-6 py-3 rounded-xl font-semibold hover:bg-[#0E7AA8] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1495CC]/50 focus-visible:ring-offset-2"
             >
               {editingId
                 ? "Update Record"
@@ -278,7 +278,7 @@ function MaintenanceManagement() {
               <button
                 type="button"
                 onClick={resetForm}
-                className="bg-gray-500 text-white px-5 py-3 rounded-lg"
+                className="bg-gray-100 text-gray-700 px-6 py-3 rounded-xl font-medium hover:bg-gray-200 transition-colors"
               >
                 Cancel
               </button>
@@ -292,38 +292,40 @@ function MaintenanceManagement() {
 
       {/* Table */}
 
-      <div className="bg-white rounded-2xl shadow overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
 
-        <table className="w-full">
+        <div className="overflow-x-auto">
 
-          <thead className="bg-gray-100">
+        <table className="w-full text-sm">
+
+          <thead className="bg-[#1495CC] text-white">
 
             <tr>
-              <th className="text-left p-4">
+              <th className="text-left px-4 py-3 font-semibold">
                 Machine
               </th>
 
-              <th className="text-left p-4">
+              <th className="text-left px-4 py-3 font-semibold">
                 Service Type
               </th>
 
-              <th className="text-left p-4">
+              <th className="text-left px-4 py-3 font-semibold">
                 Cost
               </th>
 
-              <th className="text-left p-4">
+              <th className="text-left px-4 py-3 font-semibold">
                 Service Date
               </th>
 
-              <th className="text-left p-4">
+              <th className="text-left px-4 py-3 font-semibold">
                 Next Service
               </th>
 
-              <th className="text-left p-4">
+              <th className="text-left px-4 py-3 font-semibold">
                 Status
               </th>
 
-              <th className="text-left p-4">
+              <th className="text-left px-4 py-3 font-semibold">
                 Actions
               </th>
             </tr>
@@ -335,45 +337,47 @@ function MaintenanceManagement() {
             {records.map((record) => (
               <tr
                 key={record.id}
-                className="border-t"
+                className="border-t border-gray-100 hover:bg-blue-50/40 transition-colors"
               >
-                <td className="p-4">
+                <td className="px-4 py-3 font-medium text-gray-900">
                   {record.machine_name}
                 </td>
 
-                <td className="p-4">
+                <td className="px-4 py-3 text-gray-700">
                   {record.service_type}
                 </td>
 
-                <td className="p-4">
+                <td className="px-4 py-3 whitespace-nowrap text-gray-700">
                   KES{" "}
                   {Number(
                     record.cost
                   ).toLocaleString()}
                 </td>
 
-                <td className="p-4">
+                <td className="px-4 py-3 whitespace-nowrap text-gray-700">
                   {record.service_date}
                 </td>
 
-                <td className="p-4">
+                <td className="px-4 py-3 whitespace-nowrap text-gray-700">
                   {record.next_service_date ||
                     "-"}
                 </td>
 
-                <td className="p-4">
+                <td className="px-4 py-3">
                   {getStatusBadge(
                     record.status
                   )}
                 </td>
 
-                <td className="p-4 flex gap-2">
+                <td className="px-4 py-3">
+
+                  <div className="flex gap-2">
 
                   <button
                     onClick={() =>
                       handleEdit(record)
                     }
-                    className="bg-yellow-500 text-white px-3 py-1 rounded"
+                    className="bg-blue-50 text-[#1495CC] px-3 py-1.5 rounded-xl font-medium hover:bg-blue-100 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1495CC]/40"
                   >
                     Edit
                   </button>
@@ -384,10 +388,12 @@ function MaintenanceManagement() {
                         record.id
                       )
                     }
-                    className="bg-red-600 text-white px-3 py-1 rounded"
+                    className="bg-red-50 text-red-600 px-3 py-1.5 rounded-xl font-medium hover:bg-red-100 hover:text-red-700 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-red-300"
                   >
                     Delete
                   </button>
+
+                  </div>
 
                 </td>
               </tr>
@@ -397,7 +403,7 @@ function MaintenanceManagement() {
               <tr>
                 <td
                   colSpan="7"
-                  className="text-center p-8 text-gray-500"
+                  className="text-center p-10 text-gray-500"
                 >
                   No maintenance records found.
                 </td>
@@ -407,6 +413,8 @@ function MaintenanceManagement() {
           </tbody>
 
         </table>
+
+        </div>
 
       </div>
 
