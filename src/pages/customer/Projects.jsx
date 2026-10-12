@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Plus, FolderKanban, X, Pencil, Trash2 } from "lucide-react";
 
 import {
@@ -9,6 +10,7 @@ import {
 } from "../../api/customerProjects";
 
 function Projects() {
+  const navigate = useNavigate();
   const [projects, setProjects] = useState([]);
   const [editingProject, setEditingProject] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -253,25 +255,32 @@ function Projects() {
                 {/* Customer Actions */}
 
                 <div className="flex flex-wrap gap-3 mt-5">
-
                   <button
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg"
+                    onClick={() =>
+                      navigate(`/customer/projects/${project.id}/milestones`)
+                    }
+                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
                   >
                     Milestones
                   </button>
 
                   <button
-                    className="px-4 py-2 bg-green-600 text-white rounded-lg"
+                    onClick={() =>
+                      navigate(`/customer/projects/${project.id}/gallery`)
+                    }
+                    className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg"
                   >
                     Gallery
                   </button>
 
                   <button
-                    className="px-4 py-2 bg-purple-600 text-white rounded-lg"
+                    onClick={() =>
+                      navigate(`/customer/projects/${project.id}/reviews`)
+                    }
+                    className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg"
                   >
                     Reviews
                   </button>
-
                 </div>
 
               </div>

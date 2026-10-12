@@ -43,6 +43,9 @@ import CustomerRentals from "./pages/customer/Rentals";
 import CustomerDrawings from "./pages/customer/Drawings";
 import CustomerProfile from "./pages/customer/Profile";
 import Notifications from "./pages/customer/Notifications";
+import ProjectMilestones from "./pages/customer/ProjectMilestones";
+import ProjectGallery from "./pages/customer/ProjectGallery";
+import ProjectReviews from "./pages/customer/ProjectReviews";
 
 // Manager
 import ManagerLayout from "./layouts/ManagerLayout";
@@ -193,6 +196,10 @@ function App() {
         >
           <Route index element={<CustomerDashboard />} />
           <Route path="projects" element={<CustomerProjects />} />
+          <Route path="projects" element={<CustomerProjects />} />
+          <Route path="projects/:id/milestones" element={<ProjectMilestones />} />
+          <Route path="projects/:id/gallery" element={<ProjectGallery />} />
+          <Route path="projects/:id/reviews" element={<ProjectReviews />} />
           <Route path="rentals" element={<CustomerRentals />} />
           <Route path="drawings" element={<CustomerDrawings />} />
           <Route path="notifications" element={<Notifications />} />
