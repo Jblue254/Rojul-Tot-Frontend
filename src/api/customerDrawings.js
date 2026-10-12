@@ -22,3 +22,21 @@ export const checkoutCart = () =>
 
 export const getOrders = () =>
   api.get("/orders/");
+
+export const downloadDrawing = async (itemId) => {
+  const response = await api.get(
+    `/orders/items/${itemId}/download/`,
+    { responseType: "blob" }
+  );
+
+  const blobUrl = window.URL.createObjectURL(response.data);
+  const link = document.createElement("a");
+
+  link.href = blobUrl;
+  link.download = "architectural-drawing";
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+
+  window.URL.revokeObjectURL(blobUrl);
+};

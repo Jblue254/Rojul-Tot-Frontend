@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Star } from "lucide-react";
 import { getReviews } from "../../api/reviews";
 
 function ManagerReviews() {
@@ -29,6 +30,13 @@ function ManagerReviews() {
           ) / reviews.length
         ).toFixed(1)
       : 0;
+
+  // Newest first (copy the array so state is not mutated)
+  const sortedReviews = [...reviews].sort(
+    (a, b) =>
+      (Date.parse(b.created_at) || 0) -
+      (Date.parse(a.created_at) || 0)
+  );
 
   if (loading) {
     return <p className="text-gray-500">Loading reviews...</p>;
@@ -62,8 +70,13 @@ function ManagerReviews() {
             Average Rating
           </p>
 
-          <h2 className="text-3xl font-bold text-gray-900 mt-1">
-            ⭐ {averageRating}
+          <h2 className="flex items-center gap-2 text-3xl font-bold text-gray-900 mt-1">
+            <Star
+              size={26}
+              className="text-yellow-500 fill-yellow-500"
+              aria-hidden="true"
+            />
+            {averageRating}
           </h2>
         </div>
 
@@ -110,13 +123,20 @@ function ManagerReviews() {
           </thead>
 
           <tbody>
-            {reviews.map((review) => (
+            {sortedReviews.map((review) => (
               <tr
                 key={review.id}
                 className="border-t border-gray-100 hover:bg-blue-50/40 transition-colors"
               >
                 <td className="px-4 py-3 whitespace-nowrap font-medium text-gray-900">
-                  ⭐ {review.rating}
+                  <span className="inline-flex items-center gap-1.5">
+                    <Star
+                      size={16}
+                      className="text-yellow-500 fill-yellow-500"
+                      aria-hidden="true"
+                    />
+                    {review.rating}
+                  </span>
                 </td>
 
                 <td className="px-4 py-3 text-gray-700">

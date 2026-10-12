@@ -103,6 +103,7 @@ function App() {
         >
           <Route index element={<AdminDashboard />} />
           <Route path="users" element={<UsersPage />} />
+          <Route path="maintenance" element={<MaintenanceManagement />} />
           <Route path="machines" element={<MachinesManagement />} />
           <Route path="categories" element={<CategoriesManagement />} />
           <Route path="drawings" element={<DrawingsManagement />} />

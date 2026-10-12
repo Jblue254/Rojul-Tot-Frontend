@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
+
 import {
   getDrawings,
   getOrders,
@@ -8,75 +9,204 @@ import {
   deleteCartItem,
   checkoutCart,
   getDrawingCategories,
+  downloadDrawing,
 } from "../../api/customerDrawings";
+  
+
+const BASE_URL = "https://rojul-tot.onrender.com";
+
+function getListData(data) {
+  if (Array.isArray(data)) return data;
+  if (Array.isArray(data?.results)) return data.results;
+  return [];
+}
+
+function getImageUrl(imagePath) {
+  if (!imagePath || typeof imagePath !== "string") return "";
+
+  try {
+    // Works with both absolute URLs and relative Django media paths.
+    return new URL(imagePath, `${BASE_URL}/`).href;
+  } catch {
+    return "";
+  }
+}
 
 function Drawings() {
   const [drawings, setDrawings] = useState([]);
   const [categories, setCategories] = useState([]);
   const [orders, setOrders] = useState([]);
   const [cart, setCart] = useState(null);
+
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("");
-
-  // Track which order rows are expanded to show purchased items
   const [expandedOrders, setExpandedOrders] = useState({});
+  const [loadingDrawings, setLoadingDrawings] = useState(true);
+  const [loadingCustomerData, setLoadingCustomerData] = useState(true);
+  const [busyDrawingId, setBusyDrawingId] = useState(null);
+  const [actionLoading, setActionLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
+    let cancelled = false;
+
+    async function loadCategories() {
+      try {
+        const response = await getDrawingCategories();
+
+        if (!cancelled) {
+          setCategories(getListData(response.data));
+        }
+      } catch (error) {
+        console.error(
+          "Failed to load drawing categories:",
+          error.response?.data || error
+        );
+      }
+    }
+
     loadCategories();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
-    loadData();
+    let cancelled = false;
+
+    async function loadDrawings() {
+      try {
+        setLoadingDrawings(true);
+        setErrorMessage("");
+
+        const response = await getDrawings({
+          search: search.trim(),
+          category,
+        });
+
+        if (!cancelled) {
+          setDrawings(getListData(response.data));
+        }
+      } catch (error) {
+        console.error(
+          "Failed to load drawings:",
+          error.response?.data || error
+        );
+
+        if (!cancelled) {
+          setDrawings([]);
+          setErrorMessage(
+            "Unable to load drawings. Please try again."
+          );
+        }
+      } finally {
+        if (!cancelled) {
+          setLoadingDrawings(false);
+        }
+      }
+    }
+
+    loadDrawings();
+
+    return () => {
+      cancelled = true;
+    };
   }, [search, category]);
 
-  const BASE_URL = "https://rojul-tot.onrender.com";
+  const loadCustomerData = async () => {
+    setLoadingCustomerData(true);
 
-  const loadCategories = async () => {
     try {
-      const response = await getDrawingCategories();
-      setCategories(response.data);
-    } catch (error) {
-      console.error("Failed to load categories", error);
-    }
-  };
+      const [ordersResponse, cartResponse] = await Promise.all([
+        getOrders(),
+        getCart(),
+      ]);
 
-  const loadData = async () => {
-    try {
-      const drawingsResponse = await getDrawings({
-        search,
-        category,
-      });
-
-      const ordersResponse = await getOrders();
-      const cartResponse = await getCart();
-
+      setOrders(getListData(ordersResponse.data));
       setCart(cartResponse.data);
-      setDrawings(drawingsResponse.data);
-      setOrders(ordersResponse.data);
     } catch (error) {
-      console.error(error);
+      console.error(
+        "Failed to load cart or orders:",
+        error.response?.data || error
+      );
+    } finally {
+      setLoadingCustomerData(false);
     }
   };
+
+  useEffect(() => {
+    loadCustomerData();
+  }, []);
 
   const handleAddToCart = async (drawing) => {
     try {
+      setBusyDrawingId(drawing.id);
+
       await addToCart({
         drawing: drawing.id,
         quantity: 1,
       });
 
-      alert("Added to cart");
-      await loadData();
+      await loadCustomerData();
+      alert("Drawing added to cart.");
     } catch (error) {
-      console.error(error);
-      alert("Failed to add to cart");
+      console.error(
+        "Failed to add drawing to cart:",
+        error.response?.data || error
+      );
+      alert(
+        error.response?.data?.detail ||
+          "Failed to add drawing to cart."
+      );
+    } finally {
+      setBusyDrawingId(null);
+    }
+  };
+
+  const handleRemoveFromCart = async (itemId) => {
+    try {
+      setActionLoading(true);
+
+      await deleteCartItem(itemId);
+      await loadCustomerData();
+    } catch (error) {
+      console.error(
+        "Failed to remove cart item:",
+        error.response?.data || error
+      );
+      alert("Failed to remove item from cart.");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleCheckout = async () => {
+    try {
+      setActionLoading(true);
+
+      await checkoutCart();
+      await loadCustomerData();
+
+      alert("Order created successfully.");
+    } catch (error) {
+      console.error(
+        "Checkout failed:",
+        error.response?.data || error
+      );
+      alert(
+        error.response?.data?.detail ||
+          "Checkout failed. Please try again."
+      );
+    } finally {
+      setActionLoading(false);
     }
   };
 
   const toggleOrderExpand = (orderId) => {
-    setExpandedOrders((prev) => ({
-      ...prev,
-      [orderId]: !prev[orderId],
+    setExpandedOrders((previous) => ({
+      ...previous,
+      [orderId]: !previous[orderId],
     }));
   };
 
@@ -103,24 +233,28 @@ function Drawings() {
         <h1 className="text-3xl font-bold">
           Architectural Drawings
         </h1>
+        <p className="mt-2 text-gray-600">
+          Browse architectural plans and add drawings to your cart.
+        </p>
       </div>
 
-      {/* Filters with Category Dropdown */}
-      <div className="grid md:grid-cols-2 gap-4">
+      {/* Search and category filters */}
+      <div className="grid gap-4 md:grid-cols-2">
         <input
           type="text"
           placeholder="Search drawings..."
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="border p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1495CC]"
+          onChange={(event) => setSearch(event.target.value)}
+          className="rounded-xl border p-3 focus:outline-none focus:ring-2 focus:ring-[#1495CC]"
         />
 
         <select
           value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          className="border p-3 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#1495CC]"
+          onChange={(event) => setCategory(event.target.value)}
+          className="rounded-xl border bg-white p-3 focus:outline-none focus:ring-2 focus:ring-[#1495CC]"
         >
           <option value="">All Categories</option>
+
           {categories.map((cat) => (
             <option key={cat.id} value={cat.id}>
               {cat.name}
@@ -129,62 +263,100 @@ function Drawings() {
         </select>
       </div>
 
-      {/* Drawings Grid */}
-      <div className="grid md:grid-cols-3 gap-6">
-        {drawings.map((drawing) => (
-          <div
-            key={drawing.id}
-            className="bg-white rounded-2xl shadow overflow-hidden flex flex-col justify-between"
-          >
-            {drawing.preview_image && (
-              <img
-                src={`${BASE_URL}${drawing.preview_image}`}
-                alt={drawing.title}
-                className="w-full h-56 object-cover"
-              />
-            )}
-
-            <div className="p-6 flex flex-col justify-between flex-grow">
-              <div>
-                <h2 className="text-xl font-bold">
-                  {drawing.title}
-                </h2>
-
-                <p className="text-gray-600 mt-2 text-sm">
-                  {drawing.description}
-                </p>
-
-                <p className="font-semibold mt-3 text-gray-800">
-                  KES {drawing.price}
-                </p>
-              </div>
-
-              <button
-                onClick={() => handleAddToCart(drawing)}
-                className="mt-4 w-full bg-[#1495CC] text-white py-2 rounded-xl font-medium hover:bg-[#1182b3] transition-colors"
-              >
-                Add To Cart
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Empty State */}
-      {drawings.length === 0 && (
-        <div className="bg-white p-8 rounded-2xl shadow text-center">
+      {/* Drawings */}
+      {loadingDrawings ? (
+        <p className="py-8 text-center text-gray-500">
+          Loading drawings...
+        </p>
+      ) : errorMessage ? (
+        <div className="rounded-xl bg-red-50 p-6 text-center text-red-700">
+          {errorMessage}
+        </div>
+      ) : drawings.length === 0 ? (
+        <div className="rounded-2xl bg-white p-8 text-center shadow">
           No drawings found.
+        </div>
+      ) : (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {drawings.map((drawing) => {
+            const imageUrl = getImageUrl(drawing.preview_image);
+
+            return (
+              <div
+                key={drawing.id}
+                className="flex flex-col justify-between overflow-hidden rounded-2xl bg-white shadow"
+              >
+                {imageUrl ? (
+                  <img
+                    src={imageUrl}
+                    alt={drawing.title || "Architectural drawing"}
+                    loading="lazy"
+                    onError={(event) => {
+                      console.error(
+                        "Drawing image failed to load:",
+                        {
+                          imagePath: drawing.preview_image,
+                          imageUrl: event.currentTarget.src,
+                        }
+                      );
+
+                      event.currentTarget.style.display = "none";
+                      event.currentTarget.nextElementSibling?.classList.remove(
+                        "hidden"
+                      );
+                    }}
+                    className="h-56 w-full object-cover"
+                  />
+                ) : null}
+
+                <div
+                  className={`flex h-56 w-full items-center justify-center bg-gray-100 text-sm text-gray-500 ${
+                    imageUrl ? "hidden" : ""
+                  }`}
+                >
+                  Preview image unavailable
+                </div>
+
+                <div className="flex flex-grow flex-col justify-between p-6">
+                  <div>
+                    <h2 className="text-xl font-bold">
+                      {drawing.title}
+                    </h2>
+
+                    <p className="mt-2 text-sm text-gray-600">
+                      {drawing.description}
+                    </p>
+
+                    <p className="mt-3 font-semibold text-gray-800">
+                      KES {drawing.price}
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    disabled={busyDrawingId === drawing.id}
+                    onClick={() => handleAddToCart(drawing)}
+                    className="mt-4 w-full rounded-xl bg-[#1495CC] py-2 font-medium text-white transition-colors hover:bg-[#1182b3] disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {busyDrawingId === drawing.id
+                      ? "Adding..."
+                      : "Add To Cart"}
+                  </button>
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
 
-      {/* My Cart */}
-      <div>
-        <h2 className="text-2xl font-bold mb-4">
-          My Cart
-        </h2>
+      {/* Shopping cart */}
+      <section>
+        <h2 className="mb-4 text-2xl font-bold">My Cart</h2>
 
-        <div className="bg-white rounded-2xl shadow p-6">
-          {!cart?.items?.length ? (
+        <div className="rounded-2xl bg-white p-6 shadow">
+          {loadingCustomerData && !cart ? (
+            <p className="text-gray-500">Loading cart...</p>
+          ) : !cart?.items?.length ? (
             <p className="text-gray-500">Your cart is empty.</p>
           ) : (
             <>
@@ -192,7 +364,7 @@ function Drawings() {
                 {cart.items.map((item) => (
                   <div
                     key={item.id}
-                    className="flex justify-between items-center border-b pb-4"
+                    className="flex items-center justify-between gap-4 border-b pb-4"
                   >
                     <div>
                       <h3 className="font-semibold">
@@ -209,15 +381,10 @@ function Drawings() {
                     </div>
 
                     <button
-                      onClick={async () => {
-                        try {
-                          await deleteCartItem(item.id);
-                          loadData();
-                        } catch (error) {
-                          console.error(error);
-                        }
-                      }}
-                      className="bg-red-500 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-red-600 transition-colors"
+                      type="button"
+                      disabled={actionLoading}
+                      onClick={() => handleRemoveFromCart(item.id)}
+                      className="rounded-lg bg-red-500 px-3 py-2 text-sm font-medium text-white hover:bg-red-600 disabled:opacity-60"
                     >
                       Remove
                     </button>
@@ -225,63 +392,68 @@ function Drawings() {
                 ))}
               </div>
 
-              <div className="mt-6 flex justify-between items-center pt-4 border-t">
+              <div className="mt-6 flex flex-wrap items-center justify-between gap-4 border-t pt-4">
                 <h3 className="text-xl font-bold">
                   Total: KES {cart.total_amount}
                 </h3>
 
                 <button
-                  onClick={async () => {
-                    try {
-                      await checkoutCart();
-                      alert("Order created successfully");
-                      loadData();
-                    } catch (error) {
-                      console.error(error);
-                      alert("Failed to checkout cart");
-                    }
-                  }}
-                  className="bg-green-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-green-700 transition-colors"
+                  type="button"
+                  disabled={actionLoading}
+                  onClick={handleCheckout}
+                  className="rounded-xl bg-green-600 px-6 py-3 font-semibold text-white hover:bg-green-700 disabled:opacity-60"
                 >
-                  Checkout
+                  {actionLoading ? "Processing..." : "Checkout"}
                 </button>
               </div>
             </>
           )}
         </div>
-      </div>
+      </section>
 
-      {/* My Orders with Expandable Items */}
-      <div>
-        <h2 className="text-2xl font-bold mb-4">
-          My Orders
-        </h2>
+      {/* Customer orders */}
+      <section>
+        <h2 className="mb-4 text-2xl font-bold">My Orders</h2>
 
-        {orders.length === 0 ? (
-          <div className="bg-white p-8 rounded-2xl shadow text-center text-gray-500">
+        {loadingCustomerData && orders.length === 0 ? (
+          <p className="text-gray-500">Loading orders...</p>
+        ) : orders.length === 0 ? (
+          <div className="rounded-2xl bg-white p-8 text-center text-gray-500 shadow">
             No orders found.
           </div>
         ) : (
           <div className="space-y-4">
             {orders.map((order) => {
               const isExpanded = expandedOrders[order.id];
+
               return (
-                <div key={order.id} className="bg-white p-6 rounded-2xl shadow">
-                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div
+                  key={order.id}
+                  className="rounded-2xl bg-white p-6 shadow"
+                >
+                  <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
                     <div>
-                      <h3 className="font-bold text-lg">Order #{order.id}</h3>
+                      <h3 className="text-lg font-bold">
+                        Order #{order.id}
+                      </h3>
+
                       <p className="text-sm text-gray-500">
-                        Date: {new Date(order.created_at).toLocaleDateString()}
+                        Date:{" "}
+                        {order.created_at
+                          ? new Date(
+                              order.created_at
+                            ).toLocaleDateString()
+                          : "Not available"}
                       </p>
                     </div>
 
-                    <div className="flex items-center gap-4">
+                    <div className="flex flex-wrap items-center gap-4">
                       <p className="font-bold text-gray-800">
                         KES {order.total_amount}
                       </p>
 
                       <span
-                        className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusClass(
+                        className={`rounded-full px-3 py-1 text-sm font-medium ${getStatusClass(
                           order.status
                         )}`}
                       >
@@ -289,34 +461,58 @@ function Drawings() {
                       </span>
 
                       <button
+                        type="button"
                         onClick={() => toggleOrderExpand(order.id)}
-                        className="flex items-center gap-1 text-sm text-[#1495CC] font-medium hover:underline ml-2"
+                        className="ml-2 flex items-center gap-1 text-sm font-medium text-[#1495CC] hover:underline"
                       >
                         {isExpanded ? "Hide Items" : "View Items"}
-                        {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+
+                        {isExpanded ? (
+                          <ChevronUp size={16} />
+                        ) : (
+                          <ChevronDown size={16} />
+                        )}
                       </button>
                     </div>
                   </div>
 
-                  {/* Expandable Order Items List */}
                   {isExpanded && (
-                    <div className="mt-4 pt-4 border-t border-gray-100 space-y-2">
-                      <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+                    <div className="mt-4 space-y-2 border-t border-gray-100 pt-4">
+                      <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-400">
                         Purchased Drawings
                       </p>
-                      {order.items?.map((item) => (
-                        <div
-                          key={item.id}
-                          className="flex justify-between items-center text-sm bg-gray-50 p-3 rounded-xl"
-                        >
-                          <span className="font-medium text-gray-700">
-                            {item.drawing_title}
-                          </span>
-                          <span className="text-gray-500">
-                            Qty: {item.quantity} × KES {item.unit_price}
-                          </span>
-                        </div>
-                      ))}
+
+                      {order.items?.length ? (
+                        order.items.map((item) => (
+                          <div
+                            key={item.id}
+                            className="flex items-center justify-between gap-4 rounded-xl bg-gray-50 p-3 text-sm"
+                          >
+                            <span className="font-medium text-gray-700">
+                              {item.drawing_title}
+                            </span>
+
+                            <div className="flex flex-wrap items-center justify-end gap-4">
+                              <span className="text-gray-500">
+                                Qty: {item.quantity} × KES{" "}
+                                {item.unit_price}
+                              </span>
+
+                              <button
+                                type="button"
+                                onClick={() => downloadDrawing(item.id)}
+                                className="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+                              >
+                                Download File
+                              </button>
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-sm text-gray-500">
+                          No item details available.
+                        </p>
+                      )}
                     </div>
                   )}
                 </div>
@@ -324,7 +520,7 @@ function Drawings() {
             })}
           </div>
         )}
-      </div>
+      </section>
     </div>
   );
 }

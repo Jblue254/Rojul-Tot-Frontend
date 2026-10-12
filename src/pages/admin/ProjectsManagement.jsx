@@ -52,7 +52,6 @@ const EMPTY_PROJECT = {
     start_date: "",
     expected_end_date: "",
     status: "PLANNING",
-    progress: 0,
     image: null,
 };
 
@@ -122,7 +121,7 @@ function ProjectsManagement() {
         try {
             const response = await getUsers();
             setManagers(
-                response.data.filter(
+                (Array.isArray(response.data) ? response.data : response.data?.results || []).filter(
                     (u) => u.role === "MANAGER" || u.role === "ADMIN"
                 )
             );
@@ -135,7 +134,7 @@ function ProjectsManagement() {
         try {
             setLoading(true);
             const response = await getProjects();
-            setProjects(response.data);
+            setProjects(Array.isArray(response.data) ? response.data : response.data?.results || []);
         } catch (error) {
             console.error("Error loading projects:", error);
         } finally {
@@ -146,7 +145,7 @@ function ProjectsManagement() {
     const loadMachines = async () => {
         try {
             const response = await getMachines();
-            setMachines(response.data);
+            setMachines(Array.isArray(response.data) ? response.data : response.data?.results || []);
         } catch (error) {
             console.error(error);
         }
@@ -155,7 +154,7 @@ function ProjectsManagement() {
     const loadAssignments = async () => {
         try {
             const response = await getProjectMachines();
-            setAssignments(response.data);
+            setAssignments(Array.isArray(response.data) ? response.data : response.data?.results || []);
         } catch (error) {
             console.error(error);
         }
@@ -164,7 +163,7 @@ function ProjectsManagement() {
     const loadMembers = async () => {
         try {
             const response = await getProjectMembers();
-            setMembers(response.data);
+            setMembers(Array.isArray(response.data) ? response.data : response.data?.results || []);
         } catch (error) {
             console.error(error);
         }
@@ -176,7 +175,7 @@ function ProjectsManagement() {
             const response =
                 await getProjectExpenses();
 
-            setExpenses(response.data);
+            setExpenses(Array.isArray(response.data) ? response.data : response.data?.results || []);
         } catch (error) {
             console.error(error);
         }
@@ -187,7 +186,7 @@ function ProjectsManagement() {
             const response =
                 await getProjectMilestones();
 
-            setMilestones(response.data);
+            setMilestones(Array.isArray(response.data) ? response.data : response.data?.results || []);
         } catch (error) {
             console.error(error);
         }
@@ -205,10 +204,10 @@ function ProjectsManagement() {
 
     // ---------- Helpers ----------
     const getAssignedMachines = (projectId) =>
-        assignments.filter((a) => a.project === projectId);
+        assignments.filter((a) => String(a.project) === String(projectId));
 
     const getAssignedMembers = (projectId) =>
-        members.filter((m) => m.project === projectId);
+        members.filter((m) => String(m.project) === String(projectId));
 
     const getManagerName = (project) => {
         if (project.manager_name) return project.manager_name;
@@ -250,7 +249,7 @@ function ProjectsManagement() {
         return expenses
             .filter(
                 (expense) =>
-                    expense.project === projectId
+                    String(expense.project) === String(projectId)
             )
             .reduce(
                 (sum, expense) =>
@@ -303,7 +302,7 @@ function ProjectsManagement() {
     const getProjectProgress = (projectId) => {
         const projectMilestones =
             milestones.filter(
-                (m) => m.project === projectId
+                (m) => String(m.project) === String(projectId)
             );
 
         if (!projectMilestones.length)
@@ -326,7 +325,7 @@ function ProjectsManagement() {
 
         setSelectedProjectMilestones(
             milestones.filter(
-                (m) => m.project === project.id
+                (m) => String(m.project) === String(project.id)
             )
         );
 
@@ -355,19 +354,14 @@ function ProjectsManagement() {
         ).length;
 
         let newStatus = "PLANNING";
-        let newProgress = 0;
 
         if (total > 0) {
-            newProgress = Math.round((done / total) * 100);
             newStatus = done === total ? "COMPLETED" : "ACTIVE";
         }
 
-        // Nothing changed, so skip the extra API call
-        if (
-            newStatus === current.status &&
-            newProgress === current.progress
-        )
-            return;
+        // Progress is derived from milestones in the UI, not stored on Project.
+        // Only persist when the project's status actually changes.
+        if (newStatus === current.status) return;
 
         try {
             await updateProject(current.id, {
@@ -379,7 +373,6 @@ function ProjectsManagement() {
                 start_date: current.start_date,
                 expected_end_date: current.expected_end_date,
                 status: newStatus,
-                progress: newProgress,
             });
 
             loadProjects();
@@ -588,19 +581,13 @@ function ProjectsManagement() {
             start_date: project.start_date || "",
             expected_end_date: project.expected_end_date || "",
             status: project.status || "PLANNING",
-            progress: getProjectProgress(project.id),
+            image: null,
         });
         setShowModal(true);
     };
 
     const handleQuickStatusUpdate = async (project, newStatus) => {
         try {
-            let newProgress = project.progress;
-            if (newStatus === "PLANNING") newProgress = 0;
-            else if (newStatus === "ACTIVE" && project.progress === 0)
-                newProgress = 25;
-            else if (newStatus === "COMPLETED") newProgress = 100;
-
             await updateProject(project.id, {
                 name: project.name,
                 description: project.description,
@@ -610,29 +597,17 @@ function ProjectsManagement() {
                 start_date: project.start_date,
                 expected_end_date: project.expected_end_date,
                 status: newStatus,
-                progress: newProgress,
             });
-            loadProjects();
+            await loadProjects();
         } catch (error) {
             console.error("Error updating status:", error);
-            alert("Failed to update status.");
+            showApiError(error);
         }
     };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData((prev) => {
-            const updated = { ...prev, [name]: value };
-
-            if (name === "status") {
-                if (value === "PLANNING" || value === "CANCELLED")
-                    updated.progress = 0;
-                else if (value === "ACTIVE" && Number(prev.progress) === 0)
-                    updated.progress = 25;
-                else if (value === "COMPLETED") updated.progress = 100;
-            }
-            return updated;
-        });
+        setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
     const handleSubmit = async (e) => {
@@ -640,14 +615,17 @@ function ProjectsManagement() {
         try {
             const data = new FormData();
 
-            Object.keys(formData).forEach((key) => {
-                if (
-                    formData[key] !== null &&
-                    formData[key] !== undefined
-                ) {
-                    data.append(key, formData[key]);
+            Object.entries(formData).forEach(([key, value]) => {
+                if (key === "progress" || key === "image") return;
+                if (value !== null && value !== undefined) {
+                    data.append(key, value);
                 }
             });
+
+            // Only upload an image when the user selected a new file.
+            if (formData.image instanceof File) {
+                data.append("image", formData.image);
+            }
 
             if (editingProject) {
                 await updateProject(editingProject.id, data);
@@ -657,8 +635,9 @@ function ProjectsManagement() {
 
             setShowModal(false);
             setEditingProject(null);
+            setFormData(EMPTY_PROJECT);
             setCurrentPage(1);
-            loadProjects();
+            await loadProjects();
         } catch (error) {
             console.error("Error saving project:", error);
             showApiError(error);
@@ -1009,7 +988,7 @@ function ProjectsManagement() {
                                                 {
                                                     milestones.filter(
                                                         (m) =>
-                                                            m.project === project.id &&
+                                                            String(m.project) === String(project.id) &&
                                                             m.completed
                                                     ).length
                                                 }
@@ -1017,7 +996,7 @@ function ProjectsManagement() {
                                                 {
                                                     milestones.filter(
                                                         (m) =>
-                                                            m.project === project.id
+                                                            String(m.project) === String(project.id)
                                                     ).length
                                                 }
                                             </td>
@@ -1034,11 +1013,11 @@ function ProjectsManagement() {
                                                 <div className="w-full bg-gray-200 rounded-full h-1.5 mt-2">
                                                     <div
                                                         className="bg-green-500 h-1.5 rounded-full transition-all duration-300"
-                                                        style={{ width: `${project.progress || 0}%` }}
+                                                        style={{ width: `${getProjectProgress(project.id)}%` }}
                                                     />
                                                 </div>
                                                 <p className="text-xs text-gray-500 mt-1">
-                                                    {project.progress || 0}%
+                                                    {getProjectProgress(project.id)}%
                                                 </p>
                                             </td>
 
@@ -1369,8 +1348,9 @@ function ProjectsManagement() {
                             >
                                 <option value="MATERIALS">Materials</option>
                                 <option value="LABOUR">Labour</option>
+                                <option value="MACHINERY">Machinery</option>
                                 <option value="TRANSPORT">Transport</option>
-                                <option value="EQUIPMENT">Equipment</option>
+                                <option value="FUEL">Fuel</option>
                                 <option value="OTHER">Other</option>
                             </select>
 
@@ -1561,7 +1541,7 @@ function ProjectsManagement() {
 
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Status (Auto-sets Progress)
+                                    Project Status
                                 </label>
                                 <select
                                     name="status"
@@ -1569,13 +1549,11 @@ function ProjectsManagement() {
                                     onChange={handleChange}
                                     className={inputCls}
                                 >
-                                    <option value="PLANNING">Planning (0%)</option>
-                                    <option value="ACTIVE">
-                                        Active ({formData.progress || 25}%)
-                                    </option>
-                                    <option value="ON_HOLD">On Hold ({formData.progress}%)</option>
-                                    <option value="COMPLETED">Completed (100%)</option>
-                                    <option value="CANCELLED">Cancelled (0%)</option>
+                                    <option value="PLANNING">Planning</option>
+                                    <option value="ACTIVE">Active</option>
+                                    <option value="ON_HOLD">On Hold</option>
+                                    <option value="COMPLETED">Completed</option>
+                                    <option value="CANCELLED">Cancelled</option>
                                 </select>
                             </div>
 
