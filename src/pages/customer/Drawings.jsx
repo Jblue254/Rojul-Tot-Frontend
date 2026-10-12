@@ -11,7 +11,10 @@ import {
   getDrawingCategories,
   downloadDrawing,
 } from "../../api/customerDrawings";
-  
+import {
+  initiatePayment,
+  getPaymentStatus,
+} from "../../api/payments";
 
 const BASE_URL = "https://rojul-tot.onrender.com";
 
@@ -46,6 +49,14 @@ function Drawings() {
   const [busyDrawingId, setBusyDrawingId] = useState(null);
   const [actionLoading, setActionLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+
+  // M-Pesa payment state
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [selectedOrderId, setSelectedOrderId] = useState(null);
+  const [paymentId, setPaymentId] = useState(null);
+  const [paymentStatus, setPaymentStatus] = useState("");
+  const [paymentMessage, setPaymentMessage] = useState("");
+  const [paymentLoading, setPaymentLoading] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -139,6 +150,75 @@ function Drawings() {
     loadCustomerData();
   }, []);
 
+  // Poll payment status every 4 seconds (up to 90 attempts = 6 minutes)
+  useEffect(() => {
+    if (
+      !paymentId ||
+      paymentStatus === "SUCCESS" ||
+      paymentStatus === "FAILED"
+    ) {
+      return;
+    }
+
+    let attempts = 0;
+    let timer;
+    let cancelled = false;
+
+    const checkStatus = async () => {
+      try {
+        const response = await getPaymentStatus(paymentId);
+        const result = response.data;
+
+        if (cancelled) return;
+
+        setPaymentStatus(result.status);
+
+        if (result.status === "SUCCESS") {
+          setPaymentMessage(
+            `Payment successful. Receipt: ${
+              result.receipt_number || "confirmed"
+            }`
+          );
+          await loadCustomerData();
+          return;
+        }
+
+        if (result.status === "FAILED") {
+          setPaymentMessage(
+            result.result_description ||
+              "Payment failed. Please try again."
+          );
+          return;
+        }
+
+        setPaymentMessage(
+          "Waiting for M-Pesa confirmation. Complete the prompt on your phone."
+        );
+      } catch (error) {
+        console.error("Payment status check failed:", error);
+      }
+
+      if (cancelled) return;
+
+      attempts += 1;
+
+      if (attempts < 90) {
+        timer = setTimeout(checkStatus, 4000);
+      } else {
+        setPaymentMessage(
+          "Still awaiting confirmation. Check My Orders before retrying payment."
+        );
+      }
+    };
+
+    timer = setTimeout(checkStatus, 4000);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [paymentId, paymentStatus]);
+
   const handleAddToCart = async (drawing) => {
     try {
       setBusyDrawingId(drawing.id);
@@ -184,22 +264,68 @@ function Drawings() {
   const handleCheckout = async () => {
     try {
       setActionLoading(true);
+      setPaymentMessage("");
 
-      await checkoutCart();
+      const response = await checkoutCart();
+      const order = response.data;
+
       await loadCustomerData();
 
-      alert("Order created successfully.");
+      setSelectedOrderId(order.id);
+      setPaymentId(null); // reset any previous payment attempt
+      setPaymentStatus("READY");
+      setPaymentMessage(
+        `Order #${order.id} created. Enter your M-Pesa number to pay KES ${order.total_amount}.`
+      );
     } catch (error) {
       console.error(
         "Checkout failed:",
         error.response?.data || error
       );
+
       alert(
         error.response?.data?.detail ||
           "Checkout failed. Please try again."
       );
     } finally {
       setActionLoading(false);
+    }
+  };
+
+  const handleMpesaPayment = async (orderId) => {
+    if (!phoneNumber.trim()) {
+      setPaymentMessage("Enter your M-Pesa phone number.");
+      return;
+    }
+
+    try {
+      setPaymentLoading(true);
+      setPaymentMessage("");
+
+      const response = await initiatePayment({
+        payment_type: "order",
+        item_id: orderId,
+        phone_number: phoneNumber.trim(),
+      });
+
+      setPaymentId(response.data.payment_id);
+      setPaymentStatus(response.data.status);
+      setPaymentMessage(
+        response.data.message ||
+          "Check your phone and complete the M-Pesa prompt."
+      );
+    } catch (error) {
+      console.error(
+        "M-Pesa initiation failed:",
+        error.response?.data || error
+      );
+
+      setPaymentMessage(
+        error.response?.data?.detail ||
+          "Could not start M-Pesa payment. Please try again."
+      );
+    } finally {
+      setPaymentLoading(false);
     }
   };
 
@@ -411,6 +537,48 @@ function Drawings() {
         </div>
       </section>
 
+      {/* M-Pesa payment */}
+      {selectedOrderId && paymentStatus !== "SUCCESS" && (
+        <section className="rounded-2xl bg-white p-6 shadow">
+          <h2 className="text-2xl font-bold">Pay with M-Pesa</h2>
+
+          <p className="mt-2 text-gray-600">
+            Order #{selectedOrderId}
+          </p>
+
+          <label className="mt-4 block text-sm font-medium">
+            M-Pesa phone number
+          </label>
+
+          <input
+            type="tel"
+            value={phoneNumber}
+            onChange={(event) => setPhoneNumber(event.target.value)}
+            placeholder="0712345678"
+            className="mt-2 w-full rounded-xl border p-3"
+          />
+
+          <button
+            type="button"
+            disabled={paymentLoading || paymentStatus === "PENDING"}
+            onClick={() => handleMpesaPayment(selectedOrderId)}
+            className="mt-4 rounded-xl bg-green-600 px-6 py-3 font-semibold text-white hover:bg-green-700 disabled:opacity-60"
+          >
+            {paymentLoading
+              ? "Starting payment..."
+              : paymentStatus === "PENDING"
+                ? "Waiting for payment..."
+                : "Send M-Pesa Prompt"}
+          </button>
+
+          {paymentMessage && (
+            <p className="mt-4 text-sm text-gray-700" role="status">
+              {paymentMessage}
+            </p>
+          )}
+        </section>
+      )}
+
       {/* Customer orders */}
       <section>
         <h2 className="mb-4 text-2xl font-bold">My Orders</h2>
@@ -459,6 +627,23 @@ function Drawings() {
                       >
                         {order.status}
                       </span>
+
+                      {order.status === "PENDING" && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedOrderId(order.id);
+                            setPaymentStatus("READY");
+                            setPaymentId(null);
+                            setPaymentMessage(
+                              `Pay for order #${order.id} using M-Pesa.`
+                            );
+                          }}
+                          className="rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-700"
+                        >
+                          Pay Now
+                        </button>
+                      )}
 
                       <button
                         type="button"

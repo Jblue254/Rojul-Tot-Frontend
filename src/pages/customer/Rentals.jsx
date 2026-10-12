@@ -1,5 +1,13 @@
 import { useEffect, useState } from "react";
-import { Search, X } from "lucide-react";
+import {
+  Search,
+  X,
+  Clock,
+  ThumbsUp,
+  Tractor,
+  CheckCircle2,
+  XCircle,
+} from "lucide-react";
 import {
   getMachines,
   getCategories,
@@ -7,13 +15,17 @@ import {
   createRental,
   deleteRental,
 } from "../../api/customerRentals";
+import {
+  initiatePayment,
+  getPaymentStatus,
+} from "../../api/payments";
 
 const statusIcons = {
-  PENDING: "⏳",
-  APPROVED: "👍",
-  ACTIVE: "🚜",
-  COMPLETED: "✅",
-  CANCELLED: "❌",
+  PENDING: Clock,
+  APPROVED: ThumbsUp,
+  ACTIVE: Tractor,
+  COMPLETED: CheckCircle2,
+  CANCELLED: XCircle,
 };
 
 function Rentals() {
@@ -26,6 +38,15 @@ function Rentals() {
   const [machines, setMachines] = useState([]);
   const [categories, setCategories] = useState([]);
   const [rentals, setRentals] = useState([]);
+
+  // M-Pesa payment state
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [selectedRentalId, setSelectedRentalId] = useState(null);
+  const [paymentId, setPaymentId] = useState(null);
+  const [paymentStatus, setPaymentStatus] = useState("");
+  const [paymentMessage, setPaymentMessage] = useState("");
+  const [paymentLoading, setPaymentLoading] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
 
   const [rentalData, setRentalData] = useState({
     start_date: "",
@@ -41,6 +62,72 @@ function Rentals() {
   useEffect(() => {
     loadData();
   }, [search, category, location]);
+
+  // Poll payment status every 4 seconds (up to 90 attempts)
+  useEffect(() => {
+    if (!paymentId) return;
+
+    let cancelled = false;
+    let timer;
+    let attempts = 0;
+
+    const pollStatus = async () => {
+      try {
+        const response = await getPaymentStatus(paymentId);
+
+        if (cancelled) return;
+
+        const payment = response.data;
+
+        if (payment.status === "SUCCESS") {
+          setPaymentStatus("SUCCESS");
+          setPaymentMessage(
+            `Payment successful. Receipt: ${
+              payment.receipt_number || "confirmed"
+            }`
+          );
+
+          await loadData();
+          return;
+        }
+
+        if (payment.status === "FAILED") {
+          setPaymentStatus("FAILED");
+          setPaymentMessage(
+            payment.result_description ||
+              "Payment failed. You can try again."
+          );
+          return;
+        }
+
+        setPaymentStatus(payment.status);
+        setPaymentMessage(
+          "Waiting for M-Pesa confirmation. Complete the prompt on your phone."
+        );
+      } catch (error) {
+        if (!cancelled) {
+          console.error("Could not check payment status:", error);
+        }
+      }
+
+      attempts += 1;
+
+      if (!cancelled && attempts < 90) {
+        timer = setTimeout(pollStatus, 4000);
+      } else if (!cancelled) {
+        setPaymentMessage(
+          "Confirmation is taking longer than expected. Check the status before retrying."
+        );
+      }
+    };
+
+    timer = setTimeout(pollStatus, 4000);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [paymentId]);
 
   const loadCategories = async () => {
     try {
@@ -77,12 +164,22 @@ function Rentals() {
     }
 
     try {
-      await createRental({
+      const response = await createRental({
         machine: selectedMachine.id,
         ...rentalData,
       });
 
-      alert("Rental request submitted successfully");
+      const newRental = response.data;
+
+      setSelectedRentalId(newRental.id);
+      setPaymentId(null);
+      setPaymentStatus("READY");
+      setPaymentMessage(
+        `Rental request #${newRental.id} created. You can pay using M-Pesa.`
+      );
+      setShowPaymentModal(true);
+
+      alert("Rental request submitted successfully. You can now pay with M-Pesa.");
 
       setShowModal(false);
       loadData();
@@ -105,6 +202,54 @@ function Rentals() {
       } else {
         alert("Failed to submit rental request.");
       }
+    }
+  };
+
+  const handleRentalPayment = async (rentalId) => {
+    if (!phoneNumber.trim()) {
+      setPaymentMessage("Enter your M-Pesa phone number.");
+      return;
+    }
+
+    try {
+      setPaymentLoading(true);
+      setPaymentMessage("");
+
+      const response = await initiatePayment({
+        payment_type: "rental",
+        item_id: rentalId,
+        phone_number: phoneNumber.trim(),
+      });
+
+      setPaymentId(response.data.payment_id);
+      setPaymentStatus(response.data.status);
+      setPaymentMessage(
+        response.data.message ||
+          "Check your phone and complete the M-Pesa prompt."
+      );
+    } catch (error) {
+      console.error(
+        "Rental payment error:",
+        error.response?.data || error
+      );
+
+      // If a payment is already pending, resume checking it.
+      const existingPaymentId = error.response?.data?.payment_id;
+
+      if (existingPaymentId) {
+        setPaymentId(existingPaymentId);
+        setPaymentStatus("PENDING");
+        setPaymentMessage(
+          "A payment attempt already exists. Checking its status."
+        );
+      } else {
+        setPaymentMessage(
+          error.response?.data?.detail ||
+            "Could not start payment. Please try again."
+        );
+      }
+    } finally {
+      setPaymentLoading(false);
     }
   };
 
@@ -316,7 +461,7 @@ function Rentals() {
                 </p>
 
                 <span
-                  className={`inline-block px-3 py-1 rounded-full text-sm font-medium mt-1 ${
+                  className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium mt-1 ${
                     rental.status === "PENDING"
                       ? "bg-yellow-100 text-yellow-700"
                       : rental.status === "APPROVED"
@@ -328,8 +473,30 @@ function Rentals() {
                       : "bg-red-100 text-red-700"
                   }`}
                 >
-                  {statusIcons[rental.status] || "❌"} {rental.status}
+                  {(() => {
+                    const StatusIcon = statusIcons[rental.status] || XCircle;
+                    return <StatusIcon size={14} />;
+                  })()}
+                  {rental.status}
                 </span>
+
+                {["PENDING", "APPROVED"].includes(rental.status) && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedRentalId(rental.id);
+                      setShowPaymentModal(true);
+                      setPaymentId(null);
+                      setPaymentStatus("READY");
+                      setPaymentMessage(
+                        `Pay KES ${rental.total_price} for rental #${rental.id}.`
+                      );
+                    }}
+                    className="mt-2 block rounded-lg bg-green-600 px-3 py-2 text-sm font-semibold text-white hover:bg-green-700"
+                  >
+                    Pay with M-Pesa
+                  </button>
+                )}
 
                 {rental.status === "PENDING" && (
                   <button
@@ -356,6 +523,83 @@ function Rentals() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* M-Pesa Payment Modal */}
+      {showPaymentModal && selectedRentalId && (
+        <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto relative">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-bold">Pay Rental with M-Pesa</h2>
+              <button
+                type="button"
+                onClick={() => setShowPaymentModal(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <p className="text-gray-600">
+              Rental #{selectedRentalId}
+            </p>
+
+            {paymentStatus === "SUCCESS" ? (
+              <>
+                {paymentMessage && (
+                  <p className="mt-4 text-sm text-green-700" role="status">
+                    {paymentMessage}
+                  </p>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => setShowPaymentModal(false)}
+                  className="mt-6 w-full rounded-xl bg-green-600 px-6 py-3 font-semibold text-white hover:bg-green-700"
+                >
+                  Done
+                </button>
+              </>
+            ) : (
+              <>
+                <label className="mt-4 block text-sm font-medium">
+                  M-Pesa phone number
+                </label>
+
+                <input
+                  type="tel"
+                  value={phoneNumber}
+                  onChange={(event) => setPhoneNumber(event.target.value)}
+                  placeholder="0712345678"
+                  className="mt-2 w-full rounded-xl border p-3"
+                />
+
+                <button
+                  type="button"
+                  disabled={
+                    paymentLoading ||
+                    paymentStatus === "PENDING" ||
+                    paymentStatus === "INITIATED"
+                  }
+                  onClick={() => handleRentalPayment(selectedRentalId)}
+                  className="mt-4 w-full rounded-xl bg-green-600 px-6 py-3 font-semibold text-white hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {paymentLoading
+                    ? "Starting payment..."
+                    : ["PENDING", "INITIATED"].includes(paymentStatus)
+                      ? "Waiting for confirmation..."
+                      : "Send M-Pesa Prompt"}
+                </button>
+
+                {paymentMessage && (
+                  <p className="mt-4 text-sm text-gray-700" role="status">
+                    {paymentMessage}
+                  </p>
+                )}
+              </>
+            )}
+          </div>
         </div>
       )}
 
