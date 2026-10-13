@@ -20,8 +20,8 @@ const EMPTY_FORM = {
 };
 
 const INFO_ITEMS = [
-    { icon: Phone, label: "Phone", value: "+254 700 000 000" },
-    { icon: Mail, label: "Email", value: "info@rojultot.com" },
+    { icon: Phone, label: "Phone", value: "+254 722 378 497" },
+    { icon: Mail, label: "Email", value: "rojultot21@gmail.com" },
     { icon: MapPin, label: "Location", value: "Eldoret, Kenya" },
     { icon: Clock, label: "Working Hours", value: "Mon - Sat: 8:00 AM - 6:00 PM" },
 ];
