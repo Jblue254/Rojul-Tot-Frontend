@@ -118,19 +118,22 @@ Do not add backend service-role keys to Vercel frontend variables.
 The screenshots below show the live Rojul Tot frontend interface.
 
 ### Home page
-![Rojul Tot home page](frontend_screenshots/home.png)
+<img width="950" height="418" alt="image" src="https://github.com/user-attachments/assets/a4a97d93-42d1-4e06-be67-591cf7e45f29" />
 
 ### Machinery listings
-![Rojul Tot machinery listings](frontend_screenshots/machines.png)
+<img width="957" height="350" alt="image" src="https://github.com/user-attachments/assets/0d9e81e0-c702-43a1-acfe-f1d3882b2f6e" />
+
 
 ### Drawings
-![Rojul Tot drawings page](frontend_screenshots/drawings.png)
+<img width="959" height="413" alt="image" src="https://github.com/user-attachments/assets/5e1dffc6-4987-4e5e-ae75-62fff9ed248a" />
 
 ### Projects
-![Rojul Tot projects page](frontend_screenshots/projects.png)
+<img width="959" height="413" alt="image" src="https://github.com/user-attachments/assets/b2249100-ec99-455f-89ca-0e84ded038e2" />
+
 
 ### Contact
-![Rojul Tot contact page](frontend_screenshots/contact.png)
+<img width="957" height="414" alt="image" src="https://github.com/user-attachments/assets/452d7549-95cc-4fb7-947c-5feb9674b1fd" />
+
 
 
 ---
