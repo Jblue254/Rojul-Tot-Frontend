@@ -1,16 +1,127 @@
-# React + Vite
+# Rojul Tot Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React and Vite frontend for the Rojul Tot construction machinery, drawings, projects, and related services platform.
 
-Currently, two official plugins are available:
+## Live deployment
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Live website:** https://rojul-tot-frontend.vercel.app/
+- **Backend API:** https://web-production-c75a0.up.railway.app/
+- **Frontend hosting:** Vercel
+- **Backend hosting:** Railway
+- **Image/document storage:** Supabase Storage
 
-## React Compiler
+## Technology
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- React
+- Vite
+- JavaScript (confirm exact language and dependencies in `package.json`)
 
-## Expanding the ESLint configuration
+## Local setup
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Run commands from the frontend directory containing `package.json`.
+
+### 1. Install Node.js
+
+Install a supported Node.js LTS version if needed.
+
+### 2. Install packages
+
+```bash
+npm install
+```
+
+### 3. Configure the API URL
+
+Check the source code for the exact environment variable used for the API base URL. Vite client-side variables normally start with `VITE_`.
+
+If the source uses `VITE_API_URL`, create `.env.local`:
+
+```dotenv
+VITE_API_URL=https://web-production-c75a0.up.railway.app
+```
+
+Use the variable name your code actually reads. Restart Vite after changing local environment variables.
+
+**Never put `SUPABASE_SERVICE_ROLE_KEY` or other private secrets in frontend variables.** `VITE_` variables are visible to browser visitors.
+
+### 4. Start the development server
+
+```bash
+npm run dev
+```
+
+Vite prints the local URL, commonly `http://localhost:5173/`.
+
+### 5. Build and preview
+
+```bash
+npm run build
+npm run preview
+```
+
+Use the scripts defined in `package.json` if they differ.
+
+## Backend connection
+
+API base URL:
+```text
+https://web-production-c75a0.up.railway.app
+```
+
+Confirmed public endpoints:
+- `GET /api/machinery/public/`
+- `GET /api/drawings/public/`
+
+Other routes may require authentication. Handle missing/expired credentials separately from server errors.
+
+## Supabase images and documents
+
+Buckets used by the backend:
+
+- `machinery-images` — public
+- `project-images` — public
+- `drawing-previews` — public
+- `profile-images` — public
+- `drawing-files` — private
+
+Use image/preview fields returned by the API. If an image fails, open the exact URL returned by the API and verify bucket, folder, filename, and access settings. `2_bedroom.jpg` and `2 bedroom.jpg` are different object names.
+
+Do not construct public URLs for private drawing documents. Use the backend's authenticated purchase/download flow.
+
+## Deploying to Vercel
+
+1. Push frontend changes to the repository connected to Vercel.
+2. Configure the API URL variable expected by the source code (for example, `VITE_API_URL`).
+3. Apply it to the required Vercel environments.
+4. Redeploy after changing environment variables.
+5. Test machinery, drawings, projects, authentication, and other important workflows.
+
+Do not add backend service-role keys to Vercel frontend variables.
+
+## Troubleshooting
+
+- **API data missing:** Check browser console/Network tab, API base URL, route, authentication, and Railway status.
+- **Image missing:** Open the exact URL returned by the API; check `404`, `403`, filename, folder, and bucket access.
+- **Environment variable change has no effect:** Confirm the source uses that exact variable name, restart Vite, or redeploy Vercel.
+- **Build error:** Run `npm install` and `npm run build`, then inspect the first meaningful error.
+
+## Before committing
+
+- Keep `.env.local` and secrets out of Git.
+- Never commit service-role keys, tokens, or payment secrets.
+- Run `npm run build` before deploying.
+- Test the production website after deployment.
+
+---
+
+## Author and maintainer
+
+- **Name:** Japheth Kiprono
+- **Email:** japhethkiprono2020@gmail.com
+- **GitHub:** https://github.com/Jblue254/
+- **Live frontend:** https://rojul-tot-frontend.vercel.app/
+- **Live backend:** https://web-production-c75a0.up.railway.app/
+
+## MIT License
+
+Copyright (c) 2026 Japheth Kiprono
