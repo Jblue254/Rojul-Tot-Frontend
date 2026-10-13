@@ -112,6 +112,27 @@ Do not add backend service-role keys to Vercel frontend variables.
 - Run `npm run build` before deploying.
 - Test the production website after deployment.
 
+
+## Screenshots
+
+The screenshots below show the live Rojul Tot frontend interface.
+
+### Home page
+![Rojul Tot home page](frontend_screenshots/home.png)
+
+### Machinery listings
+![Rojul Tot machinery listings](frontend_screenshots/machines.png)
+
+### Drawings
+![Rojul Tot drawings page](frontend_screenshots/drawings.png)
+
+### Projects
+![Rojul Tot projects page](frontend_screenshots/projects.png)
+
+### Contact
+![Rojul Tot contact page](frontend_screenshots/contact.png)
+
+
 ---
 
 ## Author and maintainer
