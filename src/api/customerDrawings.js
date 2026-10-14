@@ -1,4 +1,3 @@
-
 import api from "./axios";
 
 // Drawings
@@ -36,7 +35,7 @@ export const downloadDrawing = async (itemId) => {
   const link = document.createElement("a");
 
   link.href = blobUrl;
-  link.download = `architectural-drawing-${itemId}`;
+  link.download = `architectural-drawing-${itemId}.pdf`;
   document.body.appendChild(link);
   link.click();
   link.remove();
