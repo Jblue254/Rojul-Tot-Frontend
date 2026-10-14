@@ -7,7 +7,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 
-import { getReviews } from "../../api/reviews";
+import { getProjectReviews } from "../../api/reviews";
 
 const extractReviews = (data) => {
   if (Array.isArray(data)) return data;
@@ -25,16 +25,10 @@ function ManagerReviews() {
     setError("");
 
     try {
-      const response = await getReviews();
-      const data = response.data;
-
-      if (!Array.isArray(data) && !Array.isArray(data?.results)) {
-        throw new Error("The server returned an unexpected reviews response.");
-      }
-
-      setReviews(extractReviews(data));
+      const response = await getProjectReviews();
+      setReviews(extractReviews(response.data));
     } catch (err) {
-      console.error("Failed to load manager reviews:", {
+      console.error("Failed to load project reviews:", {
         status: err.response?.status,
         data: err.response?.data,
         message: err.message,
@@ -67,7 +61,8 @@ function ManagerReviews() {
     totalReviews > 0
       ? (
           reviews.reduce(
-            (sum, review) => sum + (Number(review.rating) || 0),
+            (sum, review) =>
+              sum + (Number(review.rating) || 0),
             0
           ) / totalReviews
         ).toFixed(1)
@@ -92,7 +87,10 @@ function ManagerReviews() {
   };
 
   const renderStars = (rating) => {
-    const value = Math.min(5, Math.max(0, Number(rating) || 0));
+    const value = Math.min(
+      5,
+      Math.max(0, Number(rating) || 0)
+    );
 
     return (
       <span
@@ -113,6 +111,7 @@ function ManagerReviews() {
             />
           ))}
         </span>
+
         <span className="font-semibold text-gray-900">
           {value}/5
         </span>
@@ -122,7 +121,7 @@ function ManagerReviews() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {/* Page heading */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">
@@ -130,7 +129,7 @@ function ManagerReviews() {
           </h1>
 
           <p className="mt-2 text-gray-500">
-            Monitor customer feedback on your projects.
+            Monitor customer feedback on your construction projects.
           </p>
         </div>
 
@@ -149,7 +148,7 @@ function ManagerReviews() {
         </button>
       </div>
 
-      {/* Error */}
+      {/* Error message */}
       {error && (
         <div
           role="alert"
@@ -165,6 +164,7 @@ function ManagerReviews() {
             <p className="font-semibold">
               Could not load reviews
             </p>
+
             <p className="mt-1 whitespace-pre-wrap break-words text-sm">
               {error}
             </p>
@@ -178,9 +178,11 @@ function ManagerReviews() {
           <p className="text-sm font-medium text-gray-500">
             Total Reviews
           </p>
+
           <h2 className="mt-2 text-3xl font-bold text-gray-900">
             {loading && reviews.length === 0 ? "—" : totalReviews}
           </h2>
+
           <p className="mt-1 text-sm text-gray-500">
             Customer feedback received
           </p>
@@ -190,17 +192,21 @@ function ManagerReviews() {
           <p className="text-sm font-medium text-gray-500">
             Average Rating
           </p>
+
           <h2 className="mt-2 flex items-center gap-2 text-3xl font-bold text-gray-900">
             <Star
               size={27}
               className="fill-yellow-400 text-yellow-500"
               aria-hidden="true"
             />
+
             {loading && reviews.length === 0 ? "—" : averageRating}
+
             <span className="text-sm font-normal text-gray-500">
               / 5
             </span>
           </h2>
+
           <p className="mt-1 text-sm text-gray-500">
             Average customer score
           </p>
@@ -210,9 +216,11 @@ function ManagerReviews() {
           <p className="text-sm font-medium text-gray-500">
             5-Star Reviews
           </p>
+
           <h2 className="mt-2 text-3xl font-bold text-gray-900">
             {loading && reviews.length === 0 ? "—" : fiveStarReviews}
           </h2>
+
           <p className="mt-1 text-sm text-gray-500">
             {totalReviews > 0
               ? `${Math.round(
@@ -230,6 +238,7 @@ function ManagerReviews() {
             <h2 className="font-bold text-gray-900">
               Customer Feedback
             </h2>
+
             <p className="mt-1 text-sm text-gray-500">
               Latest reviews appear first.
             </p>
@@ -259,7 +268,9 @@ function ManagerReviews() {
               className="mx-auto mb-3 text-gray-300"
               aria-hidden="true"
             />
+
             <p>Reviews could not be displayed.</p>
+
             <p className="mt-1 text-sm">
               Use Refresh Reviews to try again.
             </p>
@@ -277,7 +288,7 @@ function ManagerReviews() {
             </h3>
 
             <p className="mt-1 text-sm text-gray-500">
-              Reviews will appear here when they are returned by the API.
+              Project reviews will appear here when returned by the API.
             </p>
           </div>
         ) : (
@@ -288,15 +299,19 @@ function ManagerReviews() {
                   <th scope="col" className="px-4 py-3 font-semibold">
                     Customer
                   </th>
+
                   <th scope="col" className="px-4 py-3 font-semibold">
                     Rating
                   </th>
+
                   <th scope="col" className="px-4 py-3 font-semibold">
                     Comment
                   </th>
+
                   <th scope="col" className="px-4 py-3 font-semibold">
                     Project
                   </th>
+
                   <th scope="col" className="px-4 py-3 font-semibold">
                     Date
                   </th>
