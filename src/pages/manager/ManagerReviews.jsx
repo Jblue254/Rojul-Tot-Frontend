@@ -1,7 +1,19 @@
 
 import { useCallback, useEffect, useState } from "react";
-import { Star, MessageSquare, RefreshCw, AlertCircle } from "lucide-react";
+import {
+  Star,
+  MessageSquare,
+  RefreshCw,
+  AlertCircle,
+} from "lucide-react";
+
 import { getReviews } from "../../api/reviews";
+
+const extractReviews = (data) => {
+  if (Array.isArray(data)) return data;
+  if (Array.isArray(data?.results)) return data.results;
+  return [];
+};
 
 function ManagerReviews() {
   const [reviews, setReviews] = useState([]);
@@ -14,29 +26,26 @@ function ManagerReviews() {
 
     try {
       const response = await getReviews();
-
-      // Support either a plain array or Django REST Framework pagination.
       const data = response.data;
-      const reviewList = Array.isArray(data)
-        ? data
-        : Array.isArray(data?.results)
-          ? data.results
-          : null;
 
-      if (!reviewList) {
+      if (!Array.isArray(data) && !Array.isArray(data?.results)) {
         throw new Error("The server returned an unexpected reviews response.");
       }
 
-      setReviews(reviewList);
+      setReviews(extractReviews(data));
     } catch (err) {
-      console.error("Failed to load manager reviews:", err);
+      console.error("Failed to load manager reviews:", {
+        status: err.response?.status,
+        data: err.response?.data,
+        message: err.message,
+      });
+
       setError(
         err.response?.data?.detail ||
           err.response?.data?.message ||
           err.message ||
-          "Unable to load reviews. Please try again."
+          "Unable to retrieve customer reviews."
       );
-      setReviews([]);
     } finally {
       setLoading(false);
     }
@@ -46,11 +55,11 @@ function ManagerReviews() {
     loadReviews();
   }, [loadReviews]);
 
-  const sortedReviews = [...reviews].sort((a, b) => {
-    const dateA = Date.parse(a.created_at) || 0;
-    const dateB = Date.parse(b.created_at) || 0;
-    return dateB - dateA;
-  });
+  const sortedReviews = [...reviews].sort(
+    (a, b) =>
+      (Date.parse(b.created_at) || 0) -
+      (Date.parse(a.created_at) || 0)
+  );
 
   const totalReviews = reviews.length;
 
@@ -68,12 +77,12 @@ function ManagerReviews() {
     (review) => Number(review.rating) === 5
   ).length;
 
-  const formatDate = (dateString) => {
-    if (!dateString) return "-";
+  const formatDate = (value) => {
+    if (!value) return "—";
 
-    const date = new Date(dateString);
+    const date = new Date(value);
 
-    if (Number.isNaN(date.getTime())) return "-";
+    if (Number.isNaN(date.getTime())) return "—";
 
     return date.toLocaleDateString(undefined, {
       year: "numeric",
@@ -104,22 +113,24 @@ function ManagerReviews() {
             />
           ))}
         </span>
-        <span className="font-semibold text-gray-900">{value}/5</span>
+        <span className="font-semibold text-gray-900">
+          {value}/5
+        </span>
       </span>
     );
   };
 
   return (
     <div className="space-y-6">
-      {/* Page heading */}
+      {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+          <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">
             Manager Reviews
           </h1>
 
           <p className="mt-2 text-gray-500">
-            Review customer feedback for machinery and drawings.
+            Monitor customer feedback on your projects.
           </p>
         </div>
 
@@ -138,40 +149,35 @@ function ManagerReviews() {
         </button>
       </div>
 
-      {/* Error state */}
+      {/* Error */}
       {error && (
         <div
           role="alert"
-          className="flex flex-col gap-3 rounded-xl border border-red-200 bg-red-50 p-4 sm:flex-row sm:items-center sm:justify-between"
+          className="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-4 text-red-800"
         >
-          <div className="flex items-start gap-3">
-            <AlertCircle
-              size={21}
-              className="mt-0.5 shrink-0 text-red-600"
-              aria-hidden="true"
-            />
-            <div>
-              <p className="font-semibold text-red-800">
-                Could not load reviews
-              </p>
-              <p className="mt-1 text-sm text-red-700">{error}</p>
-            </div>
-          </div>
+          <AlertCircle
+            size={21}
+            className="mt-0.5 shrink-0"
+            aria-hidden="true"
+          />
 
-          <button
-            type="button"
-            onClick={loadReviews}
-            className="shrink-0 rounded-lg border border-red-300 px-3 py-2 text-sm font-semibold text-red-700 hover:bg-red-100"
-          >
-            Try again
-          </button>
+          <div className="min-w-0 flex-1">
+            <p className="font-semibold">
+              Could not load reviews
+            </p>
+            <p className="mt-1 whitespace-pre-wrap break-words text-sm">
+              {error}
+            </p>
+          </div>
         </div>
       )}
 
       {/* Summary cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
         <div className="rounded-2xl border border-gray-100 border-l-4 border-l-[#1495CC] bg-white p-5 shadow-sm">
-          <p className="text-sm font-medium text-gray-500">Total Reviews</p>
+          <p className="text-sm font-medium text-gray-500">
+            Total Reviews
+          </p>
           <h2 className="mt-2 text-3xl font-bold text-gray-900">
             {loading && reviews.length === 0 ? "—" : totalReviews}
           </h2>
@@ -181,7 +187,9 @@ function ManagerReviews() {
         </div>
 
         <div className="rounded-2xl border border-gray-100 border-l-4 border-l-yellow-400 bg-white p-5 shadow-sm">
-          <p className="text-sm font-medium text-gray-500">Average Rating</p>
+          <p className="text-sm font-medium text-gray-500">
+            Average Rating
+          </p>
           <h2 className="mt-2 flex items-center gap-2 text-3xl font-bold text-gray-900">
             <Star
               size={27}
@@ -189,31 +197,39 @@ function ManagerReviews() {
               aria-hidden="true"
             />
             {loading && reviews.length === 0 ? "—" : averageRating}
-            <span className="text-sm font-normal text-gray-500">/ 5</span>
+            <span className="text-sm font-normal text-gray-500">
+              / 5
+            </span>
           </h2>
           <p className="mt-1 text-sm text-gray-500">
-            Across all loaded reviews
+            Average customer score
           </p>
         </div>
 
         <div className="rounded-2xl border border-gray-100 border-l-4 border-l-green-500 bg-white p-5 shadow-sm sm:col-span-2 xl:col-span-1">
-          <p className="text-sm font-medium text-gray-500">5-Star Reviews</p>
+          <p className="text-sm font-medium text-gray-500">
+            5-Star Reviews
+          </p>
           <h2 className="mt-2 text-3xl font-bold text-gray-900">
             {loading && reviews.length === 0 ? "—" : fiveStarReviews}
           </h2>
           <p className="mt-1 text-sm text-gray-500">
             {totalReviews > 0
-              ? `${Math.round((fiveStarReviews / totalReviews) * 100)}% of loaded reviews`
-              : "No reviews available yet"}
+              ? `${Math.round(
+                  (fiveStarReviews / totalReviews) * 100
+                )}% of reviews`
+              : "No reviews available"}
           </p>
         </div>
       </div>
 
       {/* Reviews table */}
-      <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+      <section className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
         <div className="flex flex-col gap-1 border-b border-gray-100 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="font-bold text-gray-900">Customer Feedback</h2>
+            <h2 className="font-bold text-gray-900">
+              Customer Feedback
+            </h2>
             <p className="mt-1 text-sm text-gray-500">
               Latest reviews appear first.
             </p>
@@ -221,25 +237,32 @@ function ManagerReviews() {
 
           {!loading && !error && (
             <span className="text-sm text-gray-500">
-              {totalReviews} {totalReviews === 1 ? "review" : "reviews"}
+              {totalReviews}{" "}
+              {totalReviews === 1 ? "review" : "reviews"}
             </span>
           )}
         </div>
 
         {loading && reviews.length === 0 ? (
           <div className="flex items-center justify-center gap-3 px-5 py-12 text-gray-500">
-            <RefreshCw size={20} className="animate-spin" aria-hidden="true" />
+            <RefreshCw
+              size={20}
+              className="animate-spin"
+              aria-hidden="true"
+            />
             Loading customer reviews...
           </div>
         ) : error && reviews.length === 0 ? (
           <div className="px-5 py-12 text-center text-gray-500">
             <MessageSquare
-              size={34}
+              size={36}
               className="mx-auto mb-3 text-gray-300"
               aria-hidden="true"
             />
             <p>Reviews could not be displayed.</p>
-            <p className="mt-1 text-sm">Use Refresh Reviews to try again.</p>
+            <p className="mt-1 text-sm">
+              Use Refresh Reviews to try again.
+            </p>
           </div>
         ) : sortedReviews.length === 0 ? (
           <div className="px-5 py-12 text-center">
@@ -248,19 +271,23 @@ function ManagerReviews() {
               className="mx-auto mb-3 text-gray-300"
               aria-hidden="true"
             />
+
             <h3 className="font-semibold text-gray-800">
               No customer reviews yet
             </h3>
+
             <p className="mt-1 text-sm text-gray-500">
-              Reviews will appear here when they are returned by the reviews
-              API.
+              Reviews will appear here when they are returned by the API.
             </p>
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[850px] text-left text-sm">
+            <table className="w-full min-w-[800px] text-left text-sm">
               <thead className="bg-[#1495CC] text-white">
                 <tr>
+                  <th scope="col" className="px-4 py-3 font-semibold">
+                    Customer
+                  </th>
                   <th scope="col" className="px-4 py-3 font-semibold">
                     Rating
                   </th>
@@ -268,10 +295,7 @@ function ManagerReviews() {
                     Comment
                   </th>
                   <th scope="col" className="px-4 py-3 font-semibold">
-                    Machine
-                  </th>
-                  <th scope="col" className="px-4 py-3 font-semibold">
-                    Drawing
+                    Project
                   </th>
                   <th scope="col" className="px-4 py-3 font-semibold">
                     Date
@@ -285,29 +309,28 @@ function ManagerReviews() {
                     key={review.id}
                     className="transition-colors hover:bg-blue-50/40"
                   >
-                    <td className="whitespace-nowrap px-4 py-4 align-top">
+                    <td className="whitespace-nowrap px-4 py-4 align-top font-medium text-gray-900">
+                      {review.customer != null
+                        ? `Customer #${review.customer}`
+                        : "—"}
+                    </td>
+
+                    <td className="px-4 py-4 align-top">
                       {renderStars(review.rating)}
                     </td>
 
-                    <td className="max-w-sm whitespace-pre-wrap break-words px-4 py-4 text-gray-700">
-                      {review.comment?.trim() || (
-                        <span className="italic text-gray-400">
-                          No comment provided
-                        </span>
-                      )}
+                    <td className="max-w-sm whitespace-pre-wrap break-words px-4 py-4 align-top text-gray-700">
+                      {review.comment?.trim() || "No comment provided"}
                     </td>
 
-                    <td className="px-4 py-4 text-gray-700">
-                      {review.machine_name ||
-                        (review.machine ? `Machine #${review.machine}` : "—")}
+                    <td className="px-4 py-4 align-top text-gray-700">
+                      {review.project_name ||
+                        (review.project != null
+                          ? `Project #${review.project}`
+                          : "—")}
                     </td>
 
-                    <td className="px-4 py-4 text-gray-700">
-                      {review.drawing_title ||
-                        (review.drawing ? `Drawing #${review.drawing}` : "—")}
-                    </td>
-
-                    <td className="whitespace-nowrap px-4 py-4 text-gray-600">
+                    <td className="whitespace-nowrap px-4 py-4 align-top text-gray-600">
                       {formatDate(review.created_at)}
                     </td>
                   </tr>
@@ -316,7 +339,7 @@ function ManagerReviews() {
             </table>
           </div>
         )}
-      </div>
+      </section>
     </div>
   );
 }
