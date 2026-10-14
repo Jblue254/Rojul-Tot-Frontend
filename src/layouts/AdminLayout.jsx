@@ -17,6 +17,7 @@ import {
     Mail,
     Menu,
     X,
+    Star,
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -29,6 +30,7 @@ const NAV_ITEMS = [
     { to: "/admin/drawings", label: "Drawings", icon: ScrollText },
     { to: "/admin/drawing-categories", label: "Drawing Categories", icon: Layers },
     { to: "/admin/projects", label: "Projects", icon: FolderKanban },
+    { to: "/admin/reviews", label: "Reviews", icon: Star },
     { to: "/admin/project-members", label: "Project Members", icon: HardHat },
     { to: "/admin/notifications", label: "Notifications", icon: Bell },
     { to: "/admin/analytics", label: "Analytics", icon: BarChart3 },

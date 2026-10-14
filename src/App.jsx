@@ -111,6 +111,7 @@ function App() {
           <Route path="drawings" element={<DrawingsManagement />} />
           <Route path="drawing-categories" element={<DrawingCategoriesManagement />} />
           <Route path="projects" element={<ProjectsManagement />} />
+          <Route path="reviews" element={<ManagerReviews />} />
           <Route path="project-members" element={<ProjectMembersManagement />}/>
           <Route path="rentals" element={<ManagementsRentals />} />
           <Route path="analytics" element={<AnalyticsManagement />} />
