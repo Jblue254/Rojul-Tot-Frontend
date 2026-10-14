@@ -325,9 +325,10 @@ function ManagerReviews() {
                     className="transition-colors hover:bg-blue-50/40"
                   >
                     <td className="whitespace-nowrap px-4 py-4 align-top font-medium text-gray-900">
-                      {review.customer != null
-                        ? `Customer #${review.customer}`
-                        : "—"}
+                       {review.customer_name ||
+  (review.customer != null
+    ? `Customer #${review.customer}`
+    : "—")}
                     </td>
 
                     <td className="px-4 py-4 align-top">
